@@ -691,6 +691,8 @@ export default function PatientManagementModule() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento *</label>
               <input
                 type="date"
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${formErrors.birthDate ? "border-red-500" : "border-gray-300"
+                  }`}
                 value={newPatientForm.birthDate} // debe estar en YYYY-MM-DD
                 onChange={(e) => {
                   setNewPatientForm({ ...newPatientForm, birthDate: e.target.value });
@@ -904,7 +906,7 @@ export default function PatientManagementModule() {
                     setFormErrors(newErrors)
                   }
                 }}
-                placeholder="(387)4624673"
+                placeholder="(XXX)XXXXX o similar"
               />
               {formErrors.phone && <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>}
               {newPatientForm.phone && /^$$\d{3}$$\d{7}$/.test(newPatientForm.phone) && (

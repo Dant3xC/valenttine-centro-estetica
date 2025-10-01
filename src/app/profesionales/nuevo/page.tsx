@@ -422,53 +422,66 @@ export default function NuevoProfesionalPage() {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-6">
+            {/* Breadcrumb */}
+            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
+                <button onClick={() => router.push('/profesionales')} className="text-purple-600 hover:text-purple-800">
+                Gestión de Profesionales
+                </button>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-purple-500 font-medium">Registrar nuevo profesional</span>
+            </div>
             {/* Header */}
-            <div className="mb-6 flex items-center justify-between">
+            <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-2xl font-semibold text-violet-800">Registrar nuevo profesional</h1>
-                    <p className="text-sm text-gray-500">Completá los datos y guardá el registro.</p>
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent mb-2">
+                        Registrar Nuevo Profesional
+                    </h2>
+                    <p className="text-gray-600 text-lg">Completá los datos y guardá el registro.</p>
                 </div>
-                <Link
-                    href="/profesionales"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800 hover:from-gray-300 hover:to-gray-400 shadow"
-                >
-                    Volver
-                </Link>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
                 {/* DATOS PERSONALES */}
-                <section className="bg-white/70 backdrop-blur rounded-2xl shadow p-5">
-                    <h2 className="text-violet-700 font-semibold mb-4">Datos Personales</h2>
+                <section className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20">
+                    <h2 className="text-2xl font-bold text-purple-800 mb-6">Datos Personales</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Nombre */}
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">Nombre Completo *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo *</label>
                             <input
-                                className="w-full border rounded-xl px-3 py-2"
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.nombre ? "border-red-500" : "border-gray-300"
+                            }`}
                                 value={form.nombre}
                                 onChange={e => set('nombre', e.target.value)}
                                 onBlur={() => touch('nombre')}
+                                placeholder="Ingrese el nombre completo"
                             />
                             {show('nombre') && <p className="text-xs text-red-600 mt-1">{errors.nombre}</p>}
                         </div>
                         {/* Apellido */}
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">Apellido Completo *</label>
-                            <input 
-                                className="w-full border rounded-xl px-3 py-2" 
-                                value={form.apellido} 
-                                onChange={e => set('apellido', e.target.value)} 
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Apellido Completo *</label>
+                            <input
+                                type="text"
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.apellido ? "border-red-500" : "border-gray-300"
+                            }`}
+                                value={form.apellido}
+                                onChange={e => set('apellido', e.target.value)}
                                 onBlur={() => touch('apellido')}
+                                placeholder="Ingrese el apellido completo"
                             />
                             {show('apellido') && <p  className="text-xs text-red-600 mt-1">{errors.apellido}</p>}
                             {/*errors.apellido && <p className="text-xs text-red-600 mt-1">{errors.apellido}</p>*/}
                         </div>
                         {/* DNI */}
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">DNI *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">DNI *</label>
                             <input 
-                                className="w-full border rounded-xl px-3 py-2"
+                                type="text"
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.dni ? "border-red-500" : "border-gray-300"
+                                }`}
                                 value={form.dni} 
                                 onChange={e => set('dni', e.target.value.replace(/\D/g, '').slice(0, 8))} 
                                 onBlur={() => touch('dni')}
@@ -478,9 +491,11 @@ export default function NuevoProfesionalPage() {
                         </div>
                         {/* Fecha Nacimiento */}
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">Fecha de Nacimiento (DD/MM/AAAA) *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento (DD/MM/AAAA) *</label>
                             <input 
-                                className="w-full border rounded-xl px-3 py-2" 
+                                type="date"
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.fechaNacimiento ? "border-red-500" : "border-gray-300"
+                  }`}
                                 value={form.fechaNacimiento} 
                                 onChange={e => set('fechaNacimiento', e.target.value)} 
                                 onBlur={() => touch('fechaNacimiento')}
@@ -490,9 +505,10 @@ export default function NuevoProfesionalPage() {
                         </div>
                         {/* Género */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Género *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Género *</label>
                         <select
-                            className="w-full border rounded-xl px-3 py-2"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.genero ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.genero}
                             onChange={e => set('genero', e.target.value as FormState['genero'])}
                             onBlur={() => touch('genero')}
@@ -507,9 +523,10 @@ export default function NuevoProfesionalPage() {
 
                         {/* Estado Civil */}
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">Estado Civil *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Estado Civil *</label>
                             <select
-                                className="w-full border rounded-xl px-3 py-2"
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.estadoCivil ? "border-red-500" : "border-gray-300"
+                                }`}
                                 value={form.estadoCivil}
                                 onChange={e => set('estadoCivil', e.target.value as FormState['estadoCivil'])}
                                 onBlur={() => touch('estadoCivil')}
@@ -527,15 +544,17 @@ export default function NuevoProfesionalPage() {
                 </section>
 
                 {/* CONTACTO */}
-                <section className="bg-white/70 backdrop-blur rounded-2xl shadow p-5">
-                <h2 className="text-violet-700 font-semibold mb-4">Datos de Contacto</h2>
+                <section className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20">
+                <h2 className="text-2xl font-bold text-purple-800 mb-6">Datos de Contacto</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* País */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">País *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">País *</label>
                     <input
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.pais ? "border-red-500" : "border-gray-300"
+                        }`}
+                        type="text"
                         value={form.pais}
                         onChange={e => set('pais', e.target.value)}
                         onBlur={() => touch('pais')}
@@ -545,9 +564,10 @@ export default function NuevoProfesionalPage() {
 
                     {/* Provincia */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Provincia *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Provincia *</label>
                     <select
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.provinciaId ? "border-red-500" : "border-gray-300"
+                        }`}
                         value={form.provinciaId}
                         onChange={e => set('provinciaId', e.target.value)}
                         onBlur={() => touch('provinciaId')}
@@ -562,9 +582,10 @@ export default function NuevoProfesionalPage() {
 
                     {/* Localidad */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Localidad *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Localidad *</label>
                     <select
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.localidadId ? "border-red-500" : "border-gray-300"
+                        }`}
                         value={form.localidadId}
                         onChange={e => set('localidadId', e.target.value)}
                         onBlur={() => touch('localidadId')}
@@ -579,12 +600,14 @@ export default function NuevoProfesionalPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div className="block text-sm font-medium text-gray-700 mb-2">
                     {/* Barrio */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Barrio</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Barrio</label>
                     <input
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.barrio ? "border-red-500" : "border-gray-300"
+                        }`}
+                        type="text"
                         value={form.barrio}
                         onChange={e => set('barrio', e.target.value)}
                         onBlur={() => touch('barrio')}
@@ -594,9 +617,11 @@ export default function NuevoProfesionalPage() {
 
                     {/* Calle */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Calle *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Calle *</label>
                     <input
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.calle ? "border-red-500" : "border-gray-300"
+                        }`}
+                        type="text"
                         value={form.calle}
                         onChange={e => set('calle', e.target.value)}
                         onBlur={() => touch('calle')}
@@ -606,9 +631,11 @@ export default function NuevoProfesionalPage() {
 
                     {/* Número */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Número *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Número *</label>
                     <input
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.numero ? "border-red-500" : "border-gray-300"
+                        }`}
+                        type="text"
                         value={form.numero}
                         onChange={e => set('numero', e.target.value.replace(/\D/g, ''))}
                         onBlur={() => touch('numero')}
@@ -618,9 +645,11 @@ export default function NuevoProfesionalPage() {
 
                     {/* Celular */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Número de Celular (+54) *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Número de Celular (+54) *</label>
                     <input
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.celular ? "border-red-500" : "border-gray-300"
+                        }`}
+                        type="text"
                         value={form.celular}
                         onChange={e => set('celular', e.target.value)}
                         onBlur={() => touch('_celular')}
@@ -633,13 +662,14 @@ export default function NuevoProfesionalPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="block text-sm font-medium text-gray-700 mb-2">
                     {/* Email */}
                     <div>
-                    <label className="block text-sm text-gray-600 mb-1">Correo Electrónico *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico *</label>
                     <input
                         type="email"
-                        className="w-full border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.email ? "border-red-500" : "border-gray-300"
+                        }`}
                         value={form.email}
                         onChange={(e) => {
                         const v = e.target.value;
@@ -658,14 +688,15 @@ export default function NuevoProfesionalPage() {
                 </section>
 
                 {/* DATOS PROFESIONALES */}
-                <section className="bg-white/70 backdrop-blur rounded-2xl shadow p-5">
-                    <h2 className="text-violet-700 font-semibold mb-4">Datos Profesionales</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <section className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20">
+                    <h2 className="text-2xl font-bold text-purple-800 mb-6">Datos Profesionales</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Título Profesional */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Título Profesional *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Título Profesional *</label>
                         <input
-                            className="w-full border rounded-xl px-3 py-2"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.titulo ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.titulo}
                             onChange={e => set('titulo', e.target.value)}
                             onBlur={() => touch('titulo')}
@@ -675,9 +706,10 @@ export default function NuevoProfesionalPage() {
 
                         {/* Número de Matrícula */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Número de Matrícula *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Número de Matrícula *</label>
                         <input
-                            className="w-full border rounded-xl px-3 py-2"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.matricula ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.matricula}
                             onChange={e => set('matricula', e.target.value.replace(/\D/g, ''))}
                             onBlur={() => touch('matricula')}
@@ -687,9 +719,10 @@ export default function NuevoProfesionalPage() {
 
                         {/* Especialidad */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Especialidad *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Especialidad *</label>
                         <input
-                            className="w-full border rounded-xl px-3 py-2"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.especialidad ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.especialidad}
                             onChange={e => set('especialidad', e.target.value)}
                             onBlur={() => touch('especialidad')}
@@ -699,9 +732,10 @@ export default function NuevoProfesionalPage() {
 
                         {/* Universidad de Egreso */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Universidad de Egreso *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Universidad de Egreso *</label>
                         <input
-                            className="w-full border rounded-xl px-3 py-2"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.universidad ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.universidad}
                             onChange={e => set('universidad', e.target.value)}
                             onBlur={() => touch('universidad')}
@@ -711,9 +745,11 @@ export default function NuevoProfesionalPage() {
 
                         {/* Fecha de Graduación */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Fecha de Graduación (DD/MM/AAAA) *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Graduación (DD/MM/AAAA) *</label>
                         <input
-                            className="w-full border rounded-xl px-3 py-2"
+                            type="date"
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.fechaGraduacion ? "border-red-500" : "border-gray-300"
+                  }`}
                             value={form.fechaGraduacion}
                             onChange={e => set('fechaGraduacion', e.target.value)}
                             onBlur={() => touch('fechaGraduacion')}
@@ -727,14 +763,15 @@ export default function NuevoProfesionalPage() {
 
 
                 {/* DATOS LABORALES */}
-                <section className="bg-white/70 backdrop-blur rounded-2xl shadow p-5">
-                    <h2 className="text-violet-700 font-semibold mb-4">Datos Laborales</h2>
-
+                <section className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20">
+                    <h2 className="text-2xl font-bold text-purple-800 mb-6">Datos Laborales</h2>
+                    
                     {/* Obra Social */}
-                    <div className="mb-4">
-                        <label className="block text-sm text-gray-600 mb-1">Obra Social que recibe *</label>
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Obra Social que recibe *</label>
                         <select
-                        className="w-full md:w-1/2 border rounded-xl px-3 py-2"
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent ${form.obraSocialId ? "border-red-500" : "border-gray-300"
+                  }`}
                         value={form.obraSocialId}
                         onChange={e => { set('obraSocialId', e.target.value); }}
                         onBlur={() => touch('_obra')}
@@ -748,8 +785,8 @@ export default function NuevoProfesionalPage() {
                     </div>
 
                     {/* Prestaciones */}
-                    <div className="mb-4">
-                        <label className="block text-sm text-gray-600 mb-2">Servicios de Prestación *</label>
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Servicios de Prestación *</label>
                         <div
                         className="grid grid-cols-1 md:grid-cols-3 gap-2"
                         // por si navega con teclado y sale del contenedor
@@ -774,7 +811,7 @@ export default function NuevoProfesionalPage() {
 
                     {/* Horario de Trabajo */}
                     <div>
-                        <label className="block text-sm text-gray-600 mb-2">Horario de Trabajo *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Horario de Trabajo *</label>
                         <div className="space-y-2">
                         {form.horario.map((h, i) => (
                             <div key={h.day} className="flex items-center gap-3 border rounded-xl px-3 py-2">
@@ -810,13 +847,13 @@ export default function NuevoProfesionalPage() {
                 </section>
 
                 {/* USUARIO MÉDICO (opcional) */}
-                <section className="bg-white/70 backdrop-blur rounded-2xl shadow p-5">
-                    <h3 className="text-violet-700 font-semibold mb-3">Usuario médico</h3>
+                <section className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20">
+                    <h3 className="text-2xl font-bold text-purple-800 mb-6">Usuario médico</h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Usuario */}
                         <div>
-                        <label className="block text-sm text-gray-600 mb-1">Usuario *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Usuario *</label>
                         <input
                             className="w-full border rounded-xl px-3 py-2 bg-gray-50"
                             value={form.username}
