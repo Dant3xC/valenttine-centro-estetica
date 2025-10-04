@@ -74,7 +74,7 @@ export default function LoginPage() {
         if (nextPath) return router.replace(nextPath)
         if (data.role === 'RECEPCIONISTA') router.replace('/dashboard')
         else if (data.role === 'MEDICO')   router.replace('/dashboard')
-        else                                router.replace('/admin')
+        else                                router.replace('/dashboard')
       }, 5000)
     } catch {
       setError('No se pudo conectar con el servidor')

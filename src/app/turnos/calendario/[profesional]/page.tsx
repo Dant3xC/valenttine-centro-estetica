@@ -92,7 +92,7 @@ export default function CalendarPage() {
       <div className="flex gap-6">
         {/* izquierda */}
         <div className="w-80 flex-shrink-0">
-          <div className="bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl p-6 text-white mb-4">
+          <div className="bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl p-6 text-white mb-4">
             <h3 className="text-xl font-bold mb-2">Turno para</h3>
             <p className="text-lg">{profesional.nombreCompleto}</p>
             <p className="text-white/90">{profesional.especialidad}</p>
@@ -104,11 +104,11 @@ export default function CalendarPage() {
 
         {/* derecha */}
         <div className="flex-1">
-          <div className="bg-gray-600 rounded-t-2xl p-4 text-white flex items-center justify-between">
+          <div className="bg-purple-600 rounded-t-2xl p-4 text-white flex items-center justify-between">
             <h2 className="text-xl font-bold">Seleccione un Turno</h2>
             <label className="flex items-center gap-2 text-sm">
               <span className="opacity-90">Fecha</span>
-              <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="rounded-md px-2 py-1 text-gray-900" />
+              <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="rounded-md px-2 py-1 text-white-900" />
             </label>
           </div>
 

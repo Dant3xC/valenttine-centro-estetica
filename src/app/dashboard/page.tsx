@@ -13,9 +13,9 @@ type RoleKey = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE';
  */
 const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/Pacientes': ['RECEPCIONISTA', 'GERENTE'],
-  '/profesionales': ['RECEPCIONISTA', 'GERENTE'],
-  '/turnos': ['RECEPCIONISTA'],
-  '/specialist': ['MEDICO', 'GERENTE'],
+  '/profesionales': ['GERENTE'], 
+  '/turnos': ['RECEPCIONISTA', 'GERENTE'],
+  '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],
   // '/reception': ['RECEPCIONISTA', 'GERENTE'], // cuando exista, lo habilitás
 } as const;
@@ -42,7 +42,7 @@ const CARDS: Record<
     description: 'Programá y administrá citas rápidamente.',
     icon: '📅',
   },
-  '/specialist': {
+  '/historial': {
     title: 'Historia Clínica',
     description: 'Acceso a historias clínicas y evoluciones.',
     icon: '📋',
@@ -88,9 +88,7 @@ export default function DashboardHome() {
             key={card.href}
             href={card.href}
             aria-label={`Ir a ${card.title}`}
-            className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition
-                       hover:shadow-md focus-visible:outline-none focus-visible:ring-2
-                       focus-visible:ring-purple-500/60"
+            className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60"
           >
             <div className="text-3xl mb-4">{card.icon}</div>
             <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-purple-700">
