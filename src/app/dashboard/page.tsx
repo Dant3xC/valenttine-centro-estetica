@@ -13,7 +13,7 @@ type RoleKey = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE';
  */
 const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/Pacientes': ['RECEPCIONISTA', 'GERENTE'],
-  '/profesionales': ['RECEPCIONISTA', 'GERENTE'],  //modificar ,solo gerente
+  '/profesionales': ['GERENTE'], 
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
   '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],

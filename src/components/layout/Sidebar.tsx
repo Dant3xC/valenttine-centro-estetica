@@ -10,7 +10,7 @@ type RoleKey = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE';
 
 const ACL: Record<string, RoleKey[]> = {
   '/Pacientes':  ['RECEPCIONISTA', 'GERENTE'],
-  '/profesionales': ['RECEPCIONISTA', 'GERENTE'],
+  '/profesionales': ['GERENTE'],
   '/admin':      ['GERENTE'],
   '/turnos': ["RECEPCIONISTA", 'GERENTE'],
   //'/reception':  ['RECEPCIONISTA', 'GERENTE'], TODAVIA NO EXISTE
