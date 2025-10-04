@@ -28,6 +28,7 @@ interface FormState {
     healthInsurance: string // id
     memberNumber: string
     plan: string
+    estado: string
 }
 
 const GENEROS = [
@@ -42,6 +43,12 @@ const ESTADOS_CIVILES = [
     { value: 'DIVORCIADO', label: 'Divorciado/a' },
     { value: 'VIUDO', label: 'Viudo/a' },
     { value: 'UNION_LIBRE', label: 'Unión Libre / Convivencia' },
+] as const
+
+const ESTADOS_PACIENTE = [
+  { value: 'ACTIVO', label: 'Activo' },
+  { value: 'INACTIVO', label: 'Inactivo' },
+  { value: 'SUSPENDIDO', label: 'Suspendido' },
 ] as const
 
 function isoToYMD(iso?: string) {
@@ -120,6 +127,7 @@ export default function EditPacientePage() {
                     healthInsurance: String(p.obraSocial?.id ?? ''),
                     memberNumber: String(p.numeroSocio ?? ''),
                     plan: String(p.plan ?? ''),
+                    estado: p.estado ?? 'ACTIVO', // 👈 toma lo que venga de la BDD, default activo
                 }
                 setForm(mapped)
             } catch (e) {
@@ -190,7 +198,7 @@ export default function EditPacientePage() {
         if (!form.healthInsurance) e.healthInsurance = 'Obligatorio'
         if (!/^\d+$/.test(form.memberNumber)) e.memberNumber = 'Solo dígitos'
         if (!/^\d+$/.test(form.plan)) e.plan = 'Solo dígitos'
-
+        if (!form.estado) e.estado = 'Obligatorio'
         return e
     }
 
@@ -221,6 +229,7 @@ export default function EditPacientePage() {
             email: form.email.trim(),
             numeroSocio: form.memberNumber.trim(),
             plan: form.plan.trim(),
+            estado: form.estado,
         };
 
         // Solo agrega si están seteados
@@ -392,6 +401,20 @@ export default function EditPacientePage() {
                             <label className="block text-sm text-gray-600 mb-1">Plan *</label>
                             <input className="w-full border rounded-xl px-3 py-2" value={form.plan} onChange={e => setField('plan', e.target.value.replace(/\D/g, ''))} />
                             {errors.plan && <p className="text-xs text-red-600 mt-1">{errors.plan}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm text-gray-600 mb-1">Estado *</label>
+                            <select
+                                className="w-full border rounded-xl px-3 py-2"
+                                value={form.estado}
+                                onChange={e => setField('estado', e.target.value)}
+                            >
+                                <option value="">Seleccionar…</option>
+                                {ESTADOS_PACIENTE.map(est => (
+                                <option key={est.value} value={est.value}>{est.label}</option>
+                                ))}
+                            </select>
+                            {errors.status && <p className="text-xs text-red-600 mt-1">{errors.status}</p>}
                         </div>
                     </div>
 

@@ -69,7 +69,7 @@ const ESTADOS_CIVILES = [
 ] as const
 
 export default function PatientManagementModule() {
-  const [currentView, setCurrentView] = useState<"list" | "create" | "detail">("list")
+  const [currentView, setCurrentView] = useState<"list" | "create" | "detail" | "edit">("list")
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
   const [showSidebar, setShowSidebar] = useState(false)
   const [patients, setPatients] = useState<Patient[]>([])

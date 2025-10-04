@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 // Tipos (idénticos a tu schema)
 type Genero = "FEMENINO" | "MASCULINO" | "OTRO";
 type EstadoCivil = "SOLTERO" | "CASADO" | "DIVORCIADO" | "VIUDO" | "UNION_LIBRE";
+type EstadoPaciente = "ACTIVO" | "INACTIVO" | "SUSPENDIDO";
 
 // Helpers
 const toInt = (v: unknown): number | undefined => {
@@ -68,6 +69,7 @@ type PacienteUpdate = Partial<{
   obraSocialId: number;
   numeroSocio: string;
   plan: string;
+  estado: EstadoPaciente;
 }>;
 
 // ───────────────────────── PATCH /api/pacientes/:id (PUT es alias)
@@ -126,6 +128,7 @@ export async function PUT(
       ...(typeof b.email === "string" && { email: b.email.trim() }),
       ...(typeof b.numeroSocio === "string" && { numeroSocio: b.numeroSocio.trim() }),
       ...(typeof b.plan === "string" && { plan: b.plan.trim() }),
+      ...(typeof b.estado === "string" && { estado: b.estado as EstadoPaciente }),
     };
     const prov = toInt(b.provinciaId);
     if (prov !== undefined) data.provinciaId = prov;
