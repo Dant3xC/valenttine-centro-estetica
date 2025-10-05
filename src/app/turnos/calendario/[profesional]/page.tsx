@@ -1,9 +1,10 @@
-// src/app/turnos/calendario/[profesional]/page.tsx
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Image from "next/image"
+// ⬇️ Supongo que tu getDisponibilidad acepta query params extras;
+//    más abajo te muestro cómo ajustarla en la API.
 import { getDisponibilidad, getProfesionalDetalle } from "@/lib/turnos/api"
 import type { DisponibilidadResponse, ProfesionalDetalle, TimeSlot } from "@/lib/turnos/types"
 import { AppointmentCalendar } from "@/components/turnos/calendar/AppointmentCalendar"
@@ -17,8 +18,6 @@ function todayYMD() {
 export default function CalendarPage() {
   const router = useRouter()
   const params = useParams<{ profesional: string }>()
-
-  // usa SIEMPRE esta misma variable
   const professionalId = Number(params.profesional)
 
   const [profesional, setProfesional] = useState<ProfesionalDetalle | null>(null)
@@ -30,6 +29,9 @@ export default function CalendarPage() {
 
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
   const [showPatientModal, setShowPatientModal] = useState(false)
+
+  // Estado para duración del turno (minutos)
+  const [slotMinutes, setSlotMinutes] = useState<10 | 20 | 30 | 60>(30)
 
   // Detalle
   useEffect(() => {
@@ -46,13 +48,13 @@ export default function CalendarPage() {
     })()
   }, [professionalId])
 
-  // Disponibilidad del día
+  // Disponibilidad del día 
   useEffect(() => {
     ;(async () => {
       if (!professionalId || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return
       try {
         setLoadingSlots(true)
-        const d = await getDisponibilidad(professionalId, fecha)
+        const d = await getDisponibilidad(professionalId, fecha, { step: slotMinutes })
         setDisp(d)
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "No se pudo cargar la disponibilidad")
@@ -60,13 +62,12 @@ export default function CalendarPage() {
         setLoadingSlots(false)
       }
     })()
-  }, [professionalId, fecha])
+  }, [professionalId, fecha, slotMinutes])
 
-  // ← ahora cada slot trae { date, time, status }
   const slots: TimeSlot[] = useMemo(() => {
     if (!disp) return []
-    return disp.disponibles.map((h) => ({ date: fecha, time: h, status: "available" }))
-  }, [disp, fecha])
+    return disp.disponibles.map((h) => ({ date: fecha, time: h, status: "available", /* opcional: duration: slotMinutes */ }))
+  }, [disp, fecha /* , slotMinutes */])
 
   const handleSlotClick = (slot: TimeSlot) => {
     if (slot.status === "available") {
@@ -86,9 +87,7 @@ export default function CalendarPage() {
   if (!profesional) return <div className="p-6">Profesional no encontrado</div>
 
   return (
-    <div className="screen-transition min-h-screen p-6">
-      {/* breadcrumb y encabezado omitidos por brevedad */}
-
+    <div className="min-h-screen p-6">
       <div className="flex gap-6">
         {/* izquierda */}
         <div className="w-80 flex-shrink-0">
@@ -104,11 +103,27 @@ export default function CalendarPage() {
 
         {/* derecha */}
         <div className="flex-1">
-          <div className="bg-purple-600 rounded-t-2xl p-4 text-white flex items-center justify-between">
+          <div className="bg-purple-600 rounded-t-2xl p-4 text-white flex items-center justify-between gap-4">
             <h2 className="text-xl font-bold">Seleccione un Turno</h2>
+
+            {/* ⬇️ SELECTOR DE DURACIÓN */}
+            <label className="flex items-center gap-2 text-sm">
+              <span className="opacity-90">Duración</span>
+              <select
+                className="rounded-md px-2 py-1 text-gray-900"
+                value={slotMinutes}
+                onChange={(e) => setSlotMinutes(Number(e.target.value) as 10|20|30|60)}
+              >
+                <option value={10}>10 min</option>
+                <option value={20}>20 min</option>
+                <option value={30}>30 min</option>
+                <option value={60}>60 min</option>
+              </select>
+            </label>
+
             <label className="flex items-center gap-2 text-sm">
               <span className="opacity-90">Fecha</span>
-              <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="rounded-md px-2 py-1 text-white-900" />
+              <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="rounded-md px-2 py-1 text-gray-900" />
             </label>
           </div>
 
@@ -127,6 +142,7 @@ export default function CalendarPage() {
           onClose={() => setShowPatientModal(false)}
           professionalId={professionalId}
           selectedSlot={selectedSlot}
+          
           onConfirm={handleAppointmentConfirmed}
         />
       )}

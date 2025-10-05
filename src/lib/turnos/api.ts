@@ -28,10 +28,13 @@ export async function getProfesionalDetalle(id: number): Promise<ProfesionalDeta
 }
 
 // Disponibilidad
-export async function getDisponibilidad(profesionalId: number, fecha: string): Promise<DisponibilidadResponse> {
-    const res = await fetch(`/api/turnos/disponibilidad?profesionalId=${profesionalId}&fecha=${fecha}`, { cache: "no-store" });
+// /lib/turnos/api.ts
+export async function getDisponibilidad(profesionalId: number, fecha: string, opts?: { step?: number }) {
+    const params = new URLSearchParams({ profesionalId: String(profesionalId), fecha });
+    if (opts?.step) params.set("step", String(opts.step));
+    const res = await fetch(`/api/turnos/disponibilidad?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) throw new Error("No se pudo cargar la disponibilidad");
-    return json(res, DisponibilidadResponse);
+    return res.json() as Promise<{ fecha: string; profesionalId: number; dia: string; step: number; disponibles: string[] }>;
 }
 
 // Dashboard
@@ -88,35 +91,35 @@ export async function cancelarTurno(id: number): Promise<void> {
 import type { PacienteSearchItem } from "./types"
 
 function guessQueryParams(qRaw: string) {
-  const q = (qRaw || "").trim()
-  const isDNI = /^\d{7,8}$/.test(q)
-  const isDMY = /^(\d{2})\/(\d{2})\/(\d{4})$/.test(q)
-  return {
-    dni: isDNI ? q : undefined,
-    birthDate: isDMY ? q : undefined,
-    fullName: !isDNI && !isDMY ? q : undefined,
-  }
+    const q = (qRaw || "").trim()
+    const isDNI = /^\d{7,8}$/.test(q)
+    const isDMY = /^(\d{2})\/(\d{2})\/(\d{4})$/.test(q)
+    return {
+        dni: isDNI ? q : undefined,
+        birthDate: isDMY ? q : undefined,
+        fullName: !isDNI && !isDMY ? q : undefined,
+    }
 }
 
 export async function buscarPacientes(q: string): Promise<PacienteSearchItem[]> {
-  const { dni, birthDate, fullName } = guessQueryParams(q)
-  const params = new URLSearchParams()
-  if (dni) params.set("dni", dni)
-  if (birthDate) params.set("birthDate", birthDate)
-  if (fullName) params.set("fullName", fullName)
+    const { dni, birthDate, fullName } = guessQueryParams(q)
+    const params = new URLSearchParams()
+    if (dni) params.set("dni", dni)
+    if (birthDate) params.set("birthDate", birthDate)
+    if (fullName) params.set("fullName", fullName)
 
-  const res = await fetch(`/api/pacientes/busqueda?${params.toString()}`, { cache: "no-store" })
-  if (!res.ok) throw new Error("Error al buscar pacientes")
-  const data = await res.json()
+    const res = await fetch(`/api/pacientes/busqueda?${params.toString()}`, { cache: "no-store" })
+    if (!res.ok) throw new Error("Error al buscar pacientes")
+    const data = await res.json()
 
 
-  return (data || []).map((p: any) => ({
-    id: p.id,
-    nombreCompleto: `${p.nombre ?? ""} ${p.apellido ?? ""}`.trim(),
-    dni: p.dni ?? "",
-    email: p.email ?? "",
-    celular: p.celular ?? "",
-  })) as PacienteSearchItem[]
+    return (data || []).map((p: any) => ({
+        id: p.id,
+        nombreCompleto: `${p.nombre ?? ""} ${p.apellido ?? ""}`.trim(),
+        dni: p.dni ?? "",
+        email: p.email ?? "",
+        celular: p.celular ?? "",
+    })) as PacienteSearchItem[]
 }
 
 
