@@ -13,7 +13,7 @@ type PacienteMini = {
   apellido: string
   dni: string
   email: string
-  obraSocial?: ObraSocialMini | null   // <-- NUEVO
+  obraSocial?: ObraSocialMini | null
 }
 
 interface PatientSearchModalProps {
@@ -38,6 +38,17 @@ export function PatientSearchModal({
   const [confirming, setConfirming] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  // NUEVO: observación
+  const [obs, setObs] = useState("")
+
+  // limpiar observación cada vez que se abre el modal
+  useEffect(() => {
+    if (open) {
+      setObs("")
+      setErrorMsg(null)
+    }
+  }, [open])
+
   // Buscar por DNI o nombre (usa /api/pacientes/busqueda)
   useEffect(() => {
     let abort = false
@@ -54,19 +65,31 @@ export function PatientSearchModal({
         else q.set("fullName", term)
 
         const res = await fetch(`/api/pacientes/busqueda?${q.toString()}`)
-        const data = (await res.json()) as any[]
+        const data = (await res.json()) as unknown
+
         if (!abort) {
+          const arr = Array.isArray(data) ? data : []
           setResults(
-            (data || []).map((p) => ({
-              id: p.id,
-              nombre: p.nombre,
-              apellido: p.apellido,
-              dni: p.dni,
-              email: p.email,
-              obraSocial: p.obraSocial
-                ? { id: p.obraSocial.id, nombre: p.obraSocial.nombre, plan: p.obraSocial.plan }
-                : null, // <-- NUEVO
-            })),
+            arr.map((p) => {
+              const o = p as {
+                id: number
+                nombre: string
+                apellido: string
+                dni: string
+                email: string
+                obraSocial?: { id: number; nombre: string; plan?: string | null } | null
+              }
+              return {
+                id: o.id,
+                nombre: o.nombre,
+                apellido: o.apellido,
+                dni: o.dni,
+                email: o.email,
+                obraSocial: o.obraSocial
+                  ? { id: o.obraSocial.id, nombre: o.obraSocial.nombre, plan: o.obraSocial.plan ?? null }
+                  : null,
+              } as PacienteMini
+            }),
           )
         }
       } catch {
@@ -88,11 +111,16 @@ export function PatientSearchModal({
     setConfirming(true)
     setErrorMsg(null)
     try {
-      const body = {
+      const base = {
         pacienteId: selected.id,
         profesionalId: professionalId,
         fecha: selectedSlot.date ?? new Date().toISOString().slice(0, 10),
         hora: selectedSlot.time,
+      }
+      // Solo enviamos observacion si hay texto
+      const body = {
+        ...base,
+        ...(obs.trim() && { observacion: obs.trim() }),
       }
 
       const r = await fetch("/api/turnos", {
@@ -102,7 +130,7 @@ export function PatientSearchModal({
       })
       if (!r.ok) {
         const j = await r.json().catch(() => ({}))
-        throw new Error(j?.error || "No se pudo crear el turno")
+        throw new Error((j as { error?: string })?.error || "No se pudo crear el turno")
       }
       onConfirm()
     } catch (e) {
@@ -156,8 +184,7 @@ export function PatientSearchModal({
                 </div>
               </button>
             ))}
-              {/* OJO CON ESTO */}
-           
+            {/* OJO CON ESTO */}
           </div>
         )}
 
@@ -189,6 +216,21 @@ export function PatientSearchModal({
               <strong>Hora:</strong> {selectedSlot.time} hs
             </p>
           </div>
+        </div>
+
+        {/* NUEVO: Observación */}
+        <div>
+          <label className="block text-sm font-medium text-gray-800 mb-2">
+            Observación (opcional)
+          </label>
+          <textarea
+            value={obs}
+            onChange={(e) => setObs(e.target.value)}
+            className="w-full min-h-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            placeholder="Ej: control post tratamiento, alergias, traer estudios, etc."
+            maxLength={500}
+          />
+          <div className="mt-1 text-xs text-gray-500">{obs.length}/500</div>
         </div>
 
         {/* Error */}
