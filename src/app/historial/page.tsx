@@ -2,111 +2,67 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { listHistorialConsultas } from '@/lib/historial/api';
+import type { HistorialListItem } from '@/lib/historial/schema';
 
-// ===== Tipos =====
-type EstadoTurno = 'EN_ESPERA' | 'EN_CONSULTA' | 'ATENDIDO' | 'CANCELADO';
-type TipoConsulta = 'PRIMERA' | 'CONTROL' | 'SERVICIO';
 
-type ProfesionalMini = { id: number; nombreCompleto: string };
-type PacienteMini = { id: number; nombre: string; apellido: string; dni: string };
-
-type ConsultaRow = {
-    id: number;
-    paciente: PacienteMini;
-    profesional: ProfesionalMini;
-    fecha: string;      // 'YYYY-MM-DD'
-    hora: string;       // 'HH:mm'
-    tipo: TipoConsulta; // PRIMERA | CONTROL | SERVICIO
-    estado: EstadoTurno;
-};
-
-// ===== Utils =====
 const todayYMD = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-// ===== Mock data (estático) =====
-const PROFES: ProfesionalMini[] = [
-    { id: 1, nombreCompleto: 'Dra. Camila Torres' },
-    { id: 2, nombreCompleto: 'Dr. Martín Paredes' },
-];
-
-const PACS: PacienteMini[] = [
-    { id: 10, nombre: 'Ana', apellido: 'Pérez', dni: '42123456' },
-    { id: 11, nombre: 'Lucas', apellido: 'Gómez', dni: '39111222' },
-    { id: 12, nombre: 'Mara', apellido: 'Rojas', dni: '40333444' },
-    { id: 13, nombre: 'Juan', apellido: 'Soto', dni: '35666777' },
-    { id: 14, nombre: 'Nora', apellido: 'Luna', dni: '40123999' },
-];
-
-const mk = (id: number, p: PacienteMini, prof: ProfesionalMini, fecha: string, hora: string, tipo: TipoConsulta, estado: EstadoTurno): ConsultaRow => ({
-    id, paciente: p, profesional: prof, fecha, hora, tipo, estado
-});
-
-const HOY = todayYMD();
-const AYER = new Date(Date.now() - 86400000);
-const AYER_YMD = `${AYER.getFullYear()}-${String(AYER.getMonth() + 1).padStart(2, '0')}-${String(AYER.getDate()).padStart(2, '0')}`;
-
-const SAMPLE_ROWS: ConsultaRow[] = [
-    mk(101, PACS[0], PROFES[0], HOY, '09:00', 'PRIMERA', 'EN_ESPERA'),
-    mk(102, PACS[1], PROFES[0], HOY, '09:30', 'CONTROL', 'EN_ESPERA'),
-    mk(103, PACS[2], PROFES[1], HOY, '10:00', 'SERVICIO', 'EN_CONSULTA'),
-    mk(104, PACS[3], PROFES[1], HOY, '10:30', 'PRIMERA', 'ATENDIDO'),
-    mk(105, PACS[4], PROFES[0], HOY, '11:00', 'CONTROL', 'EN_ESPERA'),
-    // otros días (para probar filtros por fecha)
-    mk(201, PACS[0], PROFES[1], AYER_YMD, '09:00', 'PRIMERA', 'ATENDIDO'),
-    mk(202, PACS[2], PROFES[0], AYER_YMD, '09:30', 'SERVICIO', 'CANCELADO'),
-    mk(203, PACS[3], PROFES[1], AYER_YMD, '10:00', 'CONTROL', 'EN_ESPERA'),
-    mk(204, PACS[4], PROFES[0], AYER_YMD, '10:30', 'PRIMERA', 'EN_CONSULTA'),
-    mk(205, PACS[1], PROFES[1], AYER_YMD, '11:00', 'SERVICIO', 'ATENDIDO'),
-];
-
-// ===== Página =====
 export default function Page() {
-    // “DB” local (mutable para simular acciones)
-    const [rows, setRows] = useState<ConsultaRow[]>(SAMPLE_ROWS);
+    const [items, setItems] = useState<HistorialListItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Filtros (solo los que quedan visibles)
+    // filtros
     const [dni, setDni] = useState('');
     const [nombre, setNombre] = useState('');
-    const [fecha, setFecha] = useState<string>(HOY);
+    const [fecha, setFecha] = useState<string>(todayYMD());
 
-    // Validaciones simples
+    // validaciones básicas
     const dniOk = dni === '' || /^\d{7,8}$/.test(dni);
     const nombreOk = nombre === '' || /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(nombre);
     const fechaOk = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
     const filtrosValidos = dniOk && nombreOk && fechaOk;
     const hayAlguno = [dni, nombre, fecha].some(v => String(v).trim() !== '');
 
-    // Lista filtrada en memoria
-    const filtered = useMemo(() => {
-        let list = rows.slice();
-
-        if (dni) list = list.filter(x => x.paciente.dni.includes(dni));
-        if (nombre) {
-            const q = nombre.trim().toLowerCase();
-            list = list.filter(x => (`${x.paciente.nombre} ${x.paciente.apellido}`).toLowerCase().includes(q));
-        }
-        if (fecha) list = list.filter(x => x.fecha === fecha);
-
-        return list;
-    }, [rows, dni, nombre, fecha]);
-
-    // Stats simples (sin estados)
-    const stats = useMemo(() => {
-        const delDia = rows.filter(r => r.fecha === fecha).length;
-        const totalHistorias = rows.length;
-        return { delDia, totalHistorias };
-    }, [rows, fecha]);
-
-    // Paginación local
+    // paginación local (podés cambiar a server-side con page/pageSize del endpoint)
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    useEffect(() => { setCurrentPage(1); }, [filtered.length]); // reset al cambiar filtros
+
+    const filtered = useMemo(() => {
+        // Nota: el backend ya filtra por fecha/dni/nombre. Si querés evitar doble filtro,
+        // podés quitar esta memo y usar directamente items.
+        return items;
+    }, [items]);
+
     const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
     const start = (currentPage - 1) * itemsPerPage;
     const currentItems = filtered.slice(start, start + itemsPerPage);
+
+    const stats = useMemo(() => {
+        const delDia = items.length;
+        return { delDia, totalHistorias: items.length }; // simple demo
+    }, [items]);
+
+    const refresh = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const res = await listHistorialConsultas({ dni, nombre, fecha, page: 1, pageSize: 200 });
+            setItems(res.items);
+            setCurrentPage(1);
+        } catch (e: any) {
+            setError(e?.message || 'Error al cargar');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // carga inicial
+    useEffect(() => { refresh(); /* eslint-disable-next-line */ }, []);
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
@@ -126,7 +82,7 @@ export default function Page() {
                         <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent mb-2">
                             Gestión de Historial Clínica
                         </h2>
-                        <p className="text-gray-600 text-lg">Visualizá pacientes del día y accedé a su historial</p>
+                        <p className="text-gray-600 text-lg">Visualizá el historial clínico de tus pacientes</p>
                     </div>
                     <div className="flex space-x-4">
                         <Link
@@ -141,17 +97,16 @@ export default function Page() {
                     </div>
                 </div>
 
-                {/* Stats (simplificados) */}
+                {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <StatCard title="Pacientes del día" value={stats.delDia} color="from-blue-500 to-blue-300" icon="doc" />
                     <StatCard title="Historias totales" value={stats.totalHistorias} color="from-purple-500 to-purple-300" icon="doc" />
                 </div>
 
-                {/* Filtros (solo DNI / Nombre / Fecha) */}
+                {/* Filtros */}
                 <div className="glass-effect rounded-2xl p-8 mb-8 card-hover shadow-md">
                     <h3 className="text-xl font-semibold text-purple-800 mb-6">Filtros</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        {/* DNI */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">DNI</label>
                             <input
@@ -162,8 +117,6 @@ export default function Page() {
                             />
                             {dni !== '' && !dniOk && <p className="text-xs text-red-600 mt-1">Formato inválido</p>}
                         </div>
-
-                        {/* Nombre paciente */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Nombre paciente</label>
                             <input
@@ -174,8 +127,6 @@ export default function Page() {
                             />
                             {nombre !== '' && !nombreOk && <p className="text-xs text-red-600 mt-1">Solo letras y espacios</p>}
                         </div>
-
-                        {/* Fecha */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
                             <input
@@ -189,30 +140,32 @@ export default function Page() {
 
                     <div className="flex space-x-4">
                         <button
-                            onClick={() => { setDni(''); setNombre(''); setFecha(HOY); }}
+                            onClick={() => { setDni(''); setNombre(''); setFecha(todayYMD()); refresh(); }}
                             className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all cursor-pointer"
                         >
                             Limpiar
                         </button>
                         <button
-                            onClick={() => { }}
-                            disabled={!hayAlguno || !filtrosValidos}
-                            className={`px-8 py-3 rounded-xl font-semibold shadow-lg transition-all text-white ${(!hayAlguno || !filtrosValidos) ? 'bg-purple-300 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+                            onClick={refresh}
+                            disabled={!filtrosValidos}
+                            className={`px-8 py-3 rounded-xl font-semibold shadow-lg transition-all text-white ${!filtrosValidos ? 'bg-purple-300 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
                                 }`}
-                            title="(Demo) Los filtros se aplican automáticamente"
                         >
                             Buscar
                         </button>
                     </div>
                 </div>
 
-                {/* Tabla (columnas reducidas) */}
+                {/* Tabla */}
                 <div className="glass-effect rounded-2xl overflow-hidden card-hover shadow-md">
                     <div className="bg-gradient-to-r from-purple-600 to-purple-400 p-6">
-                        <h3 className="text-xl font-bold text-white">Pacientes del día</h3>
+                        <h3 className="text-xl font-bold text-white">Pacientes</h3>
                     </div>
 
-                    {filtered.length ? (
+                    {loading && <div className="p-6">Cargando…</div>}
+                    {error && <div className="p-6 text-red-600">{error}</div>}
+
+                    {!loading && !error && (filtered.length ? (
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50">
@@ -248,7 +201,7 @@ export default function Page() {
                         </div>
                     ) : (
                         <div className="p-6 text-gray-700">No hay registros para los filtros seleccionados</div>
-                    )}
+                    ))}
                 </div>
 
                 {/* Paginación */}
@@ -260,11 +213,9 @@ export default function Page() {
                     >
                         Anterior
                     </button>
-
                     <span className="text-sm text-gray-600">
                         Página {currentPage} de {totalPages}
                     </span>
-
                     <button
                         onClick={() => setCurrentPage(prev => prev + 1)}
                         disabled={currentPage === totalPages || totalPages === 0}
@@ -278,8 +229,14 @@ export default function Page() {
     );
 }
 
-// === UI helpers (igual estilo que “profesionales”) ===
-function StatCard({ title, value, color, icon }: { title: string; value: number; color: string; icon: 'clock' | 'steth' | 'check' | 'doc' }) {
+function TH({ children }: { children: React.ReactNode }) {
+    return <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">{children}</th>;
+}
+function TD({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+    return <td className={`px-6 py-4 ${className}`}>{children}</td>;
+}
+
+function StatCard({ title, value, color, icon }: { title: string; value: number; color: string; icon: 'doc' | 'check' | 'steth' | 'clock' }) {
     return (
         <div className="glass-effect rounded-2xl p-6 card-hover shadow-md">
             <div className="flex items-center justify-between">
@@ -289,20 +246,10 @@ function StatCard({ title, value, color, icon }: { title: string; value: number;
                 </div>
                 <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center`}>
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {icon === 'clock' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />}
-                        {icon === 'steth' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 8v4a4 4 0 108 0V8m-4 8v2a4 4 0 004 4h1" />}
-                        {icon === 'check' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />}
-                        {icon === 'doc' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586l5.414 5.414V19a2 2 0 01-2 2z" />}
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586l5.414 5.414V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
             </div>
         </div>
     );
-}
-
-function TH({ children }: { children: React.ReactNode }) {
-    return <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">{children}</th>;
-}
-function TD({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-    return <td className={`px-6 py-4 ${className}`}>{children}</td>;
 }

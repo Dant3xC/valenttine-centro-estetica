@@ -1,50 +1,69 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, signJwt } from "@/lib/usuarios/auth";
-import { LoginBodySchema, LoginSuccessSchema, type Role } from "@/lib/usuarios/types";
+import { z } from "zod";
+import {
+  Roles,                // <-- tu array const
+  type Role,
+  LoginBodySchema,
+  LoginSuccessSchema,
+} from "@/lib/usuarios/types";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { username, password } = LoginBodySchema.parse(body);
 
-    type UsuarioWithPassword = {
-      id: number | string;
-      username: string;
-      email: string;
-      rol: Role;
-      passwordHash?: string;
-      contraseña?: string;
-    };
+    const user = await prisma.usuario.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        // el nombre del campo en tu schema es "contraseña"
+        contraseña: true,
+        Rol: { select: { nombre: true } }, // <-- tabla Rol
+      },
+    });
 
-    const user = await prisma.usuario.findUnique({ where: { username } }) as UsuarioWithPassword | null;
-    if (!user) return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+    }
 
-    
-    const ok = await verifyPassword(password, (user as any)['contraseña'])
-    if (!ok) return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+    const hash = (user as any)["contraseña"] as string | undefined;
+    if (!hash) {
+      return NextResponse.json({ error: "Usuario sin contraseña" }, { status: 401 });
+    }
+
+    const ok = await verifyPassword(password, hash);
+    if (!ok) {
+      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+    }
+
+    // Normalizar Rol.nombre → enum de tu app
+    const rawRole = String(user.Rol?.nombre ?? "").trim().toUpperCase();
+    const role = z.enum(Roles).parse(rawRole) as Role; // "RECEPCIONISTA" | "MEDICO" | "GERENTE"
 
     const token = signJwt({
       sub: String(user.id),
       email: user.email,
-      role: user.rol as Role,
+      role,
       username: user.username,
     });
 
-    const res = NextResponse.json(
-      LoginSuccessSchema.parse({
-        message: "Login OK",
-        role: user.rol,
-        user: {
-          id: String(user.id),
-          username: user.username,
-          email: user.email,
-          role: user.rol as Role,
-        },
-        token,
-      })
-    );
+    const payload = LoginSuccessSchema.parse({
+      message: "Login OK",
+      role,
+      user: {
+        id: String(user.id),
+        username: user.username,
+        email: user.email,
+        role,
+      },
+      token,
+    });
 
+    const res = NextResponse.json(payload);
     res.cookies.set({
       name: "auth_token",
       value: token,
@@ -52,11 +71,14 @@ export async function POST(req: NextRequest) {
       sameSite: "strict",
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 15, // 15 min por HU-GAS-02 (inactividad)
+      maxAge: 60 * 15, // 15 min
     });
-
     return res;
-  } catch (err) {
+  } catch (err: any) {
+    // Si es ZodError (body o role), devolvemos 400 con detalles
+    if (err?.name === "ZodError") {
+      return NextResponse.json({ error: "Datos inválidos", detail: err.issues }, { status: 400 });
+    }
     console.error("[LOGIN]", err);
     return NextResponse.json({ error: "Error en login" }, { status: 400 });
   }
