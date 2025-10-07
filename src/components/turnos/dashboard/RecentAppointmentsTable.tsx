@@ -25,14 +25,16 @@ function chip(estado: string) {
 }
 
 // 📅 Formato de fecha
-function formatDate(iso: string | Date) {
+function formatDate(iso?: string | Date) {
+  if (!iso) return "-"; // Si no hay fecha, devolvemos un guion
   try {
-    const date = typeof iso === "string" ? new Date(iso) : iso
-    return date.toLocaleDateString("es-AR")
+    const date = typeof iso === "string" ? new Date(iso) : iso;
+    return date.toLocaleDateString("es-AR");
   } catch {
-    return String(iso)
+    return String(iso);
   }
 }
+
 
 export function RecentAppointmentsTable() {
   const [rows, setRows] = useState<DashboardResponse["recientes"]>([])

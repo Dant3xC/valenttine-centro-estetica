@@ -15,7 +15,6 @@ const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/Pacientes': ['RECEPCIONISTA', 'GERENTE'],
   '/profesionales': ['GERENTE'],
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
-  '/turnos/calendario': ['MEDICO'], // Calendario por medico
   '/turnos/hoy': ['MEDICO'], // 
   '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],
@@ -50,11 +49,6 @@ const CARDS: Record<
     icon: '🕒',
   },
 
-  '/turnos/calendario': { // NUEVO, PARA VER EL CALENDARIO
-    title: 'Mi Calendario',
-    description: 'Visualizá tus turnos programados.',
-    icon: '🗓️',
-  },
   '/historial': {
     title: 'Historia Clínica',
     description: 'Acceso a historias clínicas y evoluciones.',

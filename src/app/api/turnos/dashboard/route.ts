@@ -92,7 +92,7 @@ export async function GET(req: Request) {
       id: t.id,
       fecha: t.fecha,
       hora: toHHMM(t.hora),
-      estado: t.EstadoTurno?.nombre?.toUpperCase() ?? "SIN ESTADO",
+      estado: t.EstadoTurno?.nombre ?? "Sin estado",
       paciente: `${t.paciente.nombre} ${t.paciente.apellido}`.trim(),
       profesional: `${t.profesional.nombre} ${t.profesional.apellido}`.trim(),
       especialidad: t.profesional.especialidad,

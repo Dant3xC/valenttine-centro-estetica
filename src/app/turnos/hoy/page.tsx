@@ -242,7 +242,7 @@ const estadoColor = (estado: string) => {
                       <td className="px-6 py-4 font-semibold text-gray-900">{r.hora}</td>
                       <td className="px-6 py-4">
                         <select
-                          value={r.estado}
+                          value={r.estado ?? "Reservado"} 
                           disabled={updatingId === r.id}
                           onChange={(e) => onChangeEstado(r.id, e.target.value as Estado)}
                           className={`rounded-full border px-3 py-1 text-sm font-medium transition-all duration-300 ease-in-out ${estadoColor(r.estado)}`}
