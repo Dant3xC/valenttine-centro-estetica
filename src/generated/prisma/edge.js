@@ -378,7 +378,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Sistema Valenttine\\valenttine-centro-estetica\\src\\generated\\prisma",
+      "value": "/home/eze/proyectos/erp-centro-estetica/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -387,12 +387,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Sistema Valenttine\\valenttine-centro-estetica\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/eze/proyectos/erp-centro-estetica/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
