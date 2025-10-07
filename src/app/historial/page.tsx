@@ -1,3 +1,4 @@
+// src/app/historial/page.tsx
 'use client';
 
 import Link from 'next/link';
@@ -46,16 +47,21 @@ export default function Page() {
         const delDia = items.length;
         return { delDia, totalHistorias: items.length }; // simple demo
     }, [items]);
-
     const refresh = async () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await listHistorialConsultas({ dni, nombre, fecha, page: 1, pageSize: 200 });
+            const res = await listHistorialConsultas({
+                fecha,
+                dni: dni || undefined,
+                nombre: nombre || undefined,
+                page: 1,
+                pageSize: 100,
+            });
             setItems(res.items);
             setCurrentPage(1);
         } catch (e: any) {
-            setError(e?.message || 'Error al cargar');
+            setError(e?.message || "Error al cargar");
         } finally {
             setLoading(false);
         }
@@ -180,14 +186,14 @@ export default function Page() {
                                 <tbody>
                                     {currentItems.map((it, i) => (
                                         <tr key={it.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                            <TD className="font-semibold text-purple-800">{`TUR-${it.id}`}</TD>
+                                            <TD className="font-semibold text-purple-800">{`PAC-${it.id}`}</TD>
                                             <TD><div className="font-medium text-gray-900">{it.paciente.nombre} {it.paciente.apellido}</div></TD>
                                             <TD className="font-semibold text-gray-900">{it.paciente.dni}</TD>
                                             <TD className="text-gray-700">{it.fecha}</TD>
                                             <TD>
                                                 <div className="flex flex-wrap gap-2">
                                                     <Link
-                                                        href={`/historial/consulta/${it.id}/anamnesis`}
+                                                        href={`/historial/paciente/${it.id}`}
                                                         className="bg-purple-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-purple-600 transition-colors cursor-pointer"
                                                     >
                                                         Ver historial

@@ -30,4 +30,5 @@ export type JwtUser = {
   sub: string;
   email: string;
   role: "RECEPTION" | "SPECIALIST" | "ADMIN";
+  profId?: number; 
 };

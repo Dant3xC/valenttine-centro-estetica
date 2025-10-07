@@ -1,48 +1,37 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const YMD = z.string().regex(
-    /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
-    "Fecha inválida (YYYY-MM-DD)"
-);
+const emptyToUndef = <T extends z.ZodTypeAny>(s: T) =>
+    z.preprocess(v => (typeof v === 'string' && v.trim() === '' ? undefined : v), s.optional());
 
-// util: "" -> undefined
-const emptyToUndef = <T extends z.ZodTypeAny>(schema: T) =>
-    z.preprocess((v) => (v === "" ? undefined : v), schema.optional());
-
-export const PacienteMiniSchema = z.object({
-    id: z.number().int().positive(),
-    nombre: z.string().min(1),
-    apellido: z.string().min(1),
-    dni: z.string().regex(/^\d{7,8}$/, "DNI 7-8 dígitos"),
+export const HistorialListQuerySchema = z.object({
+    dni: emptyToUndef(z.string().trim().regex(/^\d{7,8}$/, 'DNI inválido')),
+    nombre: emptyToUndef(z.string().trim().min(3, 'Min 3 letras').max(80)),
+    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida'),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
+export type HistorialListQuery = z.infer<typeof HistorialListQuerySchema>;
 
-/**
- * Ítem del listado (AHORA `id` es el ID DEL PACIENTE)
- * `fecha` = fecha de la ÚLTIMA consulta de ese paciente con este médico.
- */
+
+export { HistorialListQuerySchema as HistorialListFiltersSchema };
+
 export const HistorialListItemSchema = z.object({
-    id: z.number().int().positive(), // pacienteId
-    fecha: YMD,                      // última consulta (YYYY-MM-DD)
-    paciente: PacienteMiniSchema,
+    id: z.number(),
+    fecha: z.string(), // YYYY-MM-DD
+    paciente: z.object({
+        id: z.number(),
+        nombre: z.string(),
+        apellido: z.string(),
+        dni: z.string(),
+    }),
 });
+export type HistorialListItem = z.infer<typeof HistorialListItemSchema>;
 
 export const HistorialListResponseSchema = z.object({
     items: z.array(HistorialListItemSchema),
-    total: z.number().int().nonnegative(),
-    page: z.number().int().positive(),
-    pageSize: z.number().int().positive().max(200),
+    total: z.number(),
+    // opcionales por si los querés leer en el front
+    page: z.number().optional(),
+    pageSize: z.number().optional(),
 });
-
-export const HistorialListFiltersSchema = z.object({
-    dni: emptyToUndef(z.string().regex(/^\d{7,8}$/, "DNI 7-8 dígitos")),
-    nombre: emptyToUndef(z.string().min(1)),
-    fecha: emptyToUndef(YMD), // si viene, filtra por fecha de consulta
-    // en producción lo resolvemos por sesión; dejamos este campo para dev/testing
-    profesionalId: emptyToUndef(z.coerce.number().int().positive()),
-    page: z.coerce.number().int().positive().default(1).optional(),
-    pageSize: z.coerce.number().int().positive().max(200).default(20).optional(),
-});
-
-export type HistorialListItem = z.infer<typeof HistorialListItemSchema>;
 export type HistorialListResponse = z.infer<typeof HistorialListResponseSchema>;
-export type HistorialListFilters = z.infer<typeof HistorialListFiltersSchema>;

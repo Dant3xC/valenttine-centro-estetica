@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword, signJwt } from "@/lib/usuarios/auth";
 import { z } from "zod";
 import {
-  Roles,                // <-- tu array const
+  Roles,
   type Role,
   LoginBodySchema,
   LoginSuccessSchema,
@@ -40,17 +40,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
     }
 
-    // Normalizar Rol.nombre → enum de tu app
+    // Normalizar Rol.nombre → enum Role
     const rawRole = String(user.Rol?.nombre ?? "").trim().toUpperCase();
     const role = z.enum(Roles).parse(rawRole) as Role; // "RECEPCIONISTA" | "MEDICO" | "GERENTE"
 
+    // Buscar profId si es médico
+    let profId: number | undefined = undefined;
+    if (role === "MEDICO") {
+      const prof = await prisma.profesional.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+      if (prof) profId = prof.id;
+    }
+
+    // Firmar JWT incluyendo profId si existe
     const token = signJwt({
       sub: String(user.id),
       email: user.email,
       role,
       username: user.username,
+      ...(profId ? { profId } : {}),
     });
 
+    // La respuesta JSON queda igual (no incluimos profId para no tocar el schema)
     const payload = LoginSuccessSchema.parse({
       message: "Login OK",
       role,
@@ -75,7 +88,6 @@ export async function POST(req: NextRequest) {
     });
     return res;
   } catch (err: any) {
-    // Si es ZodError (body o role), devolvemos 400 con detalles
     if (err?.name === "ZodError") {
       return NextResponse.json({ error: "Datos inválidos", detail: err.issues }, { status: 400 });
     }

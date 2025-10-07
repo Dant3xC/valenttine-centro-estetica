@@ -3,7 +3,15 @@ import { z } from "zod";
 // Roles de usuario
 export const Roles = ["RECEPCIONISTA","MEDICO","GERENTE"] as const;
 export type Role = typeof Roles[number];
-export type JwtUser = { sub: string; email: string; role: Role; username: string };
+
+// ← ÚNICA definición de JwtUser en todo el código
+export type JwtUser = {
+  sub: string;           // userId
+  email: string;
+  role: Role;
+  username: string;
+  profId?: number;       // ID del Profesional si el usuario es MEDICO
+};
 
 // --- Login por usuario ---
 export const LoginBodySchema = z.object({

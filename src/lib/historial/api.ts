@@ -1,22 +1,20 @@
-import { HistorialListFiltersSchema, HistorialListResponseSchema, type HistorialListFilters } from "./schema";
+// src/lib/historial/api.ts
+import { HistorialListResponseSchema } from './schema';
 
-const qs = (o: Record<string, unknown>) =>
-    Object.entries(o)
-        .filter(([, v]) => v !== undefined && v !== null && String(v) !== "")
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-        .join("&");
+export async function listHistorialConsultas(params: {
+  dni?: string; nombre?: string; fecha: string; page?: number; pageSize?: number;
+}) {
+  const q = new URLSearchParams();
+  if (params.dni) q.set('dni', params.dni);
+  if (params.nombre) q.set('nombre', params.nombre);
+  q.set('fecha', params.fecha);
+  if (params.page) q.set('page', String(params.page));
+  if (params.pageSize) q.set('pageSize', String(params.pageSize));
 
-export async function listHistorialConsultas(filters: HistorialListFilters) {
-    // Validar filtros en front (opcional pero útil para DX)
-    const valid = HistorialListFiltersSchema.parse(filters);
-    const query = qs(valid);
-    const res = await fetch(`/api/historial/consultas${query ? `?${query}` : ""}`, { cache: "no-store" });
+  const r = await fetch(`/api/historial/consultas?${q}`, { cache: 'no-store' });
+  const json = await r.json();
+  if (!r.ok) throw new Error(json?.error || 'Error al cargar');
 
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) {
-        // si backend devolvió issues de Zod, te llegan en json.detail
-        throw new Error(json?.error || "No se pudo cargar el historial");
-    }
-    // Validar respuesta del backend con Zod (runtime safety)
-    return HistorialListResponseSchema.parse(json);
+  // ✅ Bien: parseamos con el schema (no el type)
+  return HistorialListResponseSchema.parse(json);
 }
