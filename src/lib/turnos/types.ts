@@ -96,7 +96,7 @@ export type PacienteSearchItem = {
 export type TimeSlot = {
     date: string // YYYY-MM-DD
     time: string // HH:mm
-    status: "available" | "unavailable"
+    status: "available" | "unavailable" | "booked"
 }
 
 export type TurnoCreateInput = {

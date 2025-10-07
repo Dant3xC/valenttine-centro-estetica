@@ -21,6 +21,7 @@ export async function POST(req: Request) {
   if (!payload) return Response.json({ error: "Token inválido" }, { status: 401 });
 
   return Response.json({
+    id: Number(payload.sub),  // AGREGAMOS -------------------------------------------------- BORRAR ?????
     username: payload.username,
     role: payload.role,
     email: payload.email,

@@ -6,8 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 /** Roles posibles */
 export type Role = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE'
 
-/** Lo mínimo que necesitamos mostrar en la cabecera */
-export type Session = { username: string; role: Role; email: string }
+/** Lo mínimo que necesitamos mostrar en la cabecera -------------------------------------------- AGREGAMOS EL ID*/
+export type Session = { id: number; username: string; role: Role; email: string }
 
 /**
  * Hook principal de autenticación (cliente)
@@ -30,6 +30,7 @@ export function useAuth() {
       const data = await res.json()
       if (data && !data.error) {
         const s: Session = {
+          id: Number(data.id), // nuevo ID ----------------------------------------------------------
           username: String(data.username),
           role: data.role as Role,
           email: String(data.email),

@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react"
 import { getDashboard } from "@/lib/turnos/api"
 import type { DashboardResponse } from "@/lib/turnos/types"
+// 🟣 NUEVO: importamos el hook de autenticación
+import { useAuth } from "@/hooks/useAuth"
 
 function chip(estado: string) {
   switch (estado) {
@@ -30,20 +32,40 @@ export function RecentAppointmentsTable() {
   const [rows, setRows] = useState<DashboardResponse["recientes"]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // 🟣 NUEVO: obtenemos la sesión del usuario actual
+  const { session } = useAuth()
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        setLoading(true)
-        const d = await getDashboard()
-        setRows(d.recientes)
-      } catch (e: any) {
-        setError(e?.message || "No se pudieron cargar los turnos recientes")
-      } finally {
-        setLoading(false)
+useEffect(() => {
+  ;(async () => {
+    try {
+      setLoading(true)
+
+      let d: DashboardResponse
+
+      if (session?.role === "MEDICO") {
+        // 🟣 Paso 1: obtener el profesional vinculado al usuario
+        const resPro = await fetch(`/api/profesionales/by-user/${session.id}`)
+        if (!resPro.ok) throw new Error("No se pudo obtener el profesional del usuario")
+        const profesional = await resPro.json()
+
+        // 🟣 Paso 2: cargar sus turnos filtrados por ese profesional
+        const res = await fetch(`/api/turnos/dashboard?profesionalId=${profesional.id}`)
+        if (!res.ok) throw new Error("No se pudieron cargar los turnos del médico")
+        d = await res.json()
+      } else {
+        // 🟢 Recepcionista o Gerente: sin filtros
+        d = await getDashboard()
       }
-    })()
-  }, [])
+
+      setRows(d.recientes)
+    } catch (e: any) {
+      setError(e?.message || "No se pudieron cargar los turnos recientes")
+    } finally {
+      setLoading(false)
+    }
+  })()
+}, [session])
+
 
   return (
     <div className="glass-effect rounded-2xl overflow-hidden card-hover bg-white/95 backdrop-blur-sm border border-white/20">

@@ -12,12 +12,15 @@ const FullCalendar = dynamic(
 ) as any;
 
 type DiaResumen = { total: number; porProfesional: { id: number; count: number }[] };
+
+// 🟣 nuevo: agregamos profesionalId como prop opcional
 type Props = {
   onDayClick?: (isoDate: string) => void;
   resumen?: Record<string, DiaResumen>;
+  profesionalId?: string;
 };
 
-export default function TurnosCalendar({ onDayClick, resumen: resumenProp = {} }: Props) {
+export default function TurnosCalendar({ onDayClick, resumen: resumenProp = {}, profesionalId }: Props) {
   const [resumen, setResumen] = useState<Record<string, DiaResumen>>({});
   const [loading, setLoading] = useState(false);
   const lastRangeRef = useRef<string>('');
@@ -47,41 +50,68 @@ export default function TurnosCalendar({ onDayClick, resumen: resumenProp = {} }
     return () => { document.head.removeChild(style); };
   }, []);
 
-  const onDatesSet = useCallback(async (arg: any) => {
-    if (Object.keys(resumenProp).length) return;
+  // 🟣 modificamos para incluir profesionalId si está presente
+  const onDatesSet = useCallback(
+    async (arg: any) => {
+      if (Object.keys(resumenProp).length) return;
+      if (profesionalId === null) return; // 👈 evita ejecutar antes de tener el ID
 
-    const from = arg.startStr.slice(0, 10);
-    const endExclusive = new Date(arg.end);
-    endExclusive.setUTCDate(endExclusive.getUTCDate() - 1);
-    const to = endExclusive.toISOString().slice(0, 10);
+      const from = arg.startStr.slice(0, 10);
+      const endExclusive = new Date(arg.end);
+      endExclusive.setUTCDate(endExclusive.getUTCDate() - 1);
+      const to = endExclusive.toISOString().slice(0, 10);
 
-    const key = `${from}:${to}`;
-    if (key === lastRangeRef.current) return;
-    lastRangeRef.current = key;
+      const key = `${from}:${to}:${profesionalId ?? 'all'}`; // 👈 cache único por rango + profesional
+      if (key === lastRangeRef.current) return;
+      lastRangeRef.current = key;
 
-    try {
-      abortRef.current?.abort();
-      const ac = new AbortController();
-      abortRef.current = ac;
-      setLoading(true);
+      try {
+        abortRef.current?.abort();
+        const ac = new AbortController();
+        abortRef.current = ac;
+        setLoading(true);
 
-      const r = await fetch(`/api/turnos/resumen?from=${from}&to=${to}`, { signal: ac.signal });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const rows: { date: string; total: number; porProfesional: { profesionalId: number; count: number }[] }[] = await r.json();
-      const map: Record<string, DiaResumen> = {};
-      rows.forEach(d => {
-        map[d.date] = {
-          total: d.total,
-          porProfesional: (d.porProfesional || []).map(p => ({ id: p.profesionalId, count: p.count })),
-        };
-      });
-      setResumen(map);
-    } catch (e) {
-      if ((e as any)?.name !== 'AbortError') console.error('Resumen turnos error:', e);
-    } finally {
-      setLoading(false);
+        let url = `/api/turnos/resumen?from=${from}&to=${to}`;
+        if (profesionalId && profesionalId !== 'all') {
+          url += `&profesionalId=${profesionalId}`;
+        }
+        const r = await fetch(url, { signal: ac.signal });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const rows: {
+          date: string;
+          total: number;
+          porProfesional: { profesionalId: number; count: number }[];
+        }[] = await r.json();
+
+        const map: Record<string, DiaResumen> = {};
+        rows.forEach((d) => {
+          map[d.date] = {
+            total: d.total,
+            porProfesional: (d.porProfesional || []).map((p) => ({
+              id: p.profesionalId,
+              count: p.count,
+            })),
+          };
+        });
+        setResumen(map);
+      } catch (e) {
+        if ((e as any)?.name !== "AbortError")
+          console.error("Resumen turnos error:", e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [resumenProp, profesionalId]
+  );
+
+  // 🟣 NUEVO — forzamos recarga del calendario cuando cambia el profesionalId
+  useEffect(() => {
+    // Cuando cambia el profesionalId, limpiamos el resumen previo
+    if (profesionalId !== undefined) {
+      setResumen({});
+      lastRangeRef.current = ''; // fuerza un nuevo fetch
     }
-  }, [resumenProp]);
+  }, [profesionalId]);
 
   const data = Object.keys(resumenProp).length ? resumenProp : resumen;
 
