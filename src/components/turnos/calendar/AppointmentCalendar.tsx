@@ -17,16 +17,18 @@ export function AppointmentCalendar({ date, slots, onSlotClick }: Props) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
       {slots.map((s) => {
-        const disabled = s.status !== "available"
+        // 🟣 Nuevo: ocupados (booked) y disponibles (available)
+        const isAvailable = s.status === "available"
+        const isBooked = s.status === "booked"
+
         return (
           <button
             key={`${s.date}-${s.time}`}
-            onClick={() => onSlotClick(s)}
-            disabled={disabled}
+            onClick={() => onSlotClick(s)}  // permite click en ambos
             className={`px-3 py-2 rounded-lg font-medium transition
-              ${disabled
-                ? "bg-orange-300 text-white cursor-not-allowed"
-                : "bg-green-100 hover:bg-green-200 text-green-800"}
+              ${isAvailable
+                ? "bg-green-100 hover:bg-green-200 text-green-800"
+                : "bg-red-100 hover:bg-red-200 text-red-800 cursor-pointer"}
             `}
           >
             {s.time} hs

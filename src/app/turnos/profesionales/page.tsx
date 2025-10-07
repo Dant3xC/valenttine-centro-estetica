@@ -58,7 +58,7 @@ export default function ProfessionalsPage() {
             key={p.id}
             className="glass-effect rounded-2xl p-8 bg-white/95 backdrop-blur-sm border border-white/20"
           >
-            <div className="bg-gradient-to-r from-purple-600 to-purple-400 p-6 text-white p-4 rounded-t-xl -m-8 mb-6">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-400 p-6 text-white rounded-t-xl -m-8 mb-6">
               <h3 className="text-xl font-bold">{p.nombreCompleto}</h3>
             </div>
 

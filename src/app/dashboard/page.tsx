@@ -13,8 +13,9 @@ type RoleKey = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE';
  */
 const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/Pacientes': ['RECEPCIONISTA', 'GERENTE'],
-  '/profesionales': ['GERENTE'], 
+  '/profesionales': ['GERENTE'],
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
+  '/turnos/hoy': ['MEDICO'], // 
   '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],
   // '/reception': ['RECEPCIONISTA', 'GERENTE'], // cuando exista, lo habilitás
@@ -42,6 +43,12 @@ const CARDS: Record<
     description: 'Programá y administrá citas rápidamente.',
     icon: '📅',
   },
+    '/turnos/hoy': {
+    title: 'Turnos del Día',
+    description: 'Consultá y gestioná los turnos de hoy.',
+    icon: '🕒',
+  },
+
   '/historial': {
     title: 'Historia Clínica',
     description: 'Acceso a historias clínicas y evoluciones.',
@@ -65,6 +72,7 @@ function normalizeRole(input?: string | null): RoleKey | null {
 export default function DashboardHome() {
   const { session } = useAuth();
   const role = normalizeRole(session?.role);
+  console.log("Sesión actual:", session);
 
   const quickAccess = useMemo(() => {
     if (!role) return [];
@@ -77,26 +85,46 @@ export default function DashboardHome() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Bienvenido al sistema de gestión médica</h2>
-        <p className="text-gray-600">Aqui encuentra un acceso rapido a las paginas que quiera ir</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          Bienvenido al sistema de gestión médica
+        </h2>
+        <p className="text-gray-600">
+          Aqui encuentra un acceso rapido a las paginas que quiera ir
+        </p>
       </div>
 
       {/* Accesos rápidos por rol */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {quickAccess.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            aria-label={`Ir a ${card.title}`}
-            className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60"
-          >
-            <div className="text-3xl mb-4">{card.icon}</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-purple-700">
-              {card.title}
-            </h3>
-            <p className="text-gray-600 text-sm">{card.description}</p>
-          </Link>
-        ))}
+        {quickAccess.map((card) => {
+          // tarjeta del calendario del médico, personalizamos el link
+          let href = card.href;
+
+          if (card.href === '/turnos/calendario' && session?.role === 'MEDICO') {
+            // 🔹 Redirigimos al calendario general de turnos
+            href = '/turnos';
+          } else if (card.href === '/turnos/calendario' && session?.id) {
+            // (fallback por si se necesita más adelante)
+            href = `/turnos/calendario/${session.id}`;
+          }
+
+          console.log("Card:", card.href, "→ href final:", href);
+
+          return (
+            <Link
+              key={card.href}
+              href={href}
+              aria-label={`Ir a ${card.title}`}
+              className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60"
+            >
+              <div className="text-3xl mb-4">{card.icon}</div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-purple-700">
+                {card.title}
+              </h3>
+              <p className="text-gray-600 text-sm">{card.description}</p>
+            </Link>
+          );
+        })}
+
         {role && quickAccess.length === 0 && (
           <div className="col-span-full text-sm text-gray-500">
             No tenés accesos rápidos disponibles para tu rol.
