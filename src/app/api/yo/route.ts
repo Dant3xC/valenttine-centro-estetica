@@ -1,29 +1,49 @@
+// src/app/api/yo/route.ts
 import { NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/usuarios/auth";
 import type { JwtUser } from "@/lib/usuarios/types";
 
+// GET: ruta no utilizada, se deja por compatibilidad
 export async function GET() {
-  // lee cookie httpOnly del lado servidor
-  const headers = new Headers();
-  return NextResponse.json({ error: "Usar en route handler (no necesario)" }, { status: 400 });
+  return NextResponse.json(
+    { error: "Usar método POST para esta ruta" },
+    { status: 400 }
+  );
 }
 
-// Versión recomendada: route handler "edge-aware"
-export const runtime = "nodejs"; // mantener igual que middleware
+// Mantener runtime explícito (igual que en middleware)
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  // (workaround simple) nada de body; cookie viene por header
-  const cookie = (req.headers.get("cookie") ?? "").split("; ").find(c => c.startsWith("auth_token="));
-  const token = cookie?.split("=")[1];
-  if (!token) return Response.json({ error: "No autenticado" }, { status: 401 });
+  try {
+    // 1️⃣ Leer cookie con el token
+    const cookie = (req.headers.get("cookie") ?? "")
+      .split("; ")
+      .find((c) => c.startsWith("auth_token="));
 
-  const payload = verifyJwt<JwtUser>(token);
-  if (!payload) return Response.json({ error: "Token inválido" }, { status: 401 });
+    const token = cookie?.split("=")[1];
+    if (!token)
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
-  return Response.json({
-    id: Number(payload.sub),  // AGREGAMOS -------------------------------------------------- BORRAR ?????
-    username: payload.username,
-    role: payload.role,
-    email: payload.email,
-  });
+    // 2️⃣ Verificar token JWT
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload)
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
+    // 3️⃣ Devolver datos del usuario autenticado
+    //    Incluimos ambos campos: role (nuevo) y rol (alias temporal)
+    return NextResponse.json({
+      id: Number(payload.sub), // se mantiene útil para identificar al usuario
+      username: payload.username,
+      email: payload.email,
+      role: payload.role, // nuevo nombre correcto
+      rol: payload.role,  // alias temporal para compatibilidad
+    });
+  } catch (err) {
+    console.error("[YO API]", err);
+    return NextResponse.json(
+      { error: "Error al obtener datos del usuario" },
+      { status: 500 }
+    );
+  }
 }

@@ -1,3 +1,4 @@
+// src\app\turnos\calendario\[profesional]\page.tsx
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
@@ -103,7 +104,7 @@ export default function CalendarPage() {
       try {
         const from = `${fecha}T00:00:00`
         const to = `${fecha}T23:59:59`
-        const res = await fetch(`/api/turnos/profesionales/${professionalId}/turnos?from=${from}&to=${to}`)
+        const res = await fetch(`/api/turnos/profesional/${professionalId}/turnos?from=${from}&to=${to}`)
         if (!res.ok) throw new Error("No se pudieron obtener los turnos")
         const data = await res.json()
         // 🟣 asumimos que data es un array [{ fecha, hora, ... }]
@@ -118,7 +119,7 @@ export default function CalendarPage() {
   const slots: TimeSlot[] = useMemo(() => {
     if (!disp) return []
     return disp.disponibles.map((h) => {
-      const ocupado = turnosOcupados.some((t) => t.hora.startsWith(h))
+      const ocupado = turnosOcupados.some((t) => t.hora.trim().slice(0, 5) === h)
       return {
         date: fecha,
         time: h,

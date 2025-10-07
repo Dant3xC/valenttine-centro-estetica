@@ -1,3 +1,4 @@
+// src\app\turnos\hoy\page.tsx
 'use client'
 
 import Link from 'next/link'
@@ -106,21 +107,26 @@ export default function TurnosHoyPage() {
     }
   }
 
-  // 🎨 Colores dinámicos según estado
-  const estadoColor = (estado: string) => {
-    switch (estado) {
-      case 'PENDIENTE':
-        return 'bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-300 shadow-sm'
-      case 'CONFIRMADO':
-        return 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-300 shadow-sm'
-      case 'CANCELADO':
-        return 'bg-gradient-to-r from-red-100 to-red-50 text-red-800 border border-red-300 shadow-sm'
-      case 'COMPLETADO':
-        return 'bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-300 shadow-sm'
-      default:
-        return 'bg-gray-100 text-gray-700 border border-gray-200'
-    }
+  // 🎨 Colores según estados reales de la BD
+const estadoColor = (estado: string) => {
+  switch (estado) {
+    case "Reservado":
+      return "bg-gradient-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-300 shadow-sm";
+    case "En Espera":
+      return "bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-300 shadow-sm";
+    case "En Consulta":
+      return "bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 border border-purple-300 shadow-sm";
+    case "Atendido":
+      return "bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-300 shadow-sm";
+    case "Ausente":
+      return "bg-gradient-to-r from-orange-100 to-orange-50 text-orange-800 border border-orange-300 shadow-sm";
+    case "Cancelado":
+      return "bg-gradient-to-r from-red-100 to-red-50 text-red-800 border border-red-300 shadow-sm";
+    default:
+      return "bg-gray-100 text-gray-700 border border-gray-200";
   }
+};
+
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
@@ -241,11 +247,14 @@ export default function TurnosHoyPage() {
                           onChange={(e) => onChangeEstado(r.id, e.target.value as Estado)}
                           className={`rounded-full border px-3 py-1 text-sm font-medium transition-all duration-300 ease-in-out ${estadoColor(r.estado)}`}
                         >
-                          <option value="PENDIENTE">Pendiente</option>
-                          <option value="CONFIRMADO">Confirmado</option>
-                          <option value="COMPLETADO">Completado</option>
-                          <option value="CANCELADO">Cancelado</option>
+                          <option value="Reservado">Reservado</option>
+                          <option value="En Espera">En Espera</option>
+                          <option value="En Consulta">En Consulta</option>
+                          <option value="Atendido">Atendido</option>
+                          <option value="Ausente">Ausente</option>
+                          <option value="Cancelado">Cancelado</option>
                         </select>
+
                       </td>
                       <td className="px-6 py-4">
                         <button

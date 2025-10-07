@@ -6,8 +6,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 /** Roles posibles */
 export type Role = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE'
 
-/** Lo mínimo que necesitamos mostrar en la cabecera -------------------------------------------- AGREGAMOS EL ID*/
-export type Session = { id: number; username: string; role: Role; email: string }
+/** Información mínima de sesión (agregamos ID) */
+export type Session = { 
+  id: number
+  username: string
+  role: Role
+  email: string
+}
 
 /**
  * Hook principal de autenticación (cliente)
@@ -21,25 +26,30 @@ export function useAuth() {
   const fetchMe = useCallback(async () => {
     setLoading(true)
     try {
-      // /api/me devuelve { username, role, email } si el JWT es válido
+      // /api/yo devuelve { id, username, role, email }
       const res = await fetch('/api/yo', { method: 'POST' })
       if (!res.ok) {
         setSession(null)
         return
       }
+
       const data = await res.json()
       if (data && !data.error) {
+        // toleramos tanto 'role' como 'rol' (por compatibilidad temporal)
+        const roleValue = (data.role ?? data.rol) as Role | undefined
+
         const s: Session = {
-          id: Number(data.id), // nuevo ID ----------------------------------------------------------
-          username: String(data.username),
-          role: data.role as Role,
-          email: String(data.email),
+          id: Number(data.id) || 0,
+          username: String(data.username ?? ''),
+          role: roleValue ?? 'RECEPCIONISTA', // fallback preventivo
+          email: String(data.email ?? ''),
         }
         setSession(s)
       } else {
         setSession(null)
       }
-    } catch {
+    } catch (err) {
+      console.error('[useAuth] Error al obtener sesión:', err)
       setSession(null)
     } finally {
       setLoading(false)
@@ -86,6 +96,7 @@ export function useInactivityLogout(minutes = 15) {
 
   useEffect(() => {
     const ms = minutes * 60 * 1000
+
     const reset = () => {
       if (timer.current) clearTimeout(timer.current)
       timer.current = setTimeout(async () => {
@@ -94,9 +105,11 @@ export function useInactivityLogout(minutes = 15) {
         } catch {
           /* ignore */
         } finally {
-          // mensaje de advertencia para /login
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem('flash-danger', 'Sesión finalizada por inactividad.')
+            sessionStorage.setItem(
+              'flash-danger',
+              'Sesión finalizada por inactividad.'
+            )
             window.location.replace('/login')
           }
         }
