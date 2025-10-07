@@ -1,70 +1,93 @@
 // src/app/api/pacientes/busqueda/route.ts
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@prisma/client"
+
+function parseBirthDate(input: string) {
+  // admite DD/MM/YYYY o YYYY-MM-DD
+  const ddmmyyyy = /^(\d{2})\/(\d{2})\/(\d{4})$/
+  const yyyymmdd = /^(\d{4})-(\d{2})-(\d{2})$/
+
+  let y = 0, m = 0, d = 0
+  if (ddmmyyyy.test(input)) {
+    const [, dd, mm, yyyy] = input.match(ddmmyyyy)!
+    y = Number(yyyy); m = Number(mm); d = Number(dd)
+  } else if (yyyymmdd.test(input)) {
+    const [, yyyy, mm, dd] = input.match(yyyymmdd)!
+    y = Number(yyyy); m = Number(mm); d = Number(dd)
+  } else {
+    return null
+  }
+
+  // inicio y fin del día en hora local
+  const start = new Date(y, m - 1, d, 0, 0, 0, 0)
+  const end = new Date(y, m - 1, d, 23, 59, 59, 999)
+  return { start, end }
+}
 
 export async function GET(request: Request) {
   try {
-    // Obtener los parámetros de búsqueda de la URL
     const { searchParams } = new URL(request.url)
-    const dni = searchParams.get("dni")
-    const birthDate = searchParams.get("birthDate")
-    const fullName = searchParams.get("fullName")
+    const dni = (searchParams.get("dni") || "").trim()
+    const birthDate = (searchParams.get("birthDate") || "").trim()
+    const fullName = (searchParams.get("fullName") || "").trim()
 
-    // Construir el objeto de filtros para Prisma
-    const where: any = {}
+    const where: Prisma.PacienteWhereInput = {}
 
-    // Aplicar filtros solo si los parámetros están presentes
+    // DNI: 8 dígitos => equals; si no, contains
     if (dni) {
-      where.dni = {
-        contains: dni,
+      const onlyDigits = dni.replace(/\D/g, "")
+      if (onlyDigits.length === 8) {
+        where.dni = onlyDigits
+      } else {
+        where.dni = { contains: dni, mode: "insensitive" }
       }
     }
 
+    // Fecha de nacimiento: rango del día
     if (birthDate) {
-      // Convertir la fecha DD/MM/YYYY a YYYY-MM-DD para Prisma
-      const [day, month, year] = birthDate.split("/")
-      where.fechaNacimiento = new Date(`${year}-${month}-${day}`)
+      const range = parseBirthDate(birthDate)
+      if (range) where.fechaNacimiento = { gte: range.start, lte: range.end }
     }
 
+    // fullName: puede ser uno o varios términos; cada término debe matchear nombre o apellido
     if (fullName) {
-      // Buscar tanto en nombre como en apellido
-      where.OR = [
-        {
-          nombre: {
-            contains: fullName,
-            mode: "insensitive", // Case-insensitive
-          },
-        },
-        {
-          apellido: {
-            contains: fullName,
-            mode: "insensitive", // Case-insensitive
-          },
-        },
-      ]
+      const terms = fullName.split(/\s+/).filter(Boolean)
+      where.AND = terms.map(t => ({
+        OR: [
+          { nombre: { contains: t, mode: "insensitive" } },
+          { apellido: { contains: t, mode: "insensitive" } },
+        ],
+      }))
     }
 
-    // Buscar pacientes con los filtros aplicados
-    const pacientes = await prisma.paciente.findMany({
+    const rows = await prisma.paciente.findMany({
       where,
+      orderBy: { creadoEn: "desc" },
+      take: 50,
       include: {
-        provincia: true,
-        localidad: true,
-        obraSocial: true,
-        creadoPor: {
-          select: {
-            username: true,
-          },
-        },
+        provincia: { select: { id: true, nombre: true } },
+        localidad: { select: { id: true, nombre: true, provinciaId: true } },
+        obraSocial: { select: { id: true, nombre: true } },
+        creadoPor: { select: { username: true } },
+        // relaciones nuevas para aplanar al formato que espera el front
+        Genero: { select: { id: true, nombre: true } },
+        EstadoCivil: { select: { id: true, nombre: true } },
+        EstadoPaciente: { select: { id: true, nombre: true } },
       },
     })
 
-    return NextResponse.json(pacientes)
+    // Aplanamos para que el front lea p.genero / p.estadoCivil / p.estado (texto)
+    const data = rows.map(p => ({
+      ...p,
+      genero: p.Genero?.nombre ?? "",                  // texto
+      estadoCivil: p.EstadoCivil?.nombre ?? "",        // texto
+      estado: p.EstadoPaciente?.nombre ?? "ACTIVO",    // texto (“ACTIVO”, etc.)
+    }))
+
+    return NextResponse.json(data) // array plano
   } catch (error) {
     console.error("Error en la búsqueda de pacientes:", error)
-    return NextResponse.json(
-      { error: "Error al buscar pacientes" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Error al buscar pacientes" }, { status: 500 })
   }
 }

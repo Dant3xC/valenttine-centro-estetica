@@ -90,7 +90,7 @@ export default function Page() {
                         </h2>
                         <p className="text-gray-600 text-lg">Visualizá el historial clínico de tus pacientes</p>
                     </div>
-                    <div className="flex space-x-4">
+                    {/*<div className="flex space-x-4">
                         <Link
                             href="/turnos"
                             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-semibold flex items-center space-x-3 text-lg shadow-lg hover:shadow-xl transition-all"
@@ -100,7 +100,7 @@ export default function Page() {
                             </svg>
                             <span>Calendario de turnos</span>
                         </Link>
-                    </div>
+                    </div>*/}
                 </div>
 
                 {/* Stats */}

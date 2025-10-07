@@ -3,17 +3,8 @@ import { z } from "zod";
 export const HHMM = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const YYYYMMDD = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
-// 🟣 Actualizado según tu tabla EstadoTurno real en la BD
-export const EstadoTurno = z.enum([
-  "Reservado",
-  "En Espera",
-  "En Consulta",
-  "Atendido",
-  "Ausente",
-  "Cancelado",
-]);
+export const EstadoTurno = z.enum(["Reservado", "En Espera", "En Consulta", "Atendido","Ausente", "Cancelado"]);
 export type EstadoTurno = z.infer<typeof EstadoTurno>;
-
 
 export const DiaSemana = z.enum(["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]);
 export type DiaSemana = z.infer<typeof DiaSemana>;
@@ -48,14 +39,15 @@ export const ProfesionalDetalle = z.object({
 export type ProfesionalDetalle = z.infer<typeof ProfesionalDetalle>;
 
 export const TurnoResumen = z.object({
-  id: z.number(),
-  fecha: z.union([z.coerce.date(), z.string()]).optional(), // 🟣 tolera string o Date o nulo
-  hora: z.string(),
-  estado: z.string(), // 🟣 el backend devuelve texto libre ("Reservado", "En Espera"...)
-  paciente: z.string(),
-  profesional: z.string(),
-  especialidad: z.string().optional(),
+    id: z.number(),
+    fecha: z.coerce.date(),
+    hora: HHMM,
+    estado: EstadoTurno,
+    paciente: z.string(),
+    profesional: z.string(),
+    especialidad: z.string(),
 });
+export type TurnoResumen = z.infer<typeof TurnoResumen>;
 
 export const DashboardResponse = z.object({
     stats: z.object({
@@ -85,14 +77,13 @@ export const CrearTurnoBody = z.object({
 export type CrearTurnoBody = z.infer<typeof CrearTurnoBody>;
 
 export const TurnoEntity = z.object({
-  id: z.number(),
-  pacienteId: z.number(),
-  profesionalId: z.number(),
-  fecha: z.union([z.coerce.date(), z.string()]).optional(),
-  hora: z.string(),
-  estado: z.string(), // 🟣 usa texto en lugar del enum
+    id: z.number(),
+    pacienteId: z.number(),
+    profesionalId: z.number(),
+    fecha: z.coerce.date(),
+    hora: HHMM,
+    estado: EstadoTurno,
 });
-
 export type TurnoEntity = z.infer<typeof TurnoEntity>;
 export type PacienteSearchItem = {
     id: number
@@ -105,7 +96,7 @@ export type PacienteSearchItem = {
 export type TimeSlot = {
     date: string // YYYY-MM-DD
     time: string // HH:mm
-    status: "available" | "unavailable" | "booked"
+    status: "available" | "unavailable"
 }
 
 export type TurnoCreateInput = {
@@ -116,4 +107,3 @@ export type TurnoCreateInput = {
 }
 
 export type TurnoCreateResponse = { ok: true; turnoId: number }
-
