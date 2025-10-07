@@ -165,7 +165,7 @@ export default function Page() {
                 {/* Tabla */}
                 <div className="glass-effect rounded-2xl overflow-hidden card-hover shadow-md">
                     <div className="bg-gradient-to-r from-purple-600 to-purple-400 p-6">
-                        <h3 className="text-xl font-bold text-white">Pacientes</h3>
+                        <h3 className="text-xl font-bold text-white">Historial Clínico</h3>
                     </div>
 
                     {loading && <div className="p-6">Cargando…</div>}
@@ -176,10 +176,10 @@ export default function Page() {
                             <table className="w-full">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <TH>#</TH>
+                                        <TH>ID Historial</TH>
                                         <TH>Paciente</TH>
                                         <TH>DNI</TH>
-                                        <TH>Fecha</TH>
+                                        <TH>Fecha de registro</TH>
                                         <TH>Acciones</TH>
                                     </tr>
                                 </thead>
