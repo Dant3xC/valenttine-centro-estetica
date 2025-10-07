@@ -124,7 +124,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   id: 'id',
   username: 'username',
   contraseña: 'contraseña',
-  rol: 'rol',
+  rolId: 'rolId',
   email: 'email',
   creadoEn: 'creadoEn',
   actualizadoEn: 'actualizadoEn'
@@ -161,8 +161,8 @@ exports.Prisma.PacienteScalarFieldEnum = {
   apellido: 'apellido',
   dni: 'dni',
   fechaNacimiento: 'fechaNacimiento',
-  genero: 'genero',
-  estadoCivil: 'estadoCivil',
+  generoId: 'generoId',
+  estadoCivilId: 'estadoCivilId',
   pais: 'pais',
   provinciaId: 'provinciaId',
   localidadId: 'localidadId',
@@ -188,8 +188,8 @@ exports.Prisma.ProfesionalScalarFieldEnum = {
   apellido: 'apellido',
   dni: 'dni',
   fechaNacimiento: 'fechaNacimiento',
-  genero: 'genero',
-  estadoCivil: 'estadoCivil',
+  generoId: 'generoId',
+  estadoCivilId: 'estadoCivilId',
   pais: 'pais',
   provinciaId: 'provinciaId',
   localidadId: 'localidadId',
@@ -226,7 +226,7 @@ exports.Prisma.TurnoScalarFieldEnum = {
   profesionalId: 'profesionalId',
   fecha: 'fecha',
   hora: 'hora',
-  estado: 'estado',
+  estadoId: 'estadoId',
   creadoEn: 'creadoEn'
 };
 
@@ -246,9 +246,111 @@ exports.Prisma.CentroMedicoScalarFieldEnum = {
   email: 'email'
 };
 
+exports.Prisma.AnamnesisScalarFieldEnum = {
+  id: 'id',
+  historiaClinicaId: 'historiaClinicaId',
+  fuma: 'fuma',
+  alcohol: 'alcohol',
+  dieta: 'dieta',
+  agua: 'agua'
+};
+
+exports.Prisma.AntecedenteScalarFieldEnum = {
+  id: 'id',
+  anamnesisId: 'anamnesisId',
+  tipo: 'tipo',
+  nombre: 'nombre',
+  detalle: 'detalle',
+  desde: 'desde',
+  estado: 'estado',
+  categoria: 'categoria'
+};
+
+exports.Prisma.ConsultaScalarFieldEnum = {
+  id: 'id',
+  historiaClinicaId: 'historiaClinicaId',
+  turnoId: 'turnoId',
+  derivacion: 'derivacion',
+  profesionalDeriva: 'profesionalDeriva',
+  motivoDerivacion: 'motivoDerivacion',
+  documentacion: 'documentacion',
+  fecha: 'fecha',
+  tipoConsulta: 'tipoConsulta',
+  observaciones: 'observaciones'
+};
+
+exports.Prisma.DiagnosticoScalarFieldEnum = {
+  id: 'id',
+  historiaClinicaId: 'historiaClinicaId',
+  observacion: 'observacion',
+  descripcionFacial: 'descripcionFacial',
+  descripcionCorporal: 'descripcionCorporal',
+  descripcionCapilar: 'descripcionCapilar'
+};
+
+exports.Prisma.EstadoCivilScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre'
+};
+
+exports.Prisma.EstadoPacienteScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre'
+};
+
+exports.Prisma.EstadoTurnoScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre'
+};
+
+exports.Prisma.GeneroScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre'
+};
+
+exports.Prisma.HistoriaClinicaScalarFieldEnum = {
+  id: 'id',
+  pacienteId: 'pacienteId',
+  profesionalId: 'profesionalId',
+  fechaApertura: 'fechaApertura',
+  motivoInicial: 'motivoInicial',
+  observaciones: 'observaciones',
+  estado: 'estado'
+};
+
+exports.Prisma.PlanTratamientoScalarFieldEnum = {
+  id: 'id',
+  consultaId: 'consultaId',
+  objetivo: 'objetivo',
+  frecuencia: 'frecuencia',
+  sesionesTotales: 'sesionesTotales',
+  indicacionesPost: 'indicacionesPost',
+  resultadosEsperados: 'resultadosEsperados',
+  motivoConsulta: 'motivoConsulta',
+  evolucion: 'evolucion',
+  comparacion: 'comparacion',
+  tratamientosRealizados: 'tratamientosRealizados',
+  productosUtilizados: 'productosUtilizados',
+  usoAnestesia: 'usoAnestesia',
+  toleranciaPaciente: 'toleranciaPaciente',
+  observaciones: 'observaciones',
+  medicacionPrescrita: 'medicacionPrescrita',
+  estado: 'estado'
+};
+
+exports.Prisma.RolScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -260,39 +362,13 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-exports.Rol = exports.$Enums.Rol = {
-  RECEPCIONISTA: 'RECEPCIONISTA',
-  MEDICO: 'MEDICO',
-  GERENTE: 'GERENTE'
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
-exports.Genero = exports.$Enums.Genero = {
-  FEMENINO: 'FEMENINO',
-  MASCULINO: 'MASCULINO',
-  OTRO: 'OTRO'
-};
-
-exports.EstadoCivil = exports.$Enums.EstadoCivil = {
-  SOLTERO: 'SOLTERO',
-  CASADO: 'CASADO',
-  DIVORCIADO: 'DIVORCIADO',
-  VIUDO: 'VIUDO',
-  UNION_LIBRE: 'UNION_LIBRE'
-};
-
-exports.EstadoPaciente = exports.$Enums.EstadoPaciente = {
-  ACTIVO: 'ACTIVO',
-  INACTIVO: 'INACTIVO',
-  SUSPENDIDO: 'SUSPENDIDO',
-  FALLECIDO: 'FALLECIDO'
-};
-
-exports.EstadoTurno = exports.$Enums.EstadoTurno = {
-  PENDIENTE: 'PENDIENTE',
-  CONFIRMADO: 'CONFIRMADO',
-  CANCELADO: 'CANCELADO',
-  COMPLETADO: 'COMPLETADO'
-};
 
 exports.Prisma.ModelName = {
   Usuario: 'Usuario',
@@ -306,7 +382,18 @@ exports.Prisma.ModelName = {
   ObraSocialXProfesional: 'ObraSocialXProfesional',
   Turno: 'Turno',
   DetalleTurno: 'DetalleTurno',
-  CentroMedico: 'CentroMedico'
+  CentroMedico: 'CentroMedico',
+  Anamnesis: 'Anamnesis',
+  Antecedente: 'Antecedente',
+  Consulta: 'Consulta',
+  Diagnostico: 'Diagnostico',
+  EstadoCivil: 'EstadoCivil',
+  EstadoPaciente: 'EstadoPaciente',
+  EstadoTurno: 'EstadoTurno',
+  Genero: 'Genero',
+  HistoriaClinica: 'HistoriaClinica',
+  PlanTratamiento: 'PlanTratamiento',
+  Rol: 'Rol'
 };
 
 /**
