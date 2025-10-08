@@ -1,7 +1,7 @@
 // src/app/turnos/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -68,6 +68,21 @@ export default function TurnosDashboard() {
     horaHasta: undefined,
     soloConHora: false,
   })
+
+  const [especialidades, setEspecialidades] = useState<{ id: string; nombre: string }[]>([])
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/especialidades")
+        if (!res.ok) throw new Error("Error al cargar especialidades")
+        const data = await res.json()
+        setEspecialidades(data)
+      } catch (err) {
+        console.error("Error cargando especialidades:", err)
+      }
+    })()
+  }, [])
 
   // ── Estado “global” (movido desde la tabla)
   const [selected, setSelected] = useState<DashboardResponse["recientes"][number] | null>(null)
@@ -161,7 +176,12 @@ export default function TurnosDashboard() {
         <StatsGrid />
 
         {/* 🔎 Filtros que afectan a “Turnos Recientes” */}
-        <TurnosFilters value={filters} onChange={setFilters} />
+        <TurnosFilters
+          value={filters}
+          onChange={setFilters}
+          especialidades={especialidades}
+        />
+
 
         {/* 🧾 Tabla de recientes filtrada (ahora emite onSelect) 
         <RecentAppointmentsTable filters={filters} onSelect={openDetail} />*/}
