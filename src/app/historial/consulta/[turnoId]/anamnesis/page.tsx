@@ -2,8 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 /* ========= Catálogos (según PDF) ========= */
 const PATOLOGICOS_OPTS = [
@@ -99,13 +99,7 @@ async function httpJSON<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 /* ========= Helpers UI ========= */
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="glass-effect rounded-2xl p-6 bg-white/95 border mb-6">
       <h3 className="text-lg font-semibold text-purple-800 mb-3">{title}</h3>
@@ -114,27 +108,20 @@ function Section({
   );
 }
 function TH({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-3 py-2 text-left text-xs font-bold text-purple-800">
-      {children}
-    </th>
-  );
+  return <th className="px-3 py-2 text-left text-xs font-bold text-purple-800">{children}</th>;
 }
-function TD({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+function TD({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <td className={`px-3 py-2 ${className}`}>{children}</td>;
 }
+
 function TopNav({
   turnoId,
   current,
+  qs,
 }: {
   turnoId: string;
   current: "anamnesis" | "clinicos" | "plan";
+  qs: string;
 }) {
   const tabs = [
     { slug: "anamnesis", label: "Anamnesis" },
@@ -146,11 +133,9 @@ function TopNav({
       {tabs.map((t) => (
         <Link
           key={t.slug}
-          href={`/historial/consulta/${turnoId}/${t.slug}`}
+          href={`/historial/consulta/${turnoId}/${t.slug}${qs}`}
           className={`px-4 py-2 rounded-xl text-sm ${
-            current === t.slug
-              ? "bg-purple-600 text-white"
-              : "bg-white text-gray-800 hover:bg-gray-100 border"
+            current === t.slug ? "bg-purple-600 text-white" : "bg-white text-gray-800 hover:bg-gray-100 border"
           }`}
         >
           {t.label}
@@ -159,14 +144,17 @@ function TopNav({
     </div>
   );
 }
+
 function FilePicker({
   label,
   files,
   onPick,
+  disabled = false,
 }: {
   label?: string;
   files: File[];
   onPick: (fs: File[]) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-2">
@@ -174,12 +162,16 @@ function FilePicker({
       <input
         type="file"
         multiple
+        disabled={disabled}
         onChange={(e) => {
+          if (disabled) return;
           const fs = Array.from(e.target.files ?? []);
           onPick(fs);
           e.currentTarget.value = "";
         }}
-        className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+        className={`block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700 ${
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        }`}
       />
       {files.length > 0 && (
         <ul className="text-sm text-gray-600 list-disc ml-5">
@@ -199,28 +191,35 @@ export type AntecedenteRow = {
   desde?: string; // YYYY-MM-DD
   estado?: string; // En curso | Controlado | Resuelto | En tratamiento
 };
-const ESTADO_OPTS = [
-  "En curso",
-  "Controlado",
-  "Resuelto",
-  "En tratamiento",
-];
+const ESTADO_OPTS = ["En curso", "Controlado", "Resuelto", "En tratamiento"];
 
 function AntecedentesTable({
   label,
   quickOptions = [],
   rows,
   setRows,
+  disabled = false,
 }: {
   label: string;
   quickOptions?: readonly string[];
   rows: AntecedenteRow[];
   setRows: (v: AntecedenteRow[]) => void;
+  disabled?: boolean;
 }) {
-  const addEmpty = () => setRows([...rows, { nombre: "" }]);
-  const addQuick = (n: string) => setRows([...rows, { nombre: n }]);
-  const del = (i: number) => setRows(rows.filter((_, k) => k !== i));
+  const addEmpty = () => {
+    if (disabled) return;
+    setRows([...rows, { nombre: "" }]);
+  };
+  const addQuick = (n: string) => {
+    if (disabled) return;
+    setRows([...rows, { nombre: n }]);
+  };
+  const del = (i: number) => {
+    if (disabled) return;
+    setRows(rows.filter((_, k) => k !== i));
+  };
   const up = (i: number, p: Partial<AntecedenteRow>) => {
+    if (disabled) return;
     const n = [...rows];
     n[i] = { ...n[i], ...p };
     setRows(n);
@@ -235,7 +234,10 @@ function AntecedentesTable({
               key={o}
               type="button"
               onClick={() => addQuick(o)}
-              className="px-3 py-1.5 rounded-lg text-sm bg-gray-100 text-gray-800 hover:bg-gray-200"
+              disabled={disabled}
+              className={`px-3 py-1.5 rounded-lg text-sm ${
+                disabled ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
             >
               + {o}
             </button>
@@ -259,7 +261,8 @@ function AntecedentesTable({
               <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                 <TD>
                   <input
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.nombre}
                     onChange={(e) => up(i, { nombre: e.target.value })}
                     placeholder="Ej: Hipertensión arterial"
@@ -267,7 +270,8 @@ function AntecedentesTable({
                 </TD>
                 <TD>
                   <input
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.detalle ?? ""}
                     onChange={(e) => up(i, { detalle: e.target.value })}
                     placeholder="Detalle libre"
@@ -276,14 +280,16 @@ function AntecedentesTable({
                 <TD>
                   <input
                     type="date"
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.desde ?? ""}
                     onChange={(e) => up(i, { desde: e.target.value })}
                   />
                 </TD>
                 <TD>
                   <select
-                    className="w-full px-2 py-1 border rounded-md bg-white"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md bg-white disabled:bg-gray-50"
                     value={r.estado ?? ""}
                     onChange={(e) => up(i, { estado: e.target.value })}
                   >
@@ -296,7 +302,11 @@ function AntecedentesTable({
                   </select>
                 </TD>
                 <TD className="text-right">
-                  <button className="text-xs text-red-600" onClick={() => del(i)}>
+                  <button
+                    disabled={disabled}
+                    className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
+                    onClick={() => del(i)}
+                  >
                     eliminar
                   </button>
                 </TD>
@@ -310,7 +320,8 @@ function AntecedentesTable({
         <button
           type="button"
           onClick={addEmpty}
-          className="px-3 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+          disabled={disabled}
+          className={`px-3 py-2 rounded-lg ${disabled ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-purple-600 text-white hover:bg-purple-700"}`}
         >
           Agregar antecedente
         </button>
@@ -320,12 +331,19 @@ function AntecedentesTable({
 }
 
 /* Quirúrgicos (Complicaciones → Observaciones) */
- type FilaQuir = { cirugia: string; year?: string; observaciones?: string };
-function TablaQuir({ label, base }: { label: string; base: readonly string[] }) {
+type FilaQuir = { cirugia: string; year?: string; observaciones?: string };
+function TablaQuir({ label, base, disabled = false }: { label: string; base: readonly string[]; disabled?: boolean }) {
   const [rows, setRows] = useState<FilaQuir[]>(base.map((n) => ({ cirugia: n })));
-  const add = () => setRows([...rows, { cirugia: "" }]);
-  const del = (i: number) => setRows(rows.filter((_, k) => k !== i));
+  const add = () => {
+    if (disabled) return;
+    setRows([...rows, { cirugia: "" }]);
+  };
+  const del = (i: number) => {
+    if (disabled) return;
+    setRows(rows.filter((_, k) => k !== i));
+  };
   const up = (i: number, p: Partial<FilaQuir>) => {
+    if (disabled) return;
     const n = [...rows];
     n[i] = { ...n[i], ...p };
     setRows(n);
@@ -348,7 +366,8 @@ function TablaQuir({ label, base }: { label: string; base: readonly string[] }) 
               <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                 <TD>
                   <input
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.cirugia}
                     onChange={(e) => up(i, { cirugia: e.target.value })}
                   />
@@ -356,7 +375,8 @@ function TablaQuir({ label, base }: { label: string; base: readonly string[] }) 
                 <TD>
                   <input
                     type="number"
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.year ?? ""}
                     onChange={(e) => up(i, { year: e.target.value })}
                     placeholder="AAAA"
@@ -364,13 +384,18 @@ function TablaQuir({ label, base }: { label: string; base: readonly string[] }) 
                 </TD>
                 <TD>
                   <input
-                    className="w-full px-2 py-1 border rounded-md"
+                    disabled={disabled}
+                    className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                     value={r.observaciones ?? ""}
                     onChange={(e) => up(i, { observaciones: e.target.value })}
                   />
                 </TD>
                 <TD className="text-right">
-                  <button className="text-xs text-red-600" onClick={() => del(i)}>
+                  <button
+                    disabled={disabled}
+                    className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
+                    onClick={() => del(i)}
+                  >
                     eliminar
                   </button>
                 </TD>
@@ -383,7 +408,8 @@ function TablaQuir({ label, base }: { label: string; base: readonly string[] }) 
         <button
           type="button"
           onClick={add}
-          className="px-3 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+          disabled={disabled}
+          className={`px-3 py-2 rounded-lg ${disabled ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-purple-600 text-white hover:bg-purple-700"}`}
         >
           Agregar cirugía
         </button>
@@ -393,18 +419,25 @@ function TablaQuir({ label, base }: { label: string; base: readonly string[] }) 
 }
 
 /* Tratamientos estéticos previos (Complicación → Observaciones) */
- type FilaTratPrev = {
+type FilaTratPrev = {
   tipo: string;
   fecha?: string;
   zona?: string;
   resultado?: string;
   observaciones?: string;
 };
-function TablaTratPrev({ opciones }: { opciones: readonly string[] }) {
+function TablaTratPrev({ opciones, disabled = false }: { opciones: readonly string[]; disabled?: boolean }) {
   const [rows, setRows] = useState<FilaTratPrev[]>([]);
-  const add = (tipo: string) => setRows([...rows, { tipo }]);
-  const del = (i: number) => setRows(rows.filter((_, k) => k !== i));
+  const add = (tipo: string) => {
+    if (disabled) return;
+    setRows([...rows, { tipo }]);
+  };
+  const del = (i: number) => {
+    if (disabled) return;
+    setRows(rows.filter((_, k) => k !== i));
+  };
   const up = (i: number, p: Partial<FilaTratPrev>) => {
+    if (disabled) return;
     const n = [...rows];
     n[i] = { ...n[i], ...p };
     setRows(n);
@@ -418,7 +451,10 @@ function TablaTratPrev({ opciones }: { opciones: readonly string[] }) {
             key={t}
             type="button"
             onClick={() => add(t)}
-            className="px-3 py-1.5 rounded-lg text-sm bg-gray-100 text-gray-800 hover:bg-gray-200"
+            disabled={disabled}
+            className={`px-3 py-1.5 rounded-lg text-sm ${
+              disabled ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+            }`}
           >
             + {t}
           </button>
@@ -444,34 +480,42 @@ function TablaTratPrev({ opciones }: { opciones: readonly string[] }) {
                   <TD>
                     <input
                       type="date"
-                      className="w-full px-2 py-1 border rounded-md"
+                      disabled={disabled}
+                      className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                       value={r.fecha ?? ""}
                       onChange={(e) => up(i, { fecha: e.target.value })}
                     />
                   </TD>
                   <TD>
                     <input
-                      className="w-full px-2 py-1 border rounded-md"
+                      disabled={disabled}
+                      className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                       value={r.zona ?? ""}
                       onChange={(e) => up(i, { zona: e.target.value })}
                     />
                   </TD>
                   <TD>
                     <input
-                      className="w-full px-2 py-1 border rounded-md"
+                      disabled={disabled}
+                      className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                       value={r.resultado ?? ""}
                       onChange={(e) => up(i, { resultado: e.target.value })}
                     />
                   </TD>
                   <TD>
                     <input
-                      className="w-full px-2 py-1 border rounded-md"
+                      disabled={disabled}
+                      className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
                       value={r.observaciones ?? ""}
                       onChange={(e) => up(i, { observaciones: e.target.value })}
                     />
                   </TD>
                   <TD className="text-right">
-                    <button className="text-xs text-red-600" onClick={() => del(i)}>
+                    <button
+                      disabled={disabled}
+                      className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
+                      onClick={() => del(i)}
+                    >
                       eliminar
                     </button>
                   </TD>
@@ -489,6 +533,9 @@ function TablaTratPrev({ opciones }: { opciones: readonly string[] }) {
 export default function Page() {
   const { turnoId } = useParams<{ turnoId: string }>();
   const router = useRouter();
+  const sp = useSearchParams();
+  const readOnly = sp.get("readonly") === "1" || sp.get("mode") === "view";
+  const qs = readOnly ? "?readonly=1" : "";
 
   type Header = {
     id: number;
@@ -517,9 +564,7 @@ export default function Page() {
 
   /* Hábitos: dropdown + % */
   const [cigsDia, setCigsDia] = useState<number>(0); // 0..40
-  const [alcohol, setAlcohol] = useState<
-    "NO" | "OCASIONAL" | "SEMANAL" | "DIARIO"
-  >("NO");
+  const [alcohol, setAlcohol] = useState<"NO" | "OCASIONAL" | "SEMANAL" | "DIARIO">("NO");
   const [dieta, setDieta] = useState("");
   const [aguaLitros, setAguaLitros] = useState<number>(0); // 0..5 en pasos de 0.5
 
@@ -538,11 +583,7 @@ export default function Page() {
         const init = await httpJSON<{
           consultaId: number;
           historiaClinicaId: number;
-          header: Header["paciente"] & {
-            profesional: string;
-            fecha: string;
-            hora: string;
-          } & { paciente: Header["paciente"] };
+          header: { paciente: Header["paciente"]; profesional: string; fecha: string; hora: string };
         }>(`/api/consultas/${turnoId}/iniciar`, { method: "POST" });
 
         if (!alive) return;
@@ -555,9 +596,7 @@ export default function Page() {
         });
 
         // 2) Prefill de Anamnesis
-        const pre = await httpJSON<any>(
-          `/api/consultas/${turnoId}/anamnesis`
-        );
+        const pre = await httpJSON<any>(`/api/consultas/${turnoId}/anamnesis`);
         if (!alive) return;
 
         if (pre?.derivacion) {
@@ -567,23 +606,12 @@ export default function Page() {
         }
         if (pre?.habitos) {
           setCigsDia(Number(pre.habitos.fuma ?? 0));
-          // Si venía algo distinto, lo toleramos como string libre
-          setAlcohol(
-            (pre.habitos.alcohol?.toUpperCase?.() as any) ?? "NO"
-          );
+          setAlcohol((pre.habitos.alcohol?.toUpperCase?.() as any) ?? "NO");
           setDieta(pre.habitos.dieta ?? "");
-          // Backend guarda entero; interpretamos como pasos de 0.5 L
           setAguaLitros(Number(pre.habitos.agua ?? 0) / 2);
         }
-        // Antecedentes: el GET devuelve lista plana con categoria/tipo
-        const ants: Array<{
-          nombre: string;
-          detalle?: string;
-          desde?: string;
-          estado?: string;
-          categoria?: string;
-          tipo?: string;
-        }> = pre?.antecedentes ?? [];
+        const ants: Array<{ nombre: string; detalle?: string; desde?: string; estado?: string; categoria?: string; tipo?: string }> =
+          pre?.antecedentes ?? [];
         const cat = (a: any) => (a.categoria ?? a.tipo ?? "").toString();
         const mapRow = (x: any): AntecedenteRow => ({
           nombre: x.nombre ?? "",
@@ -593,7 +621,6 @@ export default function Page() {
         });
         setPatologicos(ants.filter((x) => /patolog/i.test(cat(x))).map(mapRow));
         setDermato(ants.filter((x) => /(dermat|dermato)/i.test(cat(x))).map(mapRow));
-
         setAlergias(ants.filter((x) => /alerg/i.test(cat(x))).map(mapRow));
       } catch (e: any) {
         if (!alive) return;
@@ -609,6 +636,7 @@ export default function Page() {
 
   // ====== Guardar ======
   async function onSave(goNext = false) {
+    if (readOnly) return; // protección extra
     try {
       setSaving(true);
       setError(null);
@@ -620,10 +648,9 @@ export default function Page() {
         },
         habitos: {
           fuma: cigsDia,
-          alcohol, // backend guarda string libre
+          alcohol,
           dieta,
-          // entero en unidades de 0.5L para compatibilidad con tu API
-          agua: Math.round(aguaLitros * 2),
+          agua: Math.round(aguaLitros * 2), // entero en pasos de 0.5L
         },
         antecedentes: {
           patologicos: patologicos.map((r) => ({
@@ -653,8 +680,6 @@ export default function Page() {
         body: JSON.stringify(payload),
       });
 
-      // TODO: upload de adjuntosDeriva por otra ruta (multipart) y guardar URLs en Consulta.documentacion
-
       if (goNext) router.push(`/historial/consulta/${turnoId}/datos-clinicos`);
     } catch (e: any) {
       setError(e?.message || "No se pudo guardar");
@@ -665,13 +690,11 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
-      <TopNav turnoId={turnoId} current="anamnesis" />
+      <TopNav turnoId={turnoId} current="anamnesis" qs={qs} />
 
       {/* Header */}
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
-        <h2 className="text-2xl font-bold text-purple-800 mb-2">
-          Consulta #{header?.id ?? Number(turnoId)} — Anamnesis
-        </h2>
+        <h2 className="text-2xl font-bold text-purple-800 mb-2">Consulta #{header?.id ?? Number(turnoId)} — Anamnesis</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
             <strong>Paciente:</strong>{" "}
@@ -690,24 +713,16 @@ export default function Page() {
             <strong>Fecha/Hora:</strong> {header?.fecha ?? "—"} · {header?.hora ?? "—"} hs
           </div>
         </div>
-        {error && (
-          <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>
-        )}
+        {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
       </div>
 
       {/* Derivación (SIN fecha) */}
       <Section title="Derivación médica">
         <div className="flex flex-wrap items-center gap-4 mb-3">
-          <span className="text-sm font-medium text-gray-700">
-            Paciente derivado por profesional
-          </span>
+          <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
           {["NO", "SI"].map((o) => (
             <label key={o} className="inline-flex items-center gap-2">
-              <input
-                type="radio"
-                checked={derivado === o}
-                onChange={() => setDerivado(o as any)}
-              />
+              <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
               <span className="text-sm">{o}</span>
             </label>
           ))}
@@ -715,31 +730,25 @@ export default function Page() {
         {derivado === "SI" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                Profesional que deriva (ID o nombre)
-              </label>
+              <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
               <input
                 value={profDeriva}
                 onChange={(e) => setProfDeriva(e.target.value)}
-                className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                disabled={readOnly}
+                className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
             <div className="md:col-span-3">
-              <label className="text-sm font-medium text-gray-700">
-                Motivo de derivación
-              </label>
+              <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
               <textarea
                 value={motivoDeriva}
                 onChange={(e) => setMotivoDeriva(e.target.value)}
-                className="w-full min-h-24 px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                disabled={readOnly}
+                className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
             <div className="md:col-span-3">
-              <FilePicker
-                label="Documentación adjunta"
-                files={adjuntosDeriva}
-                onPick={(fs) => setAdjuntosDeriva((p) => [...p, ...fs])}
-              />
+              <FilePicker label="Documentación adjunta" files={adjuntosDeriva} onPick={(fs) => setAdjuntosDeriva((p) => [...p, ...fs])} disabled={readOnly} />
             </div>
           </div>
         )}
@@ -751,17 +760,15 @@ export default function Page() {
         quickOptions={PATOLOGICOS_OPTS}
         rows={patologicos}
         setRows={setPatologicos}
+        disabled={readOnly}
       />
-      <AntecedentesTable
-        label="Alergias"
-        rows={alergias}
-        setRows={setAlergias}
-      />
+      <AntecedentesTable label="Alergias" rows={alergias} setRows={setAlergias} disabled={readOnly} />
       <AntecedentesTable
         label="Enfermedades dermatológicas"
         quickOptions={DERMATO_OPTS}
         rows={dermato}
         setRows={setDermato}
+        disabled={readOnly}
       />
 
       {/* Hábitos */}
@@ -769,13 +776,12 @@ export default function Page() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           {/* Fuma */}
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Fuma (cigarrillos/día)
-            </label>
+            <label className="text-sm font-medium text-gray-700">Fuma (cigarrillos/día)</label>
             <select
               value={String(cigsDia)}
               onChange={(e) => setCigsDia(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              disabled={readOnly}
+              className="w-full px-3 py-2 border rounded-xl bg-white disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               {Array.from({ length: 41 }, (_, i) => i).map((n) => (
                 <option key={n} value={n}>
@@ -792,7 +798,8 @@ export default function Page() {
             <select
               value={alcohol}
               onChange={(e) => setAlcohol(e.target.value as any)}
-              className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              disabled={readOnly}
+              className="w-full px-3 py-2 border rounded-xl bg-white disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               {["NO", "OCASIONAL", "SEMANAL", "DIARIO"].map((o) => (
                 <option key={o} value={o}>
@@ -808,20 +815,20 @@ export default function Page() {
             <input
               value={dieta}
               onChange={(e) => setDieta(e.target.value)}
-              className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              disabled={readOnly}
+              className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="Descripción breve"
             />
           </div>
 
           {/* Agua */}
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Toma agua (litros/día)
-            </label>
+            <label className="text-sm font-medium text-gray-700">Toma agua (litros/día)</label>
             <select
               value={String(aguaLitros)}
               onChange={(e) => setAguaLitros(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              disabled={readOnly}
+              className="w-full px-3 py-2 border rounded-xl bg-white disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               {Array.from({ length: 11 }, (_, i) => i * 0.5).map((v) => (
                 <option key={v} value={v}>
@@ -837,51 +844,43 @@ export default function Page() {
       {/* Quirúrgicos */}
       <TablaQuir
         label="Antecedentes quirúrgicos — Facial"
-        base={[
-          "Rinoplastia",
-          "Blefaroplastia",
-          "Otoplastia",
-          "Ritidectomía",
-          "Lifting de cuello",
-          "Mentoplastia",
-          "Bichectomía",
-          "Cirugía ortognática",
-        ]}
+        base={["Rinoplastia", "Blefaroplastia", "Otoplastia", "Ritidectomía", "Lifting de cuello", "Mentoplastia", "Bichectomía", "Cirugía ortognática"]}
+        disabled={readOnly}
       />
       <TablaQuir
         label="Antecedentes quirúrgicos — Corporal"
-        base={[
-          "Liposucción",
-          "Abdominoplastia",
-          "Mamoplastia de aumento",
-          "Mamoplastia de reducción",
-          "Mastopexia",
-          "Gluteoplastia",
-          "Braquioplastia",
-          "Lifting de muslos",
-        ]}
+        base={["Liposucción", "Abdominoplastia", "Mamoplastia de aumento", "Mamoplastia de reducción", "Mastopexia", "Gluteoplastia", "Braquioplastia", "Lifting de muslos"]}
+        disabled={readOnly}
       />
 
-      {/* Tratamientos estéticos previos (Observaciones en lugar de Complicación) */}
-      <TablaTratPrev opciones={[...TRAT_FACIAL, ...TRAT_CORPORAL]} />
+      {/* Tratamientos estéticos previos */}
+      <TablaTratPrev opciones={[...TRAT_FACIAL, ...TRAT_CORPORAL]} disabled={readOnly} />
 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3">
-        <button
-          disabled={saving}
-          onClick={() => onSave(false)}
-          className="px-5 py-2 rounded-xl bg-white border text-purple-700 hover:bg-gray-50 disabled:opacity-60"
-        >
-          Guardar
-        </button>
-        <button
-          disabled={saving}
-          onClick={() => onSave(true)}
-          className="px-5 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-60"
-        >
-          Guardar y continuar: Datos clínicos
-        </button>
-      </div>
+      {readOnly ? (
+        <div className="flex justify-end">
+          <Link href={`/historial/consulta/${turnoId}/datos-clinicos${qs}`} className="px-5 py-2 rounded-xl bg-white border text-gray-800 hover:bg-gray-50">
+            Ver: Datos clínicos
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
+          <button
+            disabled={saving}
+            onClick={() => onSave(false)}
+            className="px-5 py-2 rounded-xl bg-white border text-purple-700 hover:bg-gray-50 disabled:opacity-60"
+          >
+            Guardar
+          </button>
+          <button
+            disabled={saving}
+            onClick={() => onSave(true)}
+            className="px-5 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-60"
+          >
+            Guardar y continuar: Datos clínicos
+          </button>
+        </div>
+      )}
     </main>
   );
 }
