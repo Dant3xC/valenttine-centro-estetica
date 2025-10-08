@@ -1,18 +1,14 @@
-// src\app\turnos\calendario\[profesional]\page.tsx
+// src/app/turnos/calendario/[profesional]/page.tsx
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Image from "next/image"
-// ⬇️ Supongo que tu getDisponibilidad acepta query params extras;
-//    más abajo te muestro cómo ajustarla en la API.
+
 import { getDisponibilidad, getProfesionalDetalle } from "@/lib/turnos/api"
 import type { DisponibilidadResponse, ProfesionalDetalle, TimeSlot } from "@/lib/turnos/types"
 import { AppointmentCalendar } from "@/components/turnos/calendar/AppointmentCalendar"
 import { PatientSearchModal } from "@/components/turnos/modals/PatientSearchModal"
-
-// 🟣 Nuevo: importamos el hook para obtener el usuario logueado
-import { useAuth } from "@/hooks/useAuth"
 
 function todayYMD() {
   const d = new Date()
@@ -22,32 +18,7 @@ function todayYMD() {
 export default function CalendarPage() {
   const router = useRouter()
   const params = useParams<{ profesional: string }>()
-  const { session } = useAuth() // 🟣 obtenemos la sesión del usuario
-
-  // 🟣 Nuevo: profesionalId se obtiene según el rol del usuario
-  const [professionalId, setProfessionalId] = useState<number | null>(null)
-
-  // 🟣 Si el usuario es médico, buscamos su registro en la tabla Profesional
-  useEffect(() => {
-    ;(async () => {
-      if (session?.role === "MEDICO") {
-        try {
-          const res = await fetch(`/api/profesionales/by-user/${session.id}`)
-          if (res.ok) {
-            const prof = await res.json()
-            setProfessionalId(prof.id) // guardamos el id del profesional
-          } else {
-            console.warn("No se encontró profesional vinculado al usuario.")
-          }
-        } catch (err) {
-          console.error("Error buscando profesional:", err)
-        }
-      } else {
-        // 🟣 Si no es médico (recepcionista o gerente), tomamos el id desde la URL
-        setProfessionalId(Number(params.profesional))
-      }
-    })()
-  }, [session, params.profesional])
+  const professionalId = Number(params.profesional)
 
   const [profesional, setProfesional] = useState<ProfesionalDetalle | null>(null)
   const [fecha, setFecha] = useState<string>(todayYMD())
@@ -59,16 +30,17 @@ export default function CalendarPage() {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
   const [showPatientModal, setShowPatientModal] = useState(false)
 
-  // Estado para duración del turno (minutos)
+  // duración del turno (min)
   const [slotMinutes, setSlotMinutes] = useState<10 | 20 | 30 | 60>(30)
 
-  // 🟣 Nuevo estado: guardamos los turnos ocupados (para marcarlos en rojo)
-  const [turnosOcupados, setTurnosOcupados] = useState<{ fecha: string; hora: string }[]>([])
-
-  // Detalle
+  // Detalle del profesional
   useEffect(() => {
     ;(async () => {
-      if (!professionalId) return
+      if (!Number.isInteger(professionalId)) {
+        setError("Profesional inválido")
+        setLoading(false)
+        return
+      }
       try {
         setLoading(true)
         const det = await getProfesionalDetalle(professionalId)
@@ -81,10 +53,10 @@ export default function CalendarPage() {
     })()
   }, [professionalId])
 
-  // Disponibilidad del día 
+  // Disponibilidad del día (único fetch)
   useEffect(() => {
     ;(async () => {
-      if (!professionalId || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return
+      if (!Number.isInteger(professionalId) || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return
       try {
         setLoadingSlots(true)
         const d = await getDisponibilidad(professionalId, fecha, { step: slotMinutes })
@@ -97,45 +69,15 @@ export default function CalendarPage() {
     })()
   }, [professionalId, fecha, slotMinutes])
 
-  // 🟣 Nuevo efecto: traemos los turnos ocupados del profesional (API real)
-  useEffect(() => {
-    ;(async () => {
-      if (!professionalId) return
-      try {
-        const from = `${fecha}T00:00:00`
-        const to = `${fecha}T23:59:59`
-        const res = await fetch(`/api/turnos/profesional/${professionalId}/turnos?from=${from}&to=${to}`)
-        if (!res.ok) throw new Error("No se pudieron obtener los turnos")
-        const data = await res.json()
-        // 🟣 asumimos que data es un array [{ fecha, hora, ... }]
-        setTurnosOcupados(data)
-      } catch (err) {
-        console.error("Error cargando turnos del profesional:", err)
-      }
-    })()
-  }, [professionalId, fecha])
-
-  // 🟣 Combinamos disponibilidad (verde) con ocupados (rojo)
+  // Todos los slots son verdes (available)
   const slots: TimeSlot[] = useMemo(() => {
     if (!disp) return []
-    return disp.disponibles.map((h) => {
-      const ocupado = turnosOcupados.some((t) => t.hora.trim().slice(0, 5) === h)
-      return {
-        date: fecha,
-        time: h,
-        status: ocupado ? "booked" : "available",
-      }
-    })
-  }, [disp, fecha, turnosOcupados])
+    return disp.disponibles.map((h) => ({ date: fecha, time: h, status: "available" as const }))
+  }, [disp, fecha])
 
   const handleSlotClick = (slot: TimeSlot) => {
-    if (slot.status === "available") {
-      setSelectedSlot(slot)
-      setShowPatientModal(true)
-    } else if (slot.status === "booked") {
-      // 🟣 Nuevo: mostrar detalle de turno si está ocupado (por ahora solo consola)
-      console.log("Turno ocupado:", slot)
-    }
+    setSelectedSlot(slot)
+    setShowPatientModal(true)
   }
 
   const handleAppointmentConfirmed = () => {
@@ -168,7 +110,6 @@ export default function CalendarPage() {
           <div className="bg-purple-600 rounded-t-2xl p-4 text-white flex items-center justify-between gap-4">
             <h2 className="text-xl font-bold">Seleccione un Turno</h2>
 
-            {/* ⬇️ SELECTOR DE DURACIÓN */}
             <label className="flex items-center gap-2 text-sm">
               <span className="opacity-90">Duración</span>
               <select
@@ -202,7 +143,7 @@ export default function CalendarPage() {
         <PatientSearchModal
           open={showPatientModal}
           onClose={() => setShowPatientModal(false)}
-          professionalId={professionalId ?? 0}
+          professionalId={professionalId}
           selectedSlot={selectedSlot}
           onConfirm={handleAppointmentConfirmed}
         />

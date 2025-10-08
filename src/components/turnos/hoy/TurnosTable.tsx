@@ -99,13 +99,25 @@ export function TurnosTable({
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => onAtender(r.id)}
-                      className="px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-700 hover:to-purple-600 active:scale-95 shadow-sm transition-transform duration-200"
-                    >
-                      Atender
-                    </button>
+                    {(() => {
+                      const puedeAtender = r.estado === 'En Espera';
+                      return (
+                        <button
+                          onClick={() => { if (puedeAtender) onAtender(r.id); }}
+                          disabled={!puedeAtender}
+                          title={puedeAtender ? 'Comenzar atención' : 'Solo disponible si el turno está en “En Espera”'}
+                          aria-disabled={!puedeAtender}
+                          className={`px-4 py-1 rounded-full font-semibold shadow-sm transition-transform duration-200
+          ${puedeAtender
+                              ? 'text-white bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-700 hover:to-purple-600 active:scale-95'
+                              : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+                        >
+                          Atender
+                        </button>
+                      );
+                    })()}
                   </td>
+
                 </tr>
               ))}
             </tbody>

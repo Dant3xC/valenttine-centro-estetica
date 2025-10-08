@@ -148,7 +148,7 @@ export default function Page() {
 
                                             <div className="mt-3 flex gap-2">
                                                 <Link
-                                                    href={`/historial/consulta/${c.id}/anamnesis?readonly=1`}
+                                                    href={`/historial/consulta/${c.id}/anamnesis/ver`}
                                                     className="px-3 py-1 rounded-lg text-sm bg-purple-600 text-white hover:bg-purple-700"
                                                 >
                                                     Ver consulta
