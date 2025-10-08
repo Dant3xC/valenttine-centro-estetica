@@ -49,14 +49,30 @@ export const TurnoResumen = z.object({
 });
 export type TurnoResumen = z.infer<typeof TurnoResumen>;
 
-export const DashboardResponse = z.object({
-    stats: z.object({
-        pendientes: z.number(),
-        confirmadosHoy: z.number(),
-        completadosMes: z.number(),
-    }),
-    recientes: z.array(TurnoResumen),
+// src/lib/turnos/types.ts
+const StatsShape = z.object({
+  // compatibles existentes
+  pendientes: z.number().optional(),
+  confirmadosHoy: z.number().optional(),
+  completadosMes: z.number().optional(),
+
+  // ✅ nuevos para las cards de hoy
+  totalHoy: z.number().optional(),
+  byEstado: z.record(z.string(), z.number()).optional(),
+
+  // (otros opcionales permitidos por si los usás)
+  total: z.number().optional(),
+  confirmados: z.number().optional(),
+  ausentes: z.number().optional(),
+  cancelados: z.number().optional(),
 });
+
+export const DashboardResponse = z.object({
+  stats: StatsShape,
+  recientes: z.array(TurnoResumen).optional().default([]),
+});
+
+
 export type DashboardResponse = z.infer<typeof DashboardResponse>;
 
 export const DisponibilidadResponse = z.object({
@@ -105,5 +121,7 @@ export type TurnoCreateInput = {
     fecha: string  // YYYY-MM-DD
     hora: string   // HH:mm
 }
+
+
 
 export type TurnoCreateResponse = { ok: true; turnoId: number }

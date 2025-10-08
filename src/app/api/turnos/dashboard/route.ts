@@ -94,8 +94,21 @@ export async function GET(req: Request) {
     especialidad: t.profesional.especialidad,
   }));
 
-  return NextResponse.json({
-    stats: { pendientes, confirmadosHoy, completadosMes },
+  // ✅ Conteos de HOY por estado
+  const byEstado: Record<string, number> = {};
+  for (const r of mapped) {
+    byEstado[r.estado] = (byEstado[r.estado] ?? 0) + 1;
+  }
+  const totalHoy = mapped.length;
+
+ return NextResponse.json({
+    stats: {
+      pendientes,         // (compat)
+      confirmadosHoy,     // (compat)
+      completadosMes,     // (compat)
+      byEstado,           // ✅ clave para las cards
+      totalHoy,           // ✅ total del día
+    },
     recientes: mapped,
   });
 }
