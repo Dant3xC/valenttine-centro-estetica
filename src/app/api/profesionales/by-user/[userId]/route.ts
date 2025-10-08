@@ -14,6 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
+// --- 1. Obtener el Profesional y su ID ---
     const profesional = await prisma.profesional.findUnique({
       where: { userId: idNum },
       include: {
@@ -36,6 +37,23 @@ export async function GET(
       );
     }
 
+    // --- 2. Consultar Todas las Historias Clínicas del Profesional ---
+    const historiasClinicas = await prisma.historiaClinica.findMany({
+      where: {
+        profesionalId: profesional.id,
+      },
+      include: {
+        Paciente: { // Incluye datos básicos del paciente de la historia
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            dni: true,
+          },
+        },
+      },
+    });
+
     const data = {
       id: profesional.id,
       nombre: profesional.nombre,
@@ -46,6 +64,7 @@ export async function GET(
       obrasSociales: profesional.obrasSociales.map((x) => x.obraSocial),
       prestaciones: profesional.prestaciones.map((x) => x.prestacion),
       rol: profesional.usuario?.Rol?.nombre ?? null, // 🟣 opcional: por si lo necesitás en front
+      historiasClinicas: historiasClinicas,
     };
 
     return NextResponse.json(data);

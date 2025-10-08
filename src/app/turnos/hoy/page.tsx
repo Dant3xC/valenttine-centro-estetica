@@ -1,7 +1,7 @@
 // src/app/turnos/hoy/page.tsx
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -20,6 +20,23 @@ export default function TurnosHoyPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<number | null>(null)
+  const [profesionalId, setProfesionalId] = useState<number | null>(null) 
+
+interface ProfesionalData {
+  id: number
+  nombre: string
+  apellido: string
+  especialidad: string
+  horarioTrabajo: string
+  obrasSociales: Array<{ id: number, nombre: string }>
+  prestaciones: Array<{ id: number, nombre: string }>
+  rol: string | null
+  // Se asume que los turnos y historias se obtendrán directamente aquí,
+  // pero mantendremos la lógica original de `turnosHoy` solo para ilustrar la mejora.
+  // En la implementación anterior, el fetch de `profesionales/by-user` no traía turnos,
+  // sino que se hacía una segunda llamada a `/api/turnos/dashboard`.
+  // Si tu API `/api/profesionales/by-user` ya trae los turnos, la lógica de carga puede simplificarse.
+}
 
   // Fecha actual (YYYY-MM-DD)
   const todayYMD = useMemo(() => {
@@ -61,6 +78,10 @@ export default function TurnosHoyPage() {
         const profesional = await resPro.json()
         if (!profesional?.id) throw new Error('No se encontró profesional asociado')
 
+       // Almacenar el ID del profesional
+       const currentProfesionalId = profesional.id
+        setProfesionalId(currentProfesionalId) 
+
         // 2) dashboard filtrado por fecha e id profesional
         let url = `/api/turnos/dashboard?fecha=${todayYMD}&profesionalId=${Number(profesional.id)}`
         const res = await fetch(url)
@@ -97,6 +118,59 @@ export default function TurnosHoyPage() {
     }
   }
 
+  // Lógica de ATENDER (Modificada)
+  const onAtender = useCallback(async (turnoId: number) => {
+    try {
+      setUpdatingId(turnoId)
+      
+      // 1. Llamar a la API de validación
+      const res = await fetch(`/api/historial/${turnoId}/validarHC`)
+      if (!res.ok) throw new Error('Error al validar la historia clínica.')
+      
+      const { existeHistoria, pacienteId } = await res.json()
+      
+      let finalRoute = ''
+
+      if (existeHistoria) {
+        // RUTA 1: Si ya existe la Historia Clínica (Continuar Consulta/Plan)
+        finalRoute = `/historial/consulta/${turnoId}/plan/`
+        console.log(`Paciente ${pacienteId} ya tiene historia. Redirigiendo a Plan.`)
+
+      } else {
+        // RUTA 2: Si NO existe la Historia Clínica (Crear Historia y Anamnesis)
+        console.log(`Paciente ${pacienteId} NO tiene historia. Creando base...`)
+        
+        // Llamar a la API para crear Historia Clínica y Anamnesis base
+        const resCrear = await fetch(`/api/historial/crear-base`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ turnoId }),
+        })
+
+        if (!resCrear.ok) throw new Error('Error al crear la Historia Clínica base.')
+
+        // La respuesta de crear-base devuelve la nueva ID
+        const dataCrear = await resCrear.json()
+        
+        // Redirigir a Anamnesis (la ruta para cargar los datos iniciales)
+        // La ruta a Anamnesis usa el turnoId para seguir la lógica del flujo.
+        finalRoute = `/historial/consulta/${turnoId}/anamnesis/`
+      }
+      
+      // Redirección final
+      router.push(finalRoute)
+
+    } catch (e: any) {
+      console.error('Error en el proceso de atención:', e.message)
+      // En un entorno real, mostrar un toast o modal de error
+      // alert(e.message || 'Ocurrió un error al intentar atender el turno.')
+    } finally {
+      setUpdatingId(null)
+    }
+  }, [router]) // Dependencia router
+
+
+
   // Contadores por estado
   const contadores = useMemo(() => {
     const base = ESTADOS.reduce((acc, est) => ({ ...acc, [est]: 0 }), {} as Record<EstadoBD, number>)
@@ -121,7 +195,7 @@ export default function TurnosHoyPage() {
           error={error}
           updatingId={updatingId}
           onChangeEstado={onChangeEstado}
-          onAtender={(id) => router.push(`/turnos/${id}`)}
+          onAtender={onAtender}
         />
       </div>
     </main>
