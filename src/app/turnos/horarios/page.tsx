@@ -61,7 +61,7 @@ const EVENT_COLORS: Record<string, { bg: string; border: string; text: string }>
   'Reservado': { bg: '#219a55ff', border: '#219a55ff', text: '#ffffff' },
   'En Espera': { bg: 'rgba(23, 112, 179, 1)', border: 'rgba(23, 112, 179, 1)', text: '#ffffff' },
   'En Consulta': { bg: '#6366f1', border: '#4338ca', text: '#ffffff' },
-  'Atendido': { bg: '#22c55e', border: '#15803d', text: '#052e16' },
+  'Atendido': { bg: '#ba22c5ff', border: '#ba22c5ff', text: '#ffffffff' },
   'Ausente': { bg: '#9e3f3fff', border: '#e60b0bff', text: '#111827' },
   'Cancelado': { bg: '#ef4444', border: '#b91c1c', text: '#ffffff' },
 }

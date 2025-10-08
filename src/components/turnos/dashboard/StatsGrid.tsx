@@ -6,13 +6,6 @@ import { getDashboard } from "@/lib/turnos/api";
 import type { DashboardResponse } from "@/lib/turnos/types";
 import { CalendarRange, CalendarCheck2, UserX, XCircle } from "lucide-react";
 
-type NormalizedStats = {
-  total: number;
-  confirmados: number;
-  ausentes: number;
-  cancelados: number;
-};
-
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers de normalización
 // ──────────────────────────────────────────────────────────────────────────────
@@ -24,80 +17,44 @@ const norm = (s?: string) =>
     .toLowerCase();
 
 const KEYS = {
-  EN_CONSULTA: norm("En Consulta"),
-  CONFIRMADO: norm("Confirmado"), // compatibilidad vieja
-  AUSENTE: norm("Ausente"),
-  CANCELADO: norm("Cancelado"),
+  RESERVADO: norm("Reservado"),
+  EN_ESPERA: norm("En Espera"),
+  AUSENTE:   norm("Ausente"),
 };
 
-function countFromRecord(rec?: Record<string, number | undefined>) {
-  if (!rec) return { total: 0, confirmados: 0, ausentes: 0, cancelados: 0 };
+function getTodayCounts(d: DashboardResponse | null) {
+  if (!d) return { totalHoy: 0, reservados: 0, ausentes: 0, enEspera: 0 };
 
-  // normalizo claves por si vienen con mayúsculas/acentos
+  // Preferimos byEstado del día (la API lo arma desde 'recientes' de HOY)
   const bag: Record<string, number> = {};
-  for (const [k, v] of Object.entries(rec)) {
+  const src = d.stats?.byEstado ?? {};
+  for (const [k, v] of Object.entries(src)) {
     bag[norm(k)] = (bag[norm(k)] ?? 0) + (Number(v) || 0);
   }
 
-  const confirmados = (bag[KEYS.EN_CONSULTA] ?? 0) + (bag[KEYS.CONFIRMADO] ?? 0);
-  const ausentes = bag[KEYS.AUSENTE] ?? 0;
-  const cancelados = bag[KEYS.CANCELADO] ?? 0;
-  const total = Object.values(bag).reduce((a, b) => a + b, 0);
+  // Total del día
+  const totalHoy =
+    typeof d.stats?.totalHoy === "number"
+      ? d.stats.totalHoy
+      : Object.values(bag).reduce((a, b) => a + b, 0) ||
+        (Array.isArray(d.recientes) ? d.recientes.length : 0);
 
-  return { total, confirmados, ausentes, cancelados };
-}
-
-/** Normaliza el shape del backend a los 4 KPIs requeridos */
-function normalizeStats(data: DashboardResponse | null): NormalizedStats {
-  if (!data) return { total: 0, confirmados: 0, ausentes: 0, cancelados: 0 };
-  const s: any = data.stats ?? {};
-
-  // 1) Si vienen exactos, úsalo
-  if (
-    typeof s.total === "number" &&
-    typeof s.confirmados === "number" &&
-    typeof s.ausentes === "number" &&
-    typeof s.cancelados === "number"
-  ) {
-    return s as NormalizedStats;
+  // Si no vino byEstado, derivarlo desde recientes (de HOY)
+  if (!d.stats?.byEstado && Array.isArray(d.recientes)) {
+    for (const r of d.recientes) {
+      const k = norm(r.estado);
+      bag[k] = (bag[k] ?? 0) + 1;
+    }
   }
-
-  // 2) Si viene un mapa por estado (byEstado/porEstado), contar desde ahí
-  const byEstado =
-    (s.byEstado as Record<string, number> | undefined) ??
-    (s.porEstado as Record<string, number> | undefined);
-  if (byEstado) {
-    return countFromRecord(byEstado);
-  }
-
-  // 3) Derivar desde recientes (hoy)
-  const recientes = Array.isArray(data.recientes) ? data.recientes : [];
-  const bolsa: Record<string, number> = {};
-  for (const r of recientes) {
-    const k = norm(r?.estado);
-    bolsa[k] = (bolsa[k] ?? 0) + 1;
-  }
-  const derived = countFromRecord(bolsa);
-
-  // 4) Si el backend trae un parcial (ej. confirmadosHoy), tolerarlo como override
-  const confirmadosAlt =
-    typeof s.confirmados === "number"
-      ? s.confirmados
-      : typeof s.confirmadosHoy === "number"
-      ? s.confirmadosHoy
-      : derived.confirmados;
 
   return {
-    total: typeof s.total === "number" ? s.total : derived.total,
-    confirmados: confirmadosAlt,
-    ausentes: derived.ausentes,
-    cancelados: derived.cancelados,
+    totalHoy,
+    reservados: bag[KEYS.RESERVADO] ?? 0,
+    ausentes:   bag[KEYS.AUSENTE] ?? 0,
+    enEspera:   bag[KEYS.EN_ESPERA] ?? 0,
   };
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Componente
-// ──────────────────────────────────────────────────────────────────────────────
 export function StatsGrid() {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,7 +74,7 @@ export function StatsGrid() {
     })();
   }, []);
 
-  const stats = useMemo(() => normalizeStats(data), [data]);
+  const kpis = useMemo(() => getTodayCounts(data), [data]);
 
   if (loading) {
     return (
@@ -133,28 +90,39 @@ export function StatsGrid() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* Total Turnos hoy: título gris, número naranja, ícono en degradado naranja */}
       <StatsCard
-        title="Total de turnos"
-        value={stats.total}
-        color="indigo"
+        title="Total Turnos"
+        value={kpis.totalHoy}
+        color="orange"
+        titleColorClass="text-gray-600"
         icon={<CalendarRange className="w-6 h-6" aria-hidden />}
       />
+
+      {/* Reservado: título gris, número verde, ícono verde */}
       <StatsCard
-        title="Turnos confirmados"
-        value={stats.confirmados}
+        title='Turnos Reservados'
+        value={kpis.reservados}
         color="green"
+        titleColorClass="text-gray-600"
         icon={<CalendarCheck2 className="w-6 h-6" aria-hidden />}
       />
+
+      {/* Ausente: título amarillo, número amarillo, ícono amarillo */}
       <StatsCard
-        title="Ausentes"
-        value={stats.ausentes}
+        title='Turnos Ausentes'
+        value={kpis.ausentes}
         color="yellow"
+        titleColorClass="text-yellow-600"
         icon={<UserX className="w-6 h-6" aria-hidden />}
       />
+
+      {/* En Espera: título violeta (purple), número violeta, ícono violeta */}
       <StatsCard
-        title="Turnos cancelados"
-        value={stats.cancelados}
-        color="red"
+        title='Turnos en Espera'
+        value={kpis.enEspera}
+        color="purple"
+        titleColorClass="text-purple-600"
         icon={<XCircle className="w-6 h-6" aria-hidden />}
       />
     </div>
