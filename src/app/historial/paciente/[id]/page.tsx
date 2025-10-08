@@ -1,3 +1,4 @@
+// src/app/historial/paciente/[id]/page.tsx
 'use client';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -147,14 +148,11 @@ export default function Page() {
 
                                             <div className="mt-3 flex gap-2">
                                                 <Link
-                                                    href={`/historial/consulta/${c.id}/anamnesis`}
+                                                    href={`/historial/consulta/${c.id}/anamnesis?readonly=1`}
                                                     className="px-3 py-1 rounded-lg text-sm bg-purple-600 text-white hover:bg-purple-700"
                                                 >
                                                     Ver consulta
                                                 </Link>
-                                                <button className="px-3 py-1 rounded-lg text-sm bg-gray-200 text-gray-800 hover:bg-gray-300">
-                                                    Imprimir (demo)
-                                                </button>
                                             </div>
                                         </div>
                                     </li>
