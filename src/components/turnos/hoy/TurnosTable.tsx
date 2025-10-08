@@ -1,6 +1,7 @@
 // src/components/turnos/hoy/TurnosTable.tsx
 'use client'
 
+import { useMemo } from 'react'
 import { estadoColor } from './constants'
 import type { Row, EstadoBD } from './types'
 
@@ -20,6 +21,37 @@ export function TurnosTable({
   onChangeEstado: (id: number, nuevo: EstadoBD) => void
   onAtender: (id: number) => void
 }) {
+  const toMinutes = (t?: string) => {
+    if (!t) return NaN
+    const [hStr, mStr] = t.split(':')
+    const h = Number(hStr)
+    const m = Number(mStr)
+    if (Number.isNaN(h) || Number.isNaN(m)) return NaN
+    return h * 60 + m
+  }
+
+  // Orden: hora DESC (más tarde primero). Si hay empate o hora inválida, usa ID DESC como desempate.
+  const sortedRows = useMemo(() => {
+    return [...rows].sort((a, b) => {
+      const A = toMinutes(a.hora)
+      const B = toMinutes(b.hora)
+
+      const aValid = !Number.isNaN(A)
+      const bValid = !Number.isNaN(B)
+
+      if (aValid && bValid) {
+        const byTime = B - A // DESC
+        if (byTime !== 0) return byTime
+      } else if (aValid && !bValid) {
+        return -1 // válidos primero
+      } else if (!aValid && bValid) {
+        return 1
+      }
+      // Desempate por ID DESC
+      return b.id - a.id
+    })
+  }, [rows])
+
   return (
     <div className="glass-effect rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20 shadow-md">
       <div className="bg-gradient-to-r from-purple-600 to-purple-400 p-6">
@@ -30,7 +62,7 @@ export function TurnosTable({
         <div className="p-6 text-sm text-gray-500">Cargando…</div>
       ) : error ? (
         <div className="p-6 text-sm text-red-600">{error}</div>
-      ) : rows.length === 0 ? (
+      ) : sortedRows.length === 0 ? (
         <div className="p-10 text-center text-gray-500 italic">
           No tenés turnos asignados para hoy.
         </div>
@@ -47,7 +79,7 @@ export function TurnosTable({
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {sortedRows.map((r, i) => (
                 <tr key={r.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="px-6 py-4 font-semibold text-purple-800">{r.id}</td>
                   <td className="px-6 py-4">
