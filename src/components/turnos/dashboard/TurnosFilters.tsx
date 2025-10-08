@@ -14,7 +14,7 @@ export type TurnosFiltersState = {
   // nuevos campos (alineación solicitada)
   paciente?: string              // DNI/Nombre/Apellido
   profesional?: string           // Nombre/Apellido
-  especialidadId?: number | null // Combobox
+  especialidadId?: string | null // Combobox
   fecha?: string                 // "DD/MM/AAAA" (o ISO si preferís)
   estado?: EstadoBD | null       // Combobox (single)
 }
@@ -41,7 +41,7 @@ const ESTADO_VALUE_TO_LABEL: Record<EstadoBD, string> = {
   "Cancelado": "Cancelado",
 }
 
-export type EspecialidadOption = { id: number; nombre: string }
+export type EspecialidadOption = { id: string; nombre: string }
 
 export function TurnosFilters({
   value,
@@ -147,7 +147,7 @@ export function TurnosFilters({
           <label className="block text-sm font-medium text-gray-700 mb-2">Especialidad</label>
           <select
             value={value.especialidadId ?? ""}
-            onChange={(e) => setField("especialidadId", e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => setField("especialidadId", e.target.value || null)}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             disabled={loading}
           >

@@ -28,6 +28,34 @@ function formatDate(iso?: string | Date) {
   } catch { return String(iso) }
 }
 
+// Convierte un Date a 'YYYY-MM-DD' en horario local
+const toLocalYmd = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+
+// Interpreta "DD/MM/AAAA" o ISO y devuelve 'YYYY-MM-DD' (local)
+// Interpreta "DD/MM/AAAA", ISO, o un día del mes actual y devuelve 'YYYY-MM-DD'
+const parseFechaInputToYmd = (s: string): string | null => {
+  const v = (s || "").trim();
+  if (!v) return null;
+
+  // Manejar el caso donde se ingresa solo el día (ej: "8", "08", "25")
+  if (/^\d{1,2}$/.test(v)) {
+    const hoy = new Date(); // Usamos la fecha actual como base
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0"); // getMonth() es 0-11
+    const dia = String(v).padStart(2, "0");
+    return `${anio}-${mes}-${dia}`; // Devuelve "2025-10-08"
+  }
+
+  // Lógica que ya tenías para fechas completas
+  const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`; // dd/mm/aaaa -> yyyy-mm-dd
+
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : toLocalYmd(d);
+};
+
+
 const isSameUTCDay = (a: Date, b: Date) =>
   a.getUTCFullYear() === b.getUTCFullYear() &&
   a.getUTCMonth() === b.getUTCMonth() &&
@@ -124,6 +152,22 @@ export function RecentAppointmentsTable({ filters, onSelect }: Props) {
         if (!hay) return false
       }
       if (hasEstadoFilter && !estadoSet.has(r.estado)) return false
+
+      // 🎯 Filtro por ESPECIALIDAD
+      if (filters.especialidadId && String(filters.especialidadId).trim() !== "") {
+        const selected = String(filters.especialidadId).toLowerCase()
+        const especialidadTurno = (r.especialidad || "").toLowerCase()
+        if (!especialidadTurno.includes(selected)) return false
+      }
+
+      // Filtro por FECHA (coincidencia por día en local)
+      if (filters.fecha) {
+        const targetYmd = parseFechaInputToYmd(filters.fecha)
+        if (targetYmd) {
+          const d = typeof r.fecha === "string" ? new Date(r.fecha) : r.fecha
+          if (toLocalYmd(d) !== targetYmd) return false
+        }
+      }
 
       const m = toMinutes(r.hora)
       const isValidTime = !Number.isNaN(m)
