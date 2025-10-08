@@ -1,9 +1,22 @@
 "use client"
-
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getProfesionales } from "@/lib/turnos/api"
 import type { ProfesionalListItem } from "@/lib/turnos/types"
+
+// Add a type definition for the image map
+type ProfesionalImageMap = {
+  [key: string]: string;
+};
+
+// Use the defined type
+const profesionalImages: ProfesionalImageMap = {
+  "1": "/dermatologa.jpg",
+  "2": "/cirujana_plastica.jpg",
+  "3": "/medico_estetico.jpg",
+  "4": "/prof.jpg",
+};
 
 export default function ProfessionalsPage() {
   const router = useRouter()
@@ -64,9 +77,11 @@ export default function ProfessionalsPage() {
 
             <div className="flex items-start space-x-6">
               <div className="w-48 h-48 rounded-xl overflow-hidden flex-shrink-0">
-                <img
-                  src={"/medico_estetico.jpg"}
+                <Image
+                  src={profesionalImages[p.id] || "/placeholder.jpg"}
                   alt={p.nombreCompleto}
+                  width={192}
+                  height={192}
                   className="w-full h-full object-cover"
                 />
               </div>
