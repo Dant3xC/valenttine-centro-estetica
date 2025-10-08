@@ -2,12 +2,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { CalendarRange, CalendarCheck2, UserX, XCircle, Hourglass, Stethoscope } from 'lucide-react'
 
 const ESTADOS = ['Reservado','En Espera','En Consulta','Atendido','Ausente','Cancelado'] as const
+const router = useRouter()
 type EstadoBD = typeof ESTADOS[number]
 
 type Row = {
@@ -53,42 +54,52 @@ export default function TurnosHoyPage() {
   }, [todayYMD])
 
   // Cargar los turnos del médico logueado
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  
+useEffect(() => {
+  // Si no hay sesión, o si el rol no es de médico, no hagas nada.
+  if (!session || session.role !== 'MEDICO') {
+    // Opcional: limpiar los turnos si el usuario cierra sesión o cambia
+    setRows([]);
+    return; // Salimos temprano del efecto
+  }
 
-        let profesionalId: number | null = null
+  (async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        if (session?.role === 'MEDICO') {
-          // 🔹 Paso 1: obtener el profesional vinculado a este usuario
-          const resPro = await fetch(`/api/profesionales/by-user/${session.id}`)
-          if (!resPro.ok) throw new Error('No se pudo obtener el profesional del usuario')
-          const profesional = await resPro.json()
+      let profesionalId: number | null = null
 
-          if (!profesional?.id) throw new Error('No se encontró profesional asociado')
-          profesionalId = Number(profesional.id)
-        }
+      // Ya sabemos que el rol es 'MEDICO', así que podemos simplificar
+      // 🔹 Paso 1: obtener el profesional vinculado a este usuario
+      const resPro = await fetch(`/api/profesionales/by-user/${session.id}`)
+      if (!resPro.ok) throw new Error('No se pudo obtener el profesional del usuario')
+      const profesional = await resPro.json()
 
-        // 🔹 Paso 2: construir la URL del dashboard con filtros
-        let url = `/api/turnos/dashboard?fecha=${todayYMD}`
-        if (profesionalId) url += `&profesionalId=${profesionalId}`
+      if (!profesional?.id) throw new Error('No se encontró profesional asociado')
+      profesionalId = Number(profesional.id)
+      
+      // 🔹 Paso 2: construir la URL del dashboard con filtros
+      // (Esta parte estaba perfecta)
+      let url = `/api/turnos/dashboard?fecha=${todayYMD}`
+      if (profesionalId) url += `&profesionalId=${profesionalId}`
 
-        const res = await fetch(url)
-        if (!res.ok) throw new Error('No se pudieron cargar los turnos del médico')
-        const data = await res.json()
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('No se pudieron cargar los turnos del médico')
+      const data = await res.json()
 
-        // 🔹 Paso 3: setear solo sus turnos
-        setRows(data.recientes ?? [])
-      } catch (e: any) {
-        setError(e.message || 'Error cargando turnos')
-        setRows([])
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [session, todayYMD])
+      // 🔹 Paso 3: setear solo sus turnos
+      setRows(data.recientes ?? [])
+    } catch (e: any) {
+      // Para depurar, es CLAVE ver qué error específico está ocurriendo
+      console.error("Error al cargar turnos:", e); 
+      setError(e.message || 'Error cargando turnos')
+      setRows([])
+    } finally {
+      setLoading(false)
+    }
+  })()
+}, [session, todayYMD]) // Las dependencias están bien
 
   // Cambiar estado
   async function onChangeEstado(id: number, nuevo: EstadoBD) {
@@ -283,9 +294,9 @@ const ICONO_ESTADO: Record<EstadoBD, React.ComponentType<any>> = {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => router.push(`/turnos/${r.id}`)}
-                          className="px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 active:scale-95 shadow-sm transition-transform duration-200"
+                          className="px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-purple-700 hover:to-purple-600 active:scale-95 shadow-sm transition-transform duration-200"
                         >
-                          Consulta
+                          Atender
                         </button>
                       </td>
                     </tr>
