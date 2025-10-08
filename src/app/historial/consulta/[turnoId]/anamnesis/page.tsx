@@ -1,9 +1,8 @@
-// src/app/historial/consulta/[turnoId]/anamnesis/page.tsx
 "use client";
 
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react"; // Añadido useMemo
 
 /* ========= Catálogos (según PDF) ========= */
 const PATOLOGICOS_OPTS = [
@@ -94,7 +93,15 @@ const TRAT_CORPORAL = [
 /* ========= Helpers fetch ========= */
 async function httpJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.error || `HTTP ${res.status}: Error de servidor.`);
+    } catch {
+      throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
+    }
+  }
   return res.json();
 }
 
@@ -145,44 +152,7 @@ function TopNav({
   );
 }
 
-function FilePicker({
-  label,
-  files,
-  onPick,
-  disabled = false,
-}: {
-  label?: string;
-  files: File[];
-  onPick: (fs: File[]) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div className="space-y-2">
-      {label && <div className="text-sm font-medium text-gray-700">{label}</div>}
-      <input
-        type="file"
-        multiple
-        disabled={disabled}
-        onChange={(e) => {
-          if (disabled) return;
-          const fs = Array.from(e.target.files ?? []);
-          onPick(fs);
-          e.currentTarget.value = "";
-        }}
-        className={`block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700 ${
-          disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      />
-      {files.length > 0 && (
-        <ul className="text-sm text-gray-600 list-disc ml-5">
-          {files.map((f, i) => (
-            <li key={i}>{f.name}</li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+// NOTE: FilePicker fue eliminado ya que la derivación pertenece a Consulta.
 
 /* ========= Componentes de tablas estructuradas ========= */
 export type AntecedenteRow = {
@@ -303,6 +273,7 @@ function AntecedentesTable({
                 </TD>
                 <TD className="text-right">
                   <button
+                    type="button"
                     disabled={disabled}
                     className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
                     onClick={() => del(i)}
@@ -331,12 +302,22 @@ function AntecedentesTable({
 }
 
 /* Quirúrgicos (Complicaciones → Observaciones) */
-type FilaQuir = { cirugia: string; year?: string; observaciones?: string };
-function TablaQuir({ label, base, disabled = false }: { label: string; base: readonly string[]; disabled?: boolean }) {
-  const [rows, setRows] = useState<FilaQuir[]>(base.map((n) => ({ cirugia: n })));
-  const add = () => {
+export type FilaQuir = { nombre: string; detalle?: string; desde?: string; estado?: string }; // Usamos la misma estructura AntecedenteRow
+const QUIR_BASE_OPTS = [
+  "Rinoplastia", "Blefaroplastia", "Otoplastia", "Ritidectomía", "Lifting de cuello", "Mentoplastia", "Bichectomía", 
+  "Cirugía ortognática", "Liposucción", "Abdominoplastia", "Mamoplastia de aumento", "Mamoplastia de reducción", 
+  "Mastopexia", "Gluteoplastia", "Braquioplastia", "Lifting de muslos"
+] as const;
+
+
+function TablaQuir({ 
+  rows, setRows, disabled = false 
+}: { 
+  rows: FilaQuir[], setRows: (v: FilaQuir[]) => void, disabled?: boolean 
+}) {
+  const add = (nombre: string) => {
     if (disabled) return;
-    setRows([...rows, { cirugia: "" }]);
+    setRows([...rows, { nombre }]);
   };
   const del = (i: number) => {
     if (disabled) return;
@@ -350,14 +331,29 @@ function TablaQuir({ label, base, disabled = false }: { label: string; base: rea
   };
 
   return (
-    <Section title={label}>
+    <Section title="Antecedentes quirúrgicos">
+      <div className="flex flex-wrap gap-2 mb-3">
+          {QUIR_BASE_OPTS.map((o) => (
+            <button
+              key={o}
+              type="button"
+              onClick={() => add(o)}
+              disabled={disabled}
+              className={`px-3 py-1.5 rounded-lg text-sm ${
+                disabled ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
+            >
+              + {o}
+            </button>
+          ))}
+        </div>
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
               <TH>Cirugía</TH>
-              <TH>Año</TH>
-              <TH>Observaciones</TH>
+              <TH>Fecha (Desde)</TH>
+              <TH>Detalle/Observaciones</TH>
               <TH></TH>
             </tr>
           </thead>
@@ -368,30 +364,30 @@ function TablaQuir({ label, base, disabled = false }: { label: string; base: rea
                   <input
                     disabled={disabled}
                     className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
-                    value={r.cirugia}
-                    onChange={(e) => up(i, { cirugia: e.target.value })}
+                    value={r.nombre}
+                    onChange={(e) => up(i, { nombre: e.target.value })}
                   />
                 </TD>
                 <TD>
                   <input
-                    type="number"
+                    type="date"
                     disabled={disabled}
                     className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
-                    value={r.year ?? ""}
-                    onChange={(e) => up(i, { year: e.target.value })}
-                    placeholder="AAAA"
+                    value={r.desde ?? ""}
+                    onChange={(e) => up(i, { desde: e.target.value })}
                   />
                 </TD>
                 <TD>
                   <input
                     disabled={disabled}
                     className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
-                    value={r.observaciones ?? ""}
-                    onChange={(e) => up(i, { observaciones: e.target.value })}
+                    value={r.detalle ?? ""}
+                    onChange={(e) => up(i, { detalle: e.target.value })}
                   />
                 </TD>
                 <TD className="text-right">
                   <button
+                    type="button"
                     disabled={disabled}
                     className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
                     onClick={() => del(i)}
@@ -407,7 +403,7 @@ function TablaQuir({ label, base, disabled = false }: { label: string; base: rea
       <div className="mt-3">
         <button
           type="button"
-          onClick={add}
+          onClick={() => add("")}
           disabled={disabled}
           className={`px-3 py-2 rounded-lg ${disabled ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-purple-600 text-white hover:bg-purple-700"}`}
         >
@@ -418,19 +414,19 @@ function TablaQuir({ label, base, disabled = false }: { label: string; base: rea
   );
 }
 
+
 /* Tratamientos estéticos previos (Complicación → Observaciones) */
-type FilaTratPrev = {
-  tipo: string;
-  fecha?: string;
-  zona?: string;
-  resultado?: string;
-  observaciones?: string;
-};
-function TablaTratPrev({ opciones, disabled = false }: { opciones: readonly string[]; disabled?: boolean }) {
-  const [rows, setRows] = useState<FilaTratPrev[]>([]);
-  const add = (tipo: string) => {
+type FilaTratPrev = AntecedenteRow & { zona?: string; resultado?: string }; // Usamos AntecedenteRow y añadimos campos
+const TRAT_PREV_OPTS = [...TRAT_FACIAL, ...TRAT_CORPORAL] as const;
+
+function TablaTratPrev({ 
+  rows, setRows, disabled = false 
+}: { 
+  rows: FilaTratPrev[], setRows: (v: FilaTratPrev[]) => void, disabled?: boolean 
+}) {
+  const add = (nombre: string) => {
     if (disabled) return;
-    setRows([...rows, { tipo }]);
+    setRows([...rows, { nombre }]);
   };
   const del = (i: number) => {
     if (disabled) return;
@@ -446,7 +442,7 @@ function TablaTratPrev({ opciones, disabled = false }: { opciones: readonly stri
   return (
     <Section title="Antecedentes de tratamientos médico–estéticos">
       <div className="flex flex-wrap gap-2 mb-3">
-        {opciones.map((t) => (
+        {TRAT_PREV_OPTS.map((t) => (
           <button
             key={t}
             type="button"
@@ -466,24 +462,24 @@ function TablaTratPrev({ opciones, disabled = false }: { opciones: readonly stri
             <thead className="bg-gray-50">
               <tr>
                 <TH>Tratamiento</TH>
-                <TH>Fecha</TH>
+                <TH>Fecha (Desde)</TH>
                 <TH>Zona</TH>
                 <TH>Resultado</TH>
-                <TH>Observaciones</TH>
+                <TH>Observaciones (Detalle)</TH>
                 <TH></TH>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <TD>{r.tipo}</TD>
+                  <TD>{r.nombre}</TD>
                   <TD>
                     <input
                       type="date"
                       disabled={disabled}
                       className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
-                      value={r.fecha ?? ""}
-                      onChange={(e) => up(i, { fecha: e.target.value })}
+                      value={r.desde ?? ""}
+                      onChange={(e) => up(i, { desde: e.target.value })}
                     />
                   </TD>
                   <TD>
@@ -506,12 +502,14 @@ function TablaTratPrev({ opciones, disabled = false }: { opciones: readonly stri
                     <input
                       disabled={disabled}
                       className="w-full px-2 py-1 border rounded-md disabled:bg-gray-50"
-                      value={r.observaciones ?? ""}
-                      onChange={(e) => up(i, { observaciones: e.target.value })}
+                      value={r.detalle ?? ""}
+                      onChange={(e) => up(i, { detalle: e.target.value })}
+                      placeholder="Observaciones"
                     />
                   </TD>
                   <TD className="text-right">
                     <button
+                      type="button"
                       disabled={disabled}
                       className={`text-xs ${disabled ? "text-gray-400 cursor-not-allowed" : "text-red-600"}`}
                       onClick={() => del(i)}
@@ -551,16 +549,14 @@ export default function Page() {
 
   const [header, setHeader] = useState<Header | null>(null);
 
-  /* Derivación SIN fecha (según tu pedido) */
-  const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
-  const [profDeriva, setProfDeriva] = useState("");
-  const [motivoDeriva, setMotivoDeriva] = useState("");
-  const [adjuntosDeriva, setAdjuntosDeriva] = useState<File[]>([]);
-
   /* Antecedentes estructurados */
   const [patologicos, setPatologicos] = useState<AntecedenteRow[]>([]);
   const [dermato, setDermato] = useState<AntecedenteRow[]>([]);
   const [alergias, setAlergias] = useState<AntecedenteRow[]>([]);
+  // Nuevos estados para Quirúrgicos y Tratamientos Previos
+  const [quirurgicos, setQuirurgicos] = useState<FilaQuir[]>([]);
+  const [tratPrevios, setTratPrevios] = useState<FilaTratPrev[]>([]);
+
 
   /* Hábitos: dropdown + % */
   const [cigsDia, setCigsDia] = useState<number>(0); // 0..40
@@ -569,59 +565,60 @@ export default function Page() {
   const [aguaLitros, setAguaLitros] = useState<number>(0); // 0..5 en pasos de 0.5
 
   // Porcentajes demostrativos: cigarrillos sobre 20 (1 paquete/día), agua sobre 2 L/día.
-  const fumaPct = Math.min(200, Math.round((cigsDia / 20) * 100)) || 0;
-  const aguaPct = Math.min(200, Math.round((aguaLitros / 2) * 100)) || 0;
+  const fumaPct = useMemo(() => Math.min(200, Math.round((cigsDia / 20) * 100)) || 0, [cigsDia]);
+  const aguaPct = useMemo(() => Math.min(200, Math.round((aguaLitros / 2) * 100)) || 0, [aguaLitros]);
 
-  // ====== CARGA INICIAL: iniciar consulta + prefill anamnesis ======
+  // ====== CARGA INICIAL: prefill anamnesis ======
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
         setLoading(true);
         setError(null);
-        // 1) Iniciar consulta (crea HC y Consulta si no existen)
-        const init = await httpJSON<{
-          consultaId: number;
-          historiaClinicaId: number;
-          header: { paciente: Header["paciente"]; profesional: string; fecha: string; hora: string };
-        }>(`/api/consultas/${turnoId}/iniciar`, { method: "POST" });
+        
+        // 1) Cargar datos de Anamnesis y Antecedentes usando la nueva API
+        const data = await httpJSON<any>(`/api/historial/anamnesis/${turnoId}`);
 
         if (!alive) return;
+        
+        // 2) Preparar Header
         setHeader({
           id: Number(turnoId),
-          paciente: init.header.paciente,
-          profesional: init.header.profesional,
-          fecha: init.header.fecha,
-          hora: init.header.hora,
+          paciente: data.header.paciente,
+          profesional: data.header.profesional,
+          fecha: data.header.fecha,
+          hora: data.header.hora,
         });
 
-        // 2) Prefill de Anamnesis
-        const pre = await httpJSON<any>(`/api/consultas/${turnoId}/anamnesis`);
-        if (!alive) return;
+        // 3) Prefill de Hábitos (Anamnesis)
+        if (data?.habitos) {
+          setCigsDia(Number(data.habitos.fuma ?? 0));
+          setAlcohol((data.habitos.alcohol?.toUpperCase?.() as any) ?? "NO");
+          setDieta(data.habitos.dieta ?? "");
+          // Recordar que el agua en DB es 0, 1, 2, 3... y en front es 0.0, 0.5, 1.0, 1.5...
+          setAguaLitros(Number(data.habitos.agua ?? 0) / 2); 
+        }
 
-        if (pre?.derivacion) {
-          setDerivado(pre.derivacion.si ? "SI" : "NO");
-          setProfDeriva(pre.derivacion.profesionalDeriva ?? "");
-          setMotivoDeriva(pre.derivacion.motivo ?? "");
-        }
-        if (pre?.habitos) {
-          setCigsDia(Number(pre.habitos.fuma ?? 0));
-          setAlcohol((pre.habitos.alcohol?.toUpperCase?.() as any) ?? "NO");
-          setDieta(pre.habitos.dieta ?? "");
-          setAguaLitros(Number(pre.habitos.agua ?? 0) / 2);
-        }
-        const ants: Array<{ nombre: string; detalle?: string; desde?: string; estado?: string; categoria?: string; tipo?: string }> =
-          pre?.antecedentes ?? [];
-        const cat = (a: any) => (a.categoria ?? a.tipo ?? "").toString();
+        // 4) Prefill de Antecedentes (filtrados por categoría)
         const mapRow = (x: any): AntecedenteRow => ({
           nombre: x.nombre ?? "",
           detalle: x.detalle ?? "",
+          // La DB guarda DateTime, lo convertimos a formato de input date YYYY-MM-DD
           desde: x.desde ? String(x.desde).slice(0, 10) : "",
           estado: x.estado ?? "",
         });
-        setPatologicos(ants.filter((x) => /patolog/i.test(cat(x))).map(mapRow));
-        setDermato(ants.filter((x) => /(dermat|dermato)/i.test(cat(x))).map(mapRow));
-        setAlergias(ants.filter((x) => /alerg/i.test(cat(x))).map(mapRow));
+        
+        // Mapear patológicos, dermatológicos y alergias
+        setPatologicos((data.antecedentes?.patologicos ?? []).map(mapRow));
+        setDermato((data.antecedentes?.dermato ?? []).map(mapRow));
+        setAlergias((data.antecedentes?.alergias ?? []).map(mapRow));
+        
+        // Aquí podrías agregar la lógica para mapear Quirúrgicos y Estéticos Previos
+        // si la API los devuelve con las categorías correspondientes.
+        // Por ahora, inicializamos vacíos si el GET no los devuelve, asumiendo que el profesional los completará.
+        setQuirurgicos([]); // Debes actualizar la API GET si quieres que cargue datos existentes
+        setTratPrevios([]); // Debes actualizar la API GET si quieres que cargue datos existentes
+
       } catch (e: any) {
         if (!alive) return;
         setError(e?.message || "Error al cargar anamnesis");
@@ -640,52 +637,52 @@ export default function Page() {
     try {
       setSaving(true);
       setError(null);
+      
       const payload = {
-        derivacion: {
-          si: derivado === "SI",
-          profesionalDeriva: profDeriva || undefined,
-          motivo: motivoDeriva || undefined,
-        },
         habitos: {
           fuma: cigsDia,
-          alcohol,
-          dieta,
-          agua: Math.round(aguaLitros * 2), // entero en pasos de 0.5L
+          alcohol: alcohol,
+          dieta: dieta,
+          agua: Math.round(aguaLitros * 2), // Guardamos como entero (0, 1, 2...)
         },
         antecedentes: {
-          patologicos: patologicos.map((r) => ({
-            nombre: r.nombre,
-            detalle: r.detalle || undefined,
-            desde: r.desde || undefined,
-            estado: r.estado || undefined,
-          })),
-          dermato: dermato.map((r) => ({
-            nombre: r.nombre,
-            detalle: r.detalle || undefined,
-            desde: r.desde || undefined,
-            estado: r.estado || undefined,
-          })),
-          alergias: alergias.map((r) => ({
-            nombre: r.nombre,
-            detalle: r.detalle || undefined,
-            desde: r.desde || undefined,
-            estado: r.estado || undefined,
-          })),
+          // Las tablas estructuradas
+          patologicos: patologicos.filter(r => r.nombre),
+          dermato: dermato.filter(r => r.nombre),
+          alergias: alergias.filter(r => r.nombre),
+          
+          // Incluimos las nuevas tablas (quirúrgicos y estéticos)
+          quirurgicos: quirurgicos.filter(r => r.nombre),
+          tratamientos: tratPrevios.filter(r => r.nombre),
         },
       };
 
-      await httpJSON(`/api/consultas/${turnoId}/anamnesis`, {
+      await httpJSON(`/api/historial/anamnesis/${turnoId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (goNext) router.push(`/historial/consulta/${turnoId}/datos-clinicos`);
+      
+      // La lógica de navegación después de guardar
+      if (goNext) {
+        router.push(`/historial/consulta/${turnoId}/datos-clinicos`);
+      } else {
+        // Opcional: Mostrar un mensaje de éxito o recargar el estado.
+        console.log("Anamnesis guardada.");
+      }
     } catch (e: any) {
       setError(e?.message || "No se pudo guardar");
     } finally {
       setSaving(false);
     }
+  }
+
+  // Si está cargando o hay error crítico, mostrar un estado de carga/error
+  if (loading) {
+    return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Anamnesis...</main>;
+  }
+  if (error && !header) {
+    return <main className="min-h-screen p-8 text-center text-red-600">Error Crítico: {error}</main>;
   }
 
   return (
@@ -694,7 +691,9 @@ export default function Page() {
 
       {/* Header */}
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
-        <h2 className="text-2xl font-bold text-purple-800 mb-2">Consulta #{header?.id ?? Number(turnoId)} — Anamnesis</h2>
+        <h2 className="text-2xl font-bold text-purple-800 mb-2">
+          Historia Clínica Inicial — Anamnesis
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
             <strong>Paciente:</strong>{" "}
@@ -716,45 +715,7 @@ export default function Page() {
         {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
       </div>
 
-      {/* Derivación (SIN fecha) */}
-      <Section title="Derivación médica">
-        <div className="flex flex-wrap items-center gap-4 mb-3">
-          <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
-          {["NO", "SI"].map((o) => (
-            <label key={o} className="inline-flex items-center gap-2">
-              <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
-              <span className="text-sm">{o}</span>
-            </label>
-          ))}
-        </div>
-        {derivado === "SI" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
-              <input
-                value={profDeriva}
-                onChange={(e) => setProfDeriva(e.target.value)}
-                disabled={readOnly}
-                className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
-              <textarea
-                value={motivoDeriva}
-                onChange={(e) => setMotivoDeriva(e.target.value)}
-                disabled={readOnly}
-                className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <FilePicker label="Documentación adjunta" files={adjuntosDeriva} onPick={(fs) => setAdjuntosDeriva((p) => [...p, ...fs])} disabled={readOnly} />
-            </div>
-          </div>
-        )}
-      </Section>
-
-      {/* Antecedentes personales (estructurados) */}
+      {/* ANTECEDENTES PERSONALES */}
       <AntecedentesTable
         label="Antecedentes personales — Patológicos"
         quickOptions={PATOLOGICOS_OPTS}
@@ -842,19 +803,10 @@ export default function Page() {
       </Section>
 
       {/* Quirúrgicos */}
-      <TablaQuir
-        label="Antecedentes quirúrgicos — Facial"
-        base={["Rinoplastia", "Blefaroplastia", "Otoplastia", "Ritidectomía", "Lifting de cuello", "Mentoplastia", "Bichectomía", "Cirugía ortognática"]}
-        disabled={readOnly}
-      />
-      <TablaQuir
-        label="Antecedentes quirúrgicos — Corporal"
-        base={["Liposucción", "Abdominoplastia", "Mamoplastia de aumento", "Mamoplastia de reducción", "Mastopexia", "Gluteoplastia", "Braquioplastia", "Lifting de muslos"]}
-        disabled={readOnly}
-      />
+      <TablaQuir rows={quirurgicos} setRows={setQuirurgicos} disabled={readOnly} />
 
       {/* Tratamientos estéticos previos */}
-      <TablaTratPrev opciones={[...TRAT_FACIAL, ...TRAT_CORPORAL]} disabled={readOnly} />
+      <TablaTratPrev rows={tratPrevios} setRows={setTratPrevios} opciones={TRAT_PREV_OPTS} disabled={readOnly} />
 
       {/* Footer */}
       {readOnly ? (

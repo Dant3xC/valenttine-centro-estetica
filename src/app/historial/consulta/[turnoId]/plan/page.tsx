@@ -1,4 +1,3 @@
-// src/app/historial/consulta/[turnoId]/plan/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -14,6 +13,7 @@ const FRECUENCIAS = [
   "Cada 3 meses",
   "Personalizado",
 ] as const;
+const TIPOS_CONSULTA = ["Primera Consulta", "Control"] as const; // Nuevo
 const TRAT_FACIAL = [
   "Toxina Botulínica",
   "Ácido Hialurónico",
@@ -43,7 +43,15 @@ const COMPARACION = [
 /* ========= Helpers fetch ========= */
 async function httpJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.error || `HTTP ${res.status}: Error de servidor.`);
+    } catch {
+      throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
+    }
+  }
   return res.json();
 }
 
@@ -69,7 +77,7 @@ function TextArea({ label, value, onChange, disabled }: { label?: string; value:
     </div>
   );
 }
-function SelectField({ label, value, onChange, options, disabled }: { label?: string; value: string; onChange: (v: string) => void; options: string[]; disabled?: boolean }) {
+function SelectField({ label, value, onChange, options, disabled }: { label?: string; value: string; onChange: (v: string) => void; options: readonly string[]; disabled?: boolean }) {
   return (
     <div className="space-y-1">
       {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
@@ -105,7 +113,7 @@ function NumberField({ label, value, onChange, min, disabled }: { label: string;
   );
 }
 /** Multi-select de servicios por chips */
-function ChipsSelect({ label, options, values, onToggle, disabled }: { label: string; options: string[]; values: string[]; onToggle: (v: string) => void; disabled?: boolean }) {
+function ChipsSelect({ label, options, values, onToggle, disabled }: { label: string; options: readonly string[]; values: string[]; onToggle: (v: string) => void; disabled?: boolean }) {
   return (
     <div className="space-y-2">
       <div className="text-sm font-medium text-gray-700">{label}</div>
@@ -137,6 +145,7 @@ function TablaProductos({ title, items, setItems, readOnly }: { title: string; i
   const add = () => setItems([...items, { producto: "" }]);
   const del = (i: number) => setItems(items.filter((_, k) => k !== i));
   const up = (i: number, p: Partial<{ producto: string; dosis?: string; aplicacion?: string }>) => {
+    if (readOnly) return;
     const n = [...items];
     n[i] = { ...n[i], ...p };
     setItems(n);
@@ -198,7 +207,7 @@ function TablaProductos({ title, items, setItems, readOnly }: { title: string; i
                   </TD>
                   <TD className="text-right">
                     {!readOnly && (
-                      <button className="text-xs text-red-600" onClick={() => del(i)}>
+                      <button type="button" className="text-xs text-red-600" onClick={() => del(i)}>
                         eliminar
                       </button>
                     )}
@@ -243,24 +252,99 @@ function TopNav({ turnoId, current, readOnly }: { turnoId: string; current: "ana
   );
 }
 
+// Nuevo componente para la Derivación (rescatado de Anamnesis)
+function DerivacionSection({ readOnly }: { readOnly: boolean }) {
+    const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
+    const [profDeriva, setProfDeriva] = useState("");
+    const [motivoDeriva, setMotivoDeriva] = useState("");
+    // NOTA: La documentación no se manejará con File[] en esta etapa, solo se guarda el path/URL en la API.
+    const [documentacionPath, setDocumentacionPath] = useState("");
+
+    // Hook para exponer el estado a la página principal
+    useEffect(() => {
+        // Esta función necesita ser llamada desde el componente principal para obtener los valores
+        // Como estamos modificando la página, ajustaremos el flujo en el componente Page()
+    }, []);
+
+    return (
+        <Section title="Derivación médica">
+            <div className="flex flex-wrap items-center gap-4 mb-3">
+                <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
+                {["NO", "SI"].map((o) => (
+                    <label key={o} className="inline-flex items-center gap-2">
+                        <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
+                        <span className="text-sm">{o}</span>
+                    </label>
+                ))}
+            </div>
+            {derivado === "SI" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
+                        <input
+                            value={profDeriva}
+                            onChange={(e) => setProfDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
+                        <textarea
+                            value={motivoDeriva}
+                            onChange={(e) => setMotivoDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    {/* El campo documentación se deja simple para guardar el path/URL */}
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Documentación adjunta (URL o Path)</label>
+                        <input
+                            value={documentacionPath}
+                            onChange={(e) => setDocumentacionPath(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+            )}
+        </Section>
+    );
+}
+// INTERFAZ DE DATOS
+interface PlanData {
+    header: {
+        id: number;
+        paciente: { nombre: string; apellido: string; dni: string };
+        profesional: string;
+        fecha: string;
+        hora: string;
+    };
+    consulta: any | null; // Datos de la tabla Consulta
+    plan: any | null;      // Datos de la tabla PlanTratamiento
+}
+
+
 export default function Page() {
   const { turnoId } = useParams<{ turnoId: string }>();
   const router = useRouter();
   const sp = useSearchParams();
   const readOnly = sp.get("readonly") === "1" || sp.get("mode") === "view";
 
-  type Header = {
-    id: number;
-    paciente: { nombre: string; apellido: string; dni: string };
-    profesional: string;
-    fecha: string; // YYYY-MM-DD
-    hora: string; // HH:mm
-  };
+  type Header = PlanData['header'];
 
   const [header, setHeader] = useState<Header | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // ESTADOS DE LA TABLA CONSULTA (incluyendo derivación y nuevo campo)
+  const [tipoConsulta, setTipoConsulta] = useState(""); // Nuevo campo
+  const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
+  const [profDeriva, setProfDeriva] = useState("");
+  const [motivoDeriva, setMotivoDeriva] = useState("");
+  const [documentacionPath, setDocumentacionPath] = useState(""); // Path/URL del archivo
 
   // PLAN
   const [objetivo, setObjetivo] = useState("");
@@ -269,7 +353,7 @@ export default function Page() {
   const [indicacionesPost, setIndicacionesPost] = useState("");
   const [resultadosEsperados, setResultadosEsperados] = useState("");
 
-  // CONSULTA DEL DÍA
+  // CONSULTA DEL DÍA (DATOS DE PLANTRATAMIENTO)
   const [motivoHoy, setMotivoHoy] = useState("");
   const [evolucion, setEvolucion] = useState("");
   const [examenActual, setExamenActual] = useState("");
@@ -299,55 +383,55 @@ export default function Page() {
       try {
         setLoading(true);
         setError(null);
-        // 1) Iniciar consulta (por si entraron directo a esta pestaña)
-        const init = await httpJSON<{
-          consultaId: number;
-          historiaClinicaId: number;
-          header: Header["paciente"] & {
-            profesional: string;
-            fecha: string;
-            hora: string;
-          } & { paciente: Header["paciente"] };
-        }>(`/api/consultas/${turnoId}/iniciar`, { method: "POST" });
+
+        // 1) Cargar Plan y Consulta con la nueva API
+        const data = await httpJSON<PlanData>(`/api/historial/plan/${turnoId}`);
         if (!alive) return;
-        setHeader({
-          id: Number(turnoId),
-          paciente: init.header.paciente,
-          profesional: init.header.profesional,
-          fecha: init.header.fecha,
-          hora: init.header.hora,
-        });
+        
+        const { consulta: cons, plan: planData, header: h } = data;
+        
+        setHeader(h);
 
-        // 2) Prefill Plan + Consulta
-        const data = await httpJSON<{
-          plan: any | null;
-          consulta: any | null;
-        }>(`/api/consultas/${turnoId}/plan`);
-        if (!alive) return;
-        const plan = data?.plan ?? null;
-        const cons = data?.consulta ?? null;
-
-        if (plan) {
-          setObjetivo(plan.objetivo ?? "");
-          setFrecuencia(plan.frecuencia ?? "");
-          setSesiones(plan.sesionesTotales ?? 1);
-          setIndicacionesPost(plan.indicacionesPost ?? "");
-          setResultadosEsperados(plan.resultadosEsperados ?? "");
-
-          setComparacion(plan.comparacion ?? "");
-          setServiciosHoy(Array.isArray(plan.tratamientosRealizados) ? plan.tratamientosRealizados : []);
-          setProductosHoy(Array.isArray(plan.productosUtilizados) ? plan.productosUtilizados : []);
-          setUsoAnestesia(plan.usoAnestesia ? "SI" : "NO");
-          setTolerancia(plan.toleranciaPaciente ?? "");
-          setObservaciones(plan.observaciones ?? "");
-          setIndicacionesHoy(plan.indicacionesPost ?? "");
-          setMedicacionHoy(plan.medicacionPrescrita ?? "");
-          setEvolucion(plan.evolucion ?? "");
-          setMotivoHoy(plan.motivoConsulta ?? "");
+        // 2) Prefill de Datos de la Consulta (Tabla Consulta)
+        if (cons) {
+            setTipoConsulta(cons.tipoConsulta ?? "");
+            setDerivado(cons.derivacion ? "SI" : "NO");
+            setProfDeriva(cons.profesionalDeriva ?? "");
+            setMotivoDeriva(cons.motivoDerivacion ?? "");
+            setDocumentacionPath(cons.documentacion ?? "");
+            // Observaciones generales (si planData no tiene motivoConsulta/evolucion)
+            if (!planData?.motivoConsulta) {
+                 setObservaciones(cons.observaciones ?? "");
+            }
         }
-        if (cons && !plan) {
-          // Si no hay plan, pero sí consulta con campos del día
-          setObservaciones(cons.observaciones ?? "");
+
+        // 3) Prefill Plan + Campos de Consulta del Día (Tabla PlanTratamiento)
+        if (planData) {
+          setObjetivo(planData.objetivo ?? "");
+          setFrecuencia(planData.frecuencia ?? "");
+          setSesiones(planData.sesionesTotales ?? 1);
+          setIndicacionesPost(planData.indicacionesPost ?? "");
+          setResultadosEsperados(planData.resultadosEsperados ?? "");
+
+          // Campos de la Consulta del día
+          setMotivoHoy(planData.motivoConsulta ?? "");
+          setEvolucion(planData.evolucion ?? "");
+          setComparacion(planData.comparacion ?? "");
+
+          // Campos JSON (tratamientos y productos)
+          const tratamientosRealizados = planData.tratamientosRealizados || [];
+          setServiciosHoy(Array.isArray(tratamientosRealizados) ? tratamientosRealizados : []);
+
+          const productosUtilizados = planData.productosUtilizados || [];
+          // El front usa dos estados (productosHoy y anestesia), aquí se simplifica
+          setProductosHoy(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => !p.esAnestesia) : []);
+          setAnestesia(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => p.esAnestesia) : []);
+
+          setUsoAnestesia(planData.usoAnestesia ? "SI" : "NO");
+          setTolerancia(planData.toleranciaPaciente ?? "");
+          setObservaciones(planData.observaciones ?? "");
+          setIndicacionesHoy(planData.indicacionesPost ?? "");
+          setMedicacionHoy(planData.medicacionPrescrita ?? "");
         }
       } catch (e: any) {
         if (!alive) return;
@@ -367,46 +451,66 @@ export default function Page() {
     try {
       setSaving(true);
       setError(null);
+
+      // Recopilar todos los productos utilizados (incluyendo anestesia)
+      const todosLosProductos = [
+          ...productosHoy.map(p => ({ ...p, esAnestesia: false })),
+          ...anestesia.map(p => ({ ...p, esAnestesia: true })),
+      ];
+
       const payload = {
-        plan: {
+        derivacion: { // Datos para la tabla Consulta
+            si: derivado === "SI",
+            profesionalDeriva: profDeriva || undefined,
+            motivoDerivacion: motivoDeriva || undefined,
+            documentacion: documentacionPath || undefined,
+            usoAnestesia: usoAnestesia as "NO" | "SI", // Se envía para simplificar la lógica del backend
+        },
+        tipoConsulta: tipoConsulta || undefined, // Nuevo campo
+        plan: { // Datos para la tabla PlanTratamiento (Plan de sesiones)
           objetivo: objetivo || undefined,
           frecuencia: frecuencia || undefined,
           sesionesTotales: sesiones || undefined,
           indicacionesPost: indicacionesPost || undefined,
           resultadosEsperados: resultadosEsperados || undefined,
         },
-        hoy: {
+        hoy: { // Datos para la tabla PlanTratamiento (Consulta del día)
           motivoConsulta: motivoHoy || undefined,
           evolucion: evolucion || undefined,
-          examenActual: examenActual || undefined,
+          examenActual: examenActual || undefined, // Este campo NO existe en DB, se podría agregar a observaciones
           comparacion: comparacion || undefined,
           serviciosHoy,
-          productosUtilizados: productosHoy,
-          usoAnestesia: usoAnestesia as "NO" | "SI",
-          anestesia, // (si querés usarla luego, tu backend la ignora por ahora)
+          productosUtilizados: todosLosProductos, // JSON: Incluye productos y anestesia
           toleranciaPaciente: tolerancia || undefined,
           observaciones: observaciones || undefined,
-          indicacionesHoy: indicacionesHoy || undefined,
           medicacionHoy: medicacionHoy || undefined,
         },
         finalizar,
       };
 
-      await httpJSON(`/api/consultas/${turnoId}/plan`, {
+      await httpJSON(`/api/historial/plan/${turnoId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (finalizar) {
-        router.push("/historial");
+        // Redirigir al historial general de turnos
+        router.push("/turnos/hoy"); 
       }
+      
     } catch (e: any) {
       setError(e?.message || "No se pudo guardar el plan");
     } finally {
       setSaving(false);
     }
   }
+    if (loading) {
+        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan y Consulta...</main>;
+    }
+    if (error && !header) {
+        return <main className="min-h-screen p-8 text-center text-red-600">Error Crítico: {error}</main>;
+    }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
@@ -437,6 +541,63 @@ export default function Page() {
         {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
       </div>
 
+      {/* TIPO DE CONSULTA */}
+      <Section title="Detalles de la Consulta">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SelectField 
+                label="Tipo de Consulta" 
+                value={tipoConsulta} 
+                onChange={setTipoConsulta} 
+                options={TIPOS_CONSULTA} 
+                disabled={readOnly} 
+            />
+        </div>
+      </Section>
+
+      {/* DERIVACIÓN (RESCATADO) */}
+      <Section title="Derivación médica">
+            <div className="flex flex-wrap items-center gap-4 mb-3">
+                <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
+                {["NO", "SI"].map((o) => (
+                    <label key={o} className="inline-flex items-center gap-2">
+                        <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
+                        <span className="text-sm">{o}</span>
+                    </label>
+                ))}
+            </div>
+            {derivado === "SI" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
+                        <input
+                            value={profDeriva}
+                            onChange={(e) => setProfDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
+                        <textarea
+                            value={motivoDeriva}
+                            onChange={(e) => setMotivoDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Documentación adjunta (URL o Path)</label>
+                        <input
+                            value={documentacionPath}
+                            onChange={(e) => setDocumentacionPath(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+            )}
+        </Section>
+      
       {/* PLAN */}
       <Section title="Plan de tratamiento">
         <TextArea label="Objetivo del tratamiento" value={objetivo} onChange={setObjetivo} disabled={readOnly} />
@@ -444,20 +605,20 @@ export default function Page() {
           <SelectField label="Frecuencia" value={frecuencia} onChange={setFrecuencia} options={FRECUENCIAS as unknown as string[]} disabled={readOnly} />
           <NumberField label="Número total de sesiones" value={sesiones} onChange={setSesiones} min={1} disabled={readOnly} />
         </div>
-        <TextArea label="Indicaciones post-tratamiento" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
+        <TextArea label="Indicaciones post-tratamiento (Plan General)" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
         <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
       </Section>
 
       {/* CONSULTA DEL DÍA */}
-      <Section title="Consulta del día">
+      <Section title="Registro de la Sesión de Hoy">
         <TextArea label="Motivo de la consulta de hoy" value={motivoHoy} onChange={setMotivoHoy} disabled={readOnly} />
         <TextArea label="Evolución desde la última consulta" value={evolucion} onChange={setEvolucion} disabled={readOnly} />
         <TextArea label="Examen físico actual" value={examenActual} onChange={setExamenActual} disabled={readOnly} />
         <SelectField label="Comparación con consulta anterior" value={comparacion} onChange={setComparacion} options={COMPARACION as unknown as string[]} disabled={readOnly} />
 
         <div className="mt-4 space-y-4">
-          <ChipsSelect label="Seleccionar servicios realizados hoy" options={[...TRAT_FACIAL, ...TRAT_CORPORAL]} values={serviciosHoy} onToggle={() => {}} disabled={readOnly} />
-          <TablaProductos title="Productos utilizados" items={productosHoy} setItems={setProductosHoy} readOnly={readOnly} />
+          <ChipsSelect label="Seleccionar servicios realizados hoy" options={[...TRAT_FACIAL, ...TRAT_CORPORAL]} values={serviciosHoy} onToggle={toggleServicio} disabled={readOnly} />
+          <TablaProductos title="Productos utilizados (sin anestesia)" items={productosHoy} setItems={setProductosHoy} readOnly={readOnly} />
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">¿Se usó anestesia?</label>
             <div className="flex items-center gap-3">
@@ -473,7 +634,7 @@ export default function Page() {
             <TablaProductos title="Anestesia — detalle" items={anestesia} setItems={setAnestesia} readOnly={readOnly} />
           )}
           <TextArea label="Tolerancia del paciente" value={tolerancia} onChange={setTolerancia} disabled={readOnly} />
-          <TextArea label="Observaciones" value={observaciones} onChange={setObservaciones} disabled={readOnly} />
+          <TextArea label="Observaciones adicionales de la sesión" value={observaciones} onChange={setObservaciones} disabled={readOnly} />
           <TextArea label="Indicaciones post-tratamiento (hoy)" value={indicacionesHoy} onChange={setIndicacionesHoy} disabled={readOnly} />
           <TextArea label="Medicación prescrita (si aplica)" value={medicacionHoy} onChange={setMedicacionHoy} disabled={readOnly} />
         </div>

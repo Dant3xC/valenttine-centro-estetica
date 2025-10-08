@@ -1,4 +1,3 @@
-// src/app/historial/consulta/[turnoId]/datos-clinicos/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -36,9 +35,18 @@ const CABELLO_LONGITUD = ["Corto", "Medio", "Largo"] as const;
 /* ========= Helpers fetch ========= */
 async function httpJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.error || `HTTP ${res.status}: Error de servidor.`);
+    } catch {
+      throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
+    }
+  }
   return res.json();
 }
+
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -48,7 +56,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   );
 }
-function SelectField({ label, value, onChange, options, disabled }: { label?: string; value: string; onChange: (v: string) => void; options: string[]; disabled?: boolean }) {
+function SelectField({ label, value, onChange, options, disabled }: { label?: string; value: string; onChange: (v: string) => void; options: readonly string[]; disabled?: boolean }) {
   return (
     <div className="space-y-1">
       {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
@@ -68,7 +76,7 @@ function SelectField({ label, value, onChange, options, disabled }: { label?: st
     </div>
   );
 }
-function CheckboxGroup({ label, options, values, onToggle, disabled }: { label: string; options: string[]; values: string[]; onToggle: (o: string) => void; disabled?: boolean }) {
+function CheckboxGroup({ label, options, values, onToggle, disabled }: { label: string; options: readonly string[]; values: string[]; onToggle: (o: string) => void; disabled?: boolean }) {
   return (
     <div className="space-y-2 mt-3">
       <div className="text-sm font-medium text-gray-700">{label}</div>
@@ -97,13 +105,6 @@ function TextArea({ label, value, onChange, disabled }: { label?: string; value:
     </div>
   );
 }
-function TH({ children }: { children: React.ReactNode }) {
-  return <th className="px-3 py-2 text-left text-xs font-bold text-purple-800">{children}</th>;
-}
-function TD({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <td className={`px-3 py-2 ${className}`}>{children}</td>;
-}
-
 function TopNav({ turnoId, current, readOnly }: { turnoId: string; current: "anamnesis" | "clinicos" | "plan"; readOnly?: boolean }) {
   const tabs = [
     { slug: "anamnesis", label: "Anamnesis" },
@@ -125,19 +126,29 @@ function TopNav({ turnoId, current, readOnly }: { turnoId: string; current: "ana
   );
 }
 
+// Interfaz para la respuesta de la API GET
+interface DiagnosticoData {
+    header: {
+        id: number;
+        paciente: { nombre: string; apellido: string; dni: string };
+        profesional: string;
+        fecha: string;
+        hora: string;
+    };
+    observacion?: string;
+    descripcionFacial?: any;
+    descripcionCorporal?: any;
+    descripcionCapilar?: any;
+}
+
+
 export default function Page() {
   const { turnoId } = useParams<{ turnoId: string }>();
   const router = useRouter();
   const sp = useSearchParams();
   const readOnly = sp.get("readonly") === "1" || sp.get("mode") === "view";
 
-  type Header = {
-    id: number;
-    paciente: { nombre: string; apellido: string; dni: string };
-    profesional: string;
-    fecha: string; // YYYY-MM-DD
-    hora: string; // HH:mm
-  };
+  type Header = DiagnosticoData['header'];
 
   const [header, setHeader] = useState<Header | null>(null);
   const [loading, setLoading] = useState(true);
@@ -169,7 +180,7 @@ export default function Page() {
   const [pigmentos, setPigmentos] = useState<string[]>([]);
   const togglePig = (o: string) => setPigmentos((p) => (p.includes(o) ? p.filter((x) => x !== o) : [...p, o]));
 
-  // Capilar (cabello estado → **select**)
+  // Capilar
   const [ccTipo, setCcTipo] = useState("");
   const [ccRiego, setCcRiego] = useState("");
   const [ccAlter, setCcAlter] = useState<string[]>([]);
@@ -187,54 +198,47 @@ export default function Page() {
       try {
         setLoading(true);
         setError(null);
-        // 1) Iniciar consulta (por si la UI llegó directo a esta pestaña)
-        const init = await httpJSON<{
-          consultaId: number;
-          historiaClinicaId: number;
-          header: { paciente: Header["paciente"]; profesional: string; fecha: string; hora: string };
-        }>(`/api/consultas/${turnoId}/iniciar`, { method: "POST" });
+        
+        // 1) Cargar datos de Diagnostico usando la nueva API
+        const data = await httpJSON<DiagnosticoData>(`/api/historial/datos-clinicos/${turnoId}`);
+        
         if (!alive) return;
-        setHeader({
-          id: Number(turnoId),
-          paciente: init.header.paciente,
-          profesional: init.header.profesional,
-          fecha: init.header.fecha,
-          hora: init.header.hora,
-        });
+        
+        // 2) Prefill Header
+        setHeader(data.header);
 
-        // 2) Prefill diagnostico
-        const d = await httpJSON<any>(`/api/consultas/${turnoId}/datos-clinicos`);
-        if (!alive) return;
-        if (d) {
-          setDiagObs(d.observacion ?? "");
-          const facial = d.descripcionFacial ?? {};
-          setFototipo(facial.fototipo ?? "");
-          setBiotipo(facial.biotipo ?? "");
-          setGlogau(facial.glogau ?? "");
-          setTextura(facial.textura ?? "");
+        // 3) Prefill Diagnóstico
+        setDiagObs(data.observacion ?? "");
 
-          const corporal = d.descripcionCorporal ?? {};
-          setTipoCorp(corporal.tipoCorp ?? "");
-          setTono(corporal.tono ?? "");
-          setAcumulos((corporal.acumulos as any) === "SI" ? "SI" : "NO");
-          setCelulitis(Array.isArray(corporal.celulitis) ? corporal.celulitis : []);
-          setEstriasSi((corporal.estriasSi as any) === "SI" ? "SI" : "NO");
-          setEstrias(Array.isArray(corporal.estrias) ? corporal.estrias : []);
-          setSenos(Array.isArray(corporal.senos) ? corporal.senos : []);
-          setAbdomen(Array.isArray(corporal.abdomen) ? corporal.abdomen : []);
-          setPigmentos(Array.isArray(corporal.pigmentos) ? corporal.pigmentos : []);
+        const facial = data.descripcionFacial ?? {};
+        setFototipo(facial.fototipo ?? "");
+        setBiotipo(facial.biotipo ?? "");
+        setGlogau(facial.glogau ?? "");
+        setTextura(facial.textura ?? "");
 
-          const cap = d.descripcionCapilar ?? {};
-          setCcTipo(cap.ccTipo ?? "");
-          setCcRiego(cap.ccRiego ?? "");
-          setCcAlter(Array.isArray(cap.ccAlter) ? cap.ccAlter : []);
-          setCabTipo(cap.cabTipo ?? "");
-          setCabEstado(cap.cabEstado ?? "");
-          setCabPoros(cap.cabPoros ?? "");
-          setCabLong(cap.cabLong ?? "");
-        }
+        const corporal = data.descripcionCorporal ?? {};
+        setTipoCorp(corporal.tipoCorp ?? "");
+        setTono(corporal.tono ?? "");
+        setAcumulos(corporal.acumulos === "SI" ? "SI" : "NO");
+        setCelulitis(Array.isArray(corporal.celulitis) ? corporal.celulitis : []);
+        setEstriasSi(corporal.estriasSi === "SI" ? "SI" : "NO");
+        setEstrias(Array.isArray(corporal.estrias) ? corporal.estrias : []);
+        setSenos(Array.isArray(corporal.senos) ? corporal.senos : []);
+        setAbdomen(Array.isArray(corporal.abdomen) ? corporal.abdomen : []);
+        setPigmentos(Array.isArray(corporal.pigmentos) ? corporal.pigmentos : []);
+
+        const capilar = data.descripcionCapilar ?? {};
+        setCcTipo(capilar.ccTipo ?? "");
+        setCcRiego(capilar.ccRiego ?? "");
+        setCcAlter(Array.isArray(capilar.ccAlter) ? capilar.ccAlter : []);
+        setCabTipo(capilar.cabTipo ?? "");
+        setCabEstado(capilar.cabEstado ?? "");
+        setCabPoros(capilar.cabPoros ?? "");
+        setCabLong(capilar.cabLong ?? "");
+
       } catch (e: any) {
         if (!alive) return;
+        // Si el error es 404 (Historia no inicializada), se mostrará el error y no se cargará el header completo.
         setError(e?.message || "Error al cargar datos clínicos");
       } finally {
         if (alive) setLoading(false);
@@ -251,24 +255,31 @@ export default function Page() {
     try {
       setSaving(true);
       setError(null);
+      
+      // 1. Construir los objetos JSON a partir de los estados del Front
       const payload = {
         observacion: diagObs || undefined,
-        facial: { fototipo: fototipo || undefined, biotipo: biotipo || undefined, glogau: glogau || undefined, textura: textura || undefined },
+        facial: { 
+            fototipo: fototipo || undefined, 
+            biotipo: biotipo || undefined, 
+            glogau: glogau || undefined, 
+            textura: textura || undefined 
+        },
         corporal: {
           tipoCorp: tipoCorp || undefined,
           tono: tono || undefined,
           acumulos: (acumulos as "NO" | "SI") ?? "NO",
-          celulitis,
+          celulitis: celulitis,
           estriasSi: (estriasSi as "NO" | "SI") ?? "NO",
-          estrias,
-          senos,
-          abdomen,
-          pigmentos,
+          estrias: estrias,
+          senos: senos,
+          abdomen: abdomen,
+          pigmentos: pigmentos,
         },
         capilar: {
           ccTipo: ccTipo || undefined,
           ccRiego: ccRiego || undefined,
-          ccAlter,
+          ccAlter: ccAlter,
           cabTipo: cabTipo || undefined,
           cabEstado: cabEstado || undefined,
           cabPoros: cabPoros || undefined,
@@ -276,12 +287,14 @@ export default function Page() {
         },
       };
 
-      await httpJSON(`/api/consultas/${turnoId}/datos-clinicos`, {
+      // 2. Enviar el payload al API
+      await httpJSON(`/api/historial/datos-clinicos/${turnoId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      // 3. Redirección
       if (goNext) router.push(`/historial/consulta/${turnoId}/plan`);
     } catch (e: any) {
       setError(e?.message || "No se pudo guardar");
@@ -289,6 +302,14 @@ export default function Page() {
       setSaving(false);
     }
   }
+
+    // Si está cargando o hay error crítico, mostrar un estado de carga/error
+    if (loading) {
+        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Datos Clínicos...</main>;
+    }
+    if (error && !header) {
+        return <main className="min-h-screen p-8 text-center text-red-600">Error Crítico: {error}</main>;
+    }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
@@ -323,17 +344,17 @@ export default function Page() {
 
       <Section title="A nivel facial">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <SelectField label="Fototipo cutáneo" value={fototipo} onChange={setFototipo} options={FOTOTIPO as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Biotipo cutáneo" value={biotipo} onChange={setBiotipo} options={BIOTIPO as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Glogau" value={glogau} onChange={setGlogau} options={GLOGAU as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Textura" value={textura} onChange={setTextura} options={TEXTURA as unknown as string[]} disabled={readOnly} />
+          <SelectField label="Fototipo cutáneo" value={fototipo} onChange={setFototipo} options={FOTOTIPO} disabled={readOnly} />
+          <SelectField label="Biotipo cutáneo" value={biotipo} onChange={setBiotipo} options={BIOTIPO} disabled={readOnly} />
+          <SelectField label="Glogau" value={glogau} onChange={setGlogau} options={GLOGAU} disabled={readOnly} />
+          <SelectField label="Textura" value={textura} onChange={setTextura} options={TEXTURA} disabled={readOnly} />
         </div>
       </Section>
 
       <Section title="A nivel corporal">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SelectField label="Tipo corporal" value={tipoCorp} onChange={setTipoCorp} options={TIPO_CORPORAL as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Tono muscular" value={tono} onChange={setTono} options={TONO_MUSCULAR as unknown as string[]} disabled={readOnly} />
+          <SelectField label="Tipo corporal" value={tipoCorp} onChange={setTipoCorp} options={TIPO_CORPORAL} disabled={readOnly} />
+          <SelectField label="Tono muscular" value={tono} onChange={setTono} options={TONO_MUSCULAR} disabled={readOnly} />
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Acúmulos adiposos</label>
             <div className="flex items-center gap-3">
@@ -347,7 +368,7 @@ export default function Page() {
           </div>
         </div>
 
-        <CheckboxGroup label="Celulitis" options={CELULITIS as unknown as string[]} values={celulitis} onToggle={toggleCel} disabled={readOnly} />
+        <CheckboxGroup label="Celulitis" options={CELULITIS} values={celulitis} onToggle={toggleCel} disabled={readOnly} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Estrías</label>
@@ -361,28 +382,27 @@ export default function Page() {
             </div>
           </div>
           {estriasSi === "SI" && (
-            <CheckboxGroup label="Tipo de estrías" options={ESTRIAS as unknown as string[]} values={estrias} onToggle={toggleEst} disabled={readOnly} />
+            <CheckboxGroup label="Tipo de estrías" options={ESTRIAS} values={estrias} onToggle={toggleEst} disabled={readOnly} />
           )}
         </div>
 
-        <CheckboxGroup label="Senos" options={SENOS as unknown as string[]} values={senos} onToggle={toggleSe} disabled={readOnly} />
-        <CheckboxGroup label="Abdomen" options={ABDOMEN as unknown as string[]} values={abdomen} onToggle={toggleAb} disabled={readOnly} />
-        <CheckboxGroup label="Pigmentaciones" options={PIGMENTOS as unknown as string[]} values={pigmentos} onToggle={togglePig} disabled={readOnly} />
+        <CheckboxGroup label="Senos" options={SENOS} values={senos} onToggle={toggleSe} disabled={readOnly} />
+        <CheckboxGroup label="Abdomen" options={ABDOMEN} values={abdomen} onToggle={toggleAb} disabled={readOnly} />
+        <CheckboxGroup label="Pigmentaciones" options={PIGMENTOS} values={pigmentos} onToggle={togglePig} disabled={readOnly} />
       </Section>
 
       <Section title="A nivel capilar">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SelectField label="Cuero cabelludo - Tipo" value={ccTipo} onChange={setCcTipo} options={CC_TIPO as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Cuero cabelludo - Riego sanguíneo" value={ccRiego} onChange={setCcRiego} options={CC_RIEGO as unknown as string[]} disabled={readOnly} />
-          <CheckboxGroup label="Cuero cabelludo - Alteraciones" options={CC_ALTER as unknown as string[]} values={ccAlter} onToggle={toggleCc} disabled={readOnly} />
+          <SelectField label="Cuero cabelludo - Tipo" value={ccTipo} onChange={setCcTipo} options={CC_TIPO} disabled={readOnly} />
+          <SelectField label="Cuero cabelludo - Riego sanguíneo" value={ccRiego} onChange={setCcRiego} options={CC_RIEGO} disabled={readOnly} />
+          <CheckboxGroup label="Cuero cabelludo - Alteraciones" options={CC_ALTER} values={ccAlter} onToggle={toggleCc} disabled={readOnly} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <SelectField label="Cabello - Tipo" value={cabTipo} onChange={setCabTipo} options={CABELLO_TIPO as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Cabello - Estado" value={cabEstado} onChange={setCabEstado} options={CABELLO_ESTADO as unknown as string[]} disabled={readOnly} />
-          {/* desplegable */}
-          <SelectField label="Cabello - Porosidad" value={cabPoros} onChange={setCabPoros} options={CABELLO_POROSIDAD as unknown as string[]} disabled={readOnly} />
-          <SelectField label="Cabello - Longitud" value={cabLong} onChange={setCabLong} options={CABELLO_LONGITUD as unknown as string[]} disabled={readOnly} />
+          <SelectField label="Cabello - Tipo" value={cabTipo} onChange={setCabTipo} options={CABELLO_TIPO} disabled={readOnly} />
+          <SelectField label="Cabello - Estado" value={cabEstado} onChange={setCabEstado} options={CABELLO_ESTADO} disabled={readOnly} />
+          <SelectField label="Cabello - Porosidad" value={cabPoros} onChange={setCabPoros} options={CABELLO_POROSIDAD} disabled={readOnly} />
+          <SelectField label="Cabello - Longitud" value={cabLong} onChange={setCabLong} options={CABELLO_LONGITUD} disabled={readOnly} />
         </div>
       </Section>
 
