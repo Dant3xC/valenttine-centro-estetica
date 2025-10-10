@@ -30,27 +30,28 @@ export function TurnosTable({
     return h * 60 + m
   }
 
-  // Orden: hora DESC (más tarde primero). Si hay empate o hora inválida, usa ID DESC como desempate.
-  const sortedRows = useMemo(() => {
-    return [...rows].sort((a, b) => {
-      const A = toMinutes(a.hora)
-      const B = toMinutes(b.hora)
+// Orden: hora ASC (más temprano primero). Si hay empate o hora inválida, usa ID ASC como desempate.
+const sortedRows = useMemo(() => {
+  return [...rows].sort((a, b) => {
+    const A = toMinutes(a.hora)
+    const B = toMinutes(b.hora)
 
-      const aValid = !Number.isNaN(A)
-      const bValid = !Number.isNaN(B)
+    const aValid = !Number.isNaN(A)
+    const bValid = !Number.isNaN(B)
 
-      if (aValid && bValid) {
-        const byTime = B - A // DESC
-        if (byTime !== 0) return byTime
-      } else if (aValid && !bValid) {
-        return -1 // válidos primero
-      } else if (!aValid && bValid) {
-        return 1
-      }
-      // Desempate por ID DESC
-      return b.id - a.id
-    })
-  }, [rows])
+    if (aValid && bValid) {
+      const byTime = A - B // ASC
+      if (byTime !== 0) return byTime
+    } else if (aValid && !bValid) {
+      return -1 // válidos primero
+    } else if (!aValid && bValid) {
+      return 1
+    }
+    // Desempate por ID ASC
+    return a.id - b.id
+  })
+}, [rows])
+
 
   return (
     <div className="glass-effect rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20 shadow-md">
