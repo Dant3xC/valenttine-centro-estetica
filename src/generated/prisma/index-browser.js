@@ -205,7 +205,8 @@ exports.Prisma.ProfesionalScalarFieldEnum = {
   fechaGraduacion: 'fechaGraduacion',
   horarioTrabajo: 'horarioTrabajo',
   creadoEn: 'creadoEn',
-  actualizadoEn: 'actualizadoEn'
+  actualizadoEn: 'actualizadoEn',
+  fotoPath: 'fotoPath'
 };
 
 exports.Prisma.PrestacionXProfesionalScalarFieldEnum = {

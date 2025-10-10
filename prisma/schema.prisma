@@ -61,7 +61,7 @@ model Paciente {
   numeroInterno   String            @unique
   nombre          String
   apellido        String
-  dni             String            @unique @db.VarChar(8)
+  dni             String            @db.VarChar(8)
   fechaNacimiento DateTime
   generoId        Int
   estadoCivilId   Int
@@ -98,7 +98,7 @@ model Profesional {
   numeroInterno   String                   @unique
   nombre          String
   apellido        String
-  dni             String                   @unique @db.VarChar(8)
+  dni             String                   @db.VarChar(8)
   fechaNacimiento DateTime
   generoId        Int
   estadoCivilId   Int
@@ -118,6 +118,7 @@ model Profesional {
   horarioTrabajo  String
   creadoEn        DateTime                 @default(now())
   actualizadoEn   DateTime                 @updatedAt
+  fotoPath        String?
   HistoriaClinica HistoriaClinica[]
   obrasSociales   ObraSocialXProfesional[]
   prestaciones    PrestacionXProfesional[]
@@ -294,3 +295,4 @@ model Rol {
   nombre  String    @unique
   Usuario Usuario[]
 }
+

@@ -10643,6 +10643,7 @@ export namespace Prisma {
     horarioTrabajo: string | null
     creadoEn: Date | null
     actualizadoEn: Date | null
+    fotoPath: string | null
   }
 
   export type ProfesionalMaxAggregateOutputType = {
@@ -10672,6 +10673,7 @@ export namespace Prisma {
     horarioTrabajo: string | null
     creadoEn: Date | null
     actualizadoEn: Date | null
+    fotoPath: string | null
   }
 
   export type ProfesionalCountAggregateOutputType = {
@@ -10701,6 +10703,7 @@ export namespace Prisma {
     horarioTrabajo: number
     creadoEn: number
     actualizadoEn: number
+    fotoPath: number
     _all: number
   }
 
@@ -10752,6 +10755,7 @@ export namespace Prisma {
     horarioTrabajo?: true
     creadoEn?: true
     actualizadoEn?: true
+    fotoPath?: true
   }
 
   export type ProfesionalMaxAggregateInputType = {
@@ -10781,6 +10785,7 @@ export namespace Prisma {
     horarioTrabajo?: true
     creadoEn?: true
     actualizadoEn?: true
+    fotoPath?: true
   }
 
   export type ProfesionalCountAggregateInputType = {
@@ -10810,6 +10815,7 @@ export namespace Prisma {
     horarioTrabajo?: true
     creadoEn?: true
     actualizadoEn?: true
+    fotoPath?: true
     _all?: true
   }
 
@@ -10926,6 +10932,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn: Date
     actualizadoEn: Date
+    fotoPath: string | null
     _count: ProfesionalCountAggregateOutputType | null
     _avg: ProfesionalAvgAggregateOutputType | null
     _sum: ProfesionalSumAggregateOutputType | null
@@ -10974,6 +10981,7 @@ export namespace Prisma {
     horarioTrabajo?: boolean
     creadoEn?: boolean
     actualizadoEn?: boolean
+    fotoPath?: boolean
     HistoriaClinica?: boolean | Profesional$HistoriaClinicaArgs<ExtArgs>
     obrasSociales?: boolean | Profesional$obrasSocialesArgs<ExtArgs>
     prestaciones?: boolean | Profesional$prestacionesArgs<ExtArgs>
@@ -11014,6 +11022,7 @@ export namespace Prisma {
     horarioTrabajo?: boolean
     creadoEn?: boolean
     actualizadoEn?: boolean
+    fotoPath?: boolean
     creadoPor?: boolean | Profesional$creadoPorArgs<ExtArgs>
     EstadoCivil?: boolean | EstadoCivilDefaultArgs<ExtArgs>
     Genero?: boolean | GeneroDefaultArgs<ExtArgs>
@@ -11049,6 +11058,7 @@ export namespace Prisma {
     horarioTrabajo?: boolean
     creadoEn?: boolean
     actualizadoEn?: boolean
+    fotoPath?: boolean
     creadoPor?: boolean | Profesional$creadoPorArgs<ExtArgs>
     EstadoCivil?: boolean | EstadoCivilDefaultArgs<ExtArgs>
     Genero?: boolean | GeneroDefaultArgs<ExtArgs>
@@ -11084,9 +11094,10 @@ export namespace Prisma {
     horarioTrabajo?: boolean
     creadoEn?: boolean
     actualizadoEn?: boolean
+    fotoPath?: boolean
   }
 
-  export type ProfesionalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "creadoPorId" | "numeroInterno" | "nombre" | "apellido" | "dni" | "fechaNacimiento" | "generoId" | "estadoCivilId" | "pais" | "provinciaId" | "localidadId" | "barrio" | "calle" | "numero" | "celular" | "email" | "titulo" | "matricula" | "especialidad" | "universidad" | "fechaGraduacion" | "horarioTrabajo" | "creadoEn" | "actualizadoEn", ExtArgs["result"]["profesional"]>
+  export type ProfesionalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "creadoPorId" | "numeroInterno" | "nombre" | "apellido" | "dni" | "fechaNacimiento" | "generoId" | "estadoCivilId" | "pais" | "provinciaId" | "localidadId" | "barrio" | "calle" | "numero" | "celular" | "email" | "titulo" | "matricula" | "especialidad" | "universidad" | "fechaGraduacion" | "horarioTrabajo" | "creadoEn" | "actualizadoEn" | "fotoPath", ExtArgs["result"]["profesional"]>
   export type ProfesionalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     HistoriaClinica?: boolean | Profesional$HistoriaClinicaArgs<ExtArgs>
     obrasSociales?: boolean | Profesional$obrasSocialesArgs<ExtArgs>
@@ -11158,6 +11169,7 @@ export namespace Prisma {
       horarioTrabajo: string
       creadoEn: Date
       actualizadoEn: Date
+      fotoPath: string | null
     }, ExtArgs["result"]["profesional"]>
     composites: {}
   }
@@ -11617,6 +11629,7 @@ export namespace Prisma {
     readonly horarioTrabajo: FieldRef<"Profesional", 'String'>
     readonly creadoEn: FieldRef<"Profesional", 'DateTime'>
     readonly actualizadoEn: FieldRef<"Profesional", 'DateTime'>
+    readonly fotoPath: FieldRef<"Profesional", 'String'>
   }
     
 
@@ -30189,7 +30202,8 @@ export namespace Prisma {
     fechaGraduacion: 'fechaGraduacion',
     horarioTrabajo: 'horarioTrabajo',
     creadoEn: 'creadoEn',
-    actualizadoEn: 'actualizadoEn'
+    actualizadoEn: 'actualizadoEn',
+    fotoPath: 'fotoPath'
   };
 
   export type ProfesionalScalarFieldEnum = (typeof ProfesionalScalarFieldEnum)[keyof typeof ProfesionalScalarFieldEnum]
@@ -30857,13 +30871,13 @@ export namespace Prisma {
     id?: number
     userId?: number
     numeroInterno?: string
-    dni?: string
     AND?: PacienteWhereInput | PacienteWhereInput[]
     OR?: PacienteWhereInput[]
     NOT?: PacienteWhereInput | PacienteWhereInput[]
     creadoPorId?: IntNullableFilter<"Paciente"> | number | null
     nombre?: StringFilter<"Paciente"> | string
     apellido?: StringFilter<"Paciente"> | string
+    dni?: StringFilter<"Paciente"> | string
     fechaNacimiento?: DateTimeFilter<"Paciente"> | Date | string
     generoId?: IntFilter<"Paciente"> | number
     estadoCivilId?: IntFilter<"Paciente"> | number
@@ -30891,7 +30905,7 @@ export namespace Prisma {
     provincia?: XOR<ProvinciaScalarRelationFilter, ProvinciaWhereInput>
     usuario?: XOR<UsuarioScalarRelationFilter, UsuarioWhereInput>
     turnos?: TurnoListRelationFilter
-  }, "id" | "userId" | "numeroInterno" | "dni">
+  }, "id" | "userId" | "numeroInterno">
 
   export type PacienteOrderByWithAggregationInput = {
     id?: SortOrder
@@ -30985,6 +30999,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFilter<"Profesional"> | string
     creadoEn?: DateTimeFilter<"Profesional"> | Date | string
     actualizadoEn?: DateTimeFilter<"Profesional"> | Date | string
+    fotoPath?: StringNullableFilter<"Profesional"> | string | null
     HistoriaClinica?: HistoriaClinicaListRelationFilter
     obrasSociales?: ObraSocialXProfesionalListRelationFilter
     prestaciones?: PrestacionXProfesionalListRelationFilter
@@ -31024,6 +31039,7 @@ export namespace Prisma {
     horarioTrabajo?: SortOrder
     creadoEn?: SortOrder
     actualizadoEn?: SortOrder
+    fotoPath?: SortOrderInput | SortOrder
     HistoriaClinica?: HistoriaClinicaOrderByRelationAggregateInput
     obrasSociales?: ObraSocialXProfesionalOrderByRelationAggregateInput
     prestaciones?: PrestacionXProfesionalOrderByRelationAggregateInput
@@ -31040,7 +31056,6 @@ export namespace Prisma {
     id?: number
     userId?: number
     numeroInterno?: string
-    dni?: string
     email?: string
     matricula?: string
     AND?: ProfesionalWhereInput | ProfesionalWhereInput[]
@@ -31049,6 +31064,7 @@ export namespace Prisma {
     creadoPorId?: IntNullableFilter<"Profesional"> | number | null
     nombre?: StringFilter<"Profesional"> | string
     apellido?: StringFilter<"Profesional"> | string
+    dni?: StringFilter<"Profesional"> | string
     fechaNacimiento?: DateTimeFilter<"Profesional"> | Date | string
     generoId?: IntFilter<"Profesional"> | number
     estadoCivilId?: IntFilter<"Profesional"> | number
@@ -31066,6 +31082,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFilter<"Profesional"> | string
     creadoEn?: DateTimeFilter<"Profesional"> | Date | string
     actualizadoEn?: DateTimeFilter<"Profesional"> | Date | string
+    fotoPath?: StringNullableFilter<"Profesional"> | string | null
     HistoriaClinica?: HistoriaClinicaListRelationFilter
     obrasSociales?: ObraSocialXProfesionalListRelationFilter
     prestaciones?: PrestacionXProfesionalListRelationFilter
@@ -31076,7 +31093,7 @@ export namespace Prisma {
     provincia?: XOR<ProvinciaScalarRelationFilter, ProvinciaWhereInput>
     usuario?: XOR<UsuarioScalarRelationFilter, UsuarioWhereInput>
     turnos?: TurnoListRelationFilter
-  }, "id" | "userId" | "numeroInterno" | "dni" | "email" | "matricula">
+  }, "id" | "userId" | "numeroInterno" | "email" | "matricula">
 
   export type ProfesionalOrderByWithAggregationInput = {
     id?: SortOrder
@@ -31105,6 +31122,7 @@ export namespace Prisma {
     horarioTrabajo?: SortOrder
     creadoEn?: SortOrder
     actualizadoEn?: SortOrder
+    fotoPath?: SortOrderInput | SortOrder
     _count?: ProfesionalCountOrderByAggregateInput
     _avg?: ProfesionalAvgOrderByAggregateInput
     _max?: ProfesionalMaxOrderByAggregateInput
@@ -31142,6 +31160,7 @@ export namespace Prisma {
     horarioTrabajo?: StringWithAggregatesFilter<"Profesional"> | string
     creadoEn?: DateTimeWithAggregatesFilter<"Profesional"> | Date | string
     actualizadoEn?: DateTimeWithAggregatesFilter<"Profesional"> | Date | string
+    fotoPath?: StringNullableWithAggregatesFilter<"Profesional"> | string | null
   }
 
   export type PrestacionXProfesionalWhereInput = {
@@ -32594,6 +32613,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -32633,6 +32653,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -32659,6 +32680,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -32698,6 +32720,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -32731,6 +32754,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type ProfesionalUpdateManyMutationInput = {
@@ -32753,6 +32777,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProfesionalUncheckedUpdateManyInput = {
@@ -32782,6 +32807,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PrestacionXProfesionalCreateInput = {
@@ -34270,6 +34296,7 @@ export namespace Prisma {
     horarioTrabajo?: SortOrder
     creadoEn?: SortOrder
     actualizadoEn?: SortOrder
+    fotoPath?: SortOrder
   }
 
   export type ProfesionalAvgOrderByAggregateInput = {
@@ -34309,6 +34336,7 @@ export namespace Prisma {
     horarioTrabajo?: SortOrder
     creadoEn?: SortOrder
     actualizadoEn?: SortOrder
+    fotoPath?: SortOrder
   }
 
   export type ProfesionalMinOrderByAggregateInput = {
@@ -34338,6 +34366,7 @@ export namespace Prisma {
     horarioTrabajo?: SortOrder
     creadoEn?: SortOrder
     actualizadoEn?: SortOrder
+    fotoPath?: SortOrder
   }
 
   export type ProfesionalSumOrderByAggregateInput = {
@@ -37281,6 +37310,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -37318,6 +37348,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -37354,6 +37385,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -37391,6 +37423,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -37574,6 +37607,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFilter<"Profesional"> | string
     creadoEn?: DateTimeFilter<"Profesional"> | Date | string
     actualizadoEn?: DateTimeFilter<"Profesional"> | Date | string
+    fotoPath?: StringNullableFilter<"Profesional"> | string | null
   }
 
   export type ProfesionalUpsertWithoutUsuarioInput = {
@@ -37607,6 +37641,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -37644,6 +37679,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -37778,6 +37814,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -37815,6 +37852,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -37991,6 +38029,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -38028,6 +38067,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -39249,6 +39289,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     creadoPor?: UsuarioCreateNestedOneWithoutProfesionalesCreadosInput
@@ -39287,6 +39328,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     turnos?: TurnoUncheckedCreateNestedManyWithoutProfesionalInput
@@ -39350,6 +39392,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     creadoPor?: UsuarioUpdateOneWithoutProfesionalesCreadosNestedInput
@@ -39388,6 +39431,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     turnos?: TurnoUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -39429,6 +39473,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
     creadoPor?: UsuarioCreateNestedOneWithoutProfesionalesCreadosInput
@@ -39467,6 +39512,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     turnos?: TurnoUncheckedCreateNestedManyWithoutProfesionalInput
@@ -39530,6 +39576,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
     creadoPor?: UsuarioUpdateOneWithoutProfesionalesCreadosNestedInput
@@ -39568,6 +39615,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     turnos?: TurnoUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -39725,6 +39773,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -39763,6 +39812,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -39949,6 +39999,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -39987,6 +40038,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -40578,6 +40630,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -40615,6 +40668,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -40876,6 +40930,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
@@ -40913,6 +40968,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     HistoriaClinica?: HistoriaClinicaUncheckedCreateNestedManyWithoutProfesionalInput
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
@@ -41118,6 +41174,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     obrasSociales?: ObraSocialXProfesionalCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalCreateNestedManyWithoutProfesionalInput
     creadoPor?: UsuarioCreateNestedOneWithoutProfesionalesCreadosInput
@@ -41156,6 +41213,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
     obrasSociales?: ObraSocialXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     prestaciones?: PrestacionXProfesionalUncheckedCreateNestedManyWithoutProfesionalInput
     turnos?: TurnoUncheckedCreateNestedManyWithoutProfesionalInput
@@ -41333,6 +41391,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
     creadoPor?: UsuarioUpdateOneWithoutProfesionalesCreadosNestedInput
@@ -41371,6 +41430,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     turnos?: TurnoUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -41558,6 +41618,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type PacienteUpdateWithoutCreadoPorInput = {
@@ -41661,6 +41722,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -41698,6 +41760,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -41730,6 +41793,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type LocalidadCreateManyProvinciaInput = {
@@ -41789,6 +41853,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type LocalidadUpdateWithoutProvinciaInput = {
@@ -41910,6 +41975,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -41947,6 +42013,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -41979,6 +42046,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PacienteCreateManyLocalidadInput = {
@@ -42033,6 +42101,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type PacienteUpdateWithoutLocalidadInput = {
@@ -42136,6 +42205,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -42173,6 +42243,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -42205,6 +42276,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ObraSocialXProfesionalCreateManyObraSocialInput = {
@@ -42717,6 +42789,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type PacienteUpdateWithoutEstadoCivilInput = {
@@ -42820,6 +42893,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -42857,6 +42931,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -42889,6 +42964,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PacienteCreateManyEstadoPacienteInput = {
@@ -43089,6 +43165,7 @@ export namespace Prisma {
     horarioTrabajo: string
     creadoEn?: Date | string
     actualizadoEn?: Date | string
+    fotoPath?: string | null
   }
 
   export type PacienteUpdateWithoutGeneroInput = {
@@ -43192,6 +43269,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUpdateManyWithoutProfesionalNestedInput
@@ -43229,6 +43307,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUncheckedUpdateManyWithoutProfesionalNestedInput
     obrasSociales?: ObraSocialXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
     prestaciones?: PrestacionXProfesionalUncheckedUpdateManyWithoutProfesionalNestedInput
@@ -43261,6 +43340,7 @@ export namespace Prisma {
     horarioTrabajo?: StringFieldUpdateOperationsInput | string
     creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
     actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    fotoPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ConsultaCreateManyHistoriaClinicaInput = {

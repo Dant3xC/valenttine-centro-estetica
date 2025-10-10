@@ -141,7 +141,7 @@ function TopNav({
         <Link
           key={t.slug}
           href={`/historial/consulta/${turnoId}/${t.slug}${qs}`}
-          className={`px-4 py-2 rounded-xl text-sm ${
+          className={`px-4 py-2 rounded-xl text-sm mb-4 ${
             current === t.slug ? "bg-purple-600 text-white" : "bg-white text-gray-800 hover:bg-gray-100 border"
           }`}
         >
@@ -690,26 +690,31 @@ export default function Page() {
       <TopNav turnoId={turnoId} current="anamnesis" qs={qs} />
 
       {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent mb-2">
+              Historia Clínica Inicial — Anamnesis
+          </h2>
+          <p className="text-gray-600 text-lg">Complete la información de anamnesis</p>
+        </div>
+      </div>
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
-        <h2 className="text-2xl font-bold text-purple-800 mb-2">
-          Historia Clínica Inicial — Anamnesis
-        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
-            <strong>Paciente:</strong>{" "}
+            <strong className="text-2xl font-bold text-purple-800 mb-6">Paciente:</strong>{" "}
             {header ? (
-              <>
+              <span className="text-lg font-semibold text-black">
                 {header.paciente.nombre} {header.paciente.apellido} · DNI {header.paciente.dni}
-              </>
+              </span>
             ) : (
               <span className="opacity-60">—</span>
             )}
           </div>
           <div>
-            <strong>Profesional:</strong> {header?.profesional ?? <span className="opacity-60">—</span>}
+            <strong className="text-2xl font-bold text-purple-800 mb-6">Profesional:</strong> <span className="text-lg font-semibold text-black">{header?.profesional ?? "—"}</span>
           </div>
           <div>
-            <strong>Fecha/Hora:</strong> {header?.fecha ?? "—"} · {header?.hora ?? "—"} hs
+            <strong className="text-2xl font-bold text-purple-800 mb-6">Fecha/Hora:</strong> <span className="text-lg font-semibold text-black">{header?.fecha ?? "—"} ·  hs</span>
           </div>
         </div>
         {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
@@ -717,7 +722,7 @@ export default function Page() {
 
       {/* ANTECEDENTES PERSONALES */}
       <AntecedentesTable
-        label="Antecedentes personales — Patológicos"
+        label ="Antecedentes personales — Patológicos"
         quickOptions={PATOLOGICOS_OPTS}
         rows={patologicos}
         setRows={setPatologicos}
@@ -733,7 +738,7 @@ export default function Page() {
       />
 
       {/* Hábitos */}
-      <Section title="Hábitos">
+      <Section  title="Hábitos">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           {/* Fuma */}
           <div className="space-y-1">
