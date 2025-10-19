@@ -66,6 +66,8 @@ export const NuevoProfesionalInitDto = z.object({
   provincias: z.array(ProvinciaDto),
   prestaciones: z.array(PrestacionDto),
   obrasSociales: z.array(ObraSocialDto),
+  generos: z.array(ItemBasicoDto),
+  estadosCiviles: z.array(ItemBasicoDto),
 });
 export type NuevoProfesionalInit = z.infer<typeof NuevoProfesionalInitDto>;
 
@@ -88,8 +90,8 @@ export const ProfesionalCreateSchema = z.object({
   apellido: z.string(),
   dni: z.string().length(8),
   fechaNacimiento: z.coerce.date(),
-  genero: Genero,
-  estadoCivil: EstadoCivil,
+  generoId: z.number().int(),
+  estadoCivilId: z.number().int(),
   pais: z.string(),
   provinciaId: z.number().int(),
   localidadId: z.number().int(),
@@ -149,8 +151,8 @@ export const ProfesionalDetalleDto = z.object({
   apellido: z.string(),
   dni: z.string().length(8),
   fechaNacimiento: z.string(),         // ISO, la UI lo formatea a DD/MM/AAAA
-  genero: Genero,
-  estadoCivil: EstadoCivil,
+  genero: ItemBasicoDto,
+  estadoCivil: ItemBasicoDto,
   estado: EstadoProfesional.default('ACTIVO'), // fallback si no tenés campo en DB
   // Contacto
   celular: z.string().nullable().optional(),
@@ -190,8 +192,8 @@ export const ProfesionalUpdateSchema = z.object({
   nombre: z.string(),
   apellido: z.string(),
   fechaNacimiento: z.coerce.date(),
-  genero: Genero,
-  estadoCivil: EstadoCivil,
+  generoId: z.number().int(),
+  estadoCivilId: z.number().int(),
 
   // Contacto
   pais: z.string(),

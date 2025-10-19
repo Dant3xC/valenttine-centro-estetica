@@ -32,6 +32,8 @@ export async function GET(
                 prestaciones: {
                     include: { prestacion: { select: { id: true, nombre: true } } },
                 },
+                Genero: { select: { id: true, nombre: true } },
+                EstadoCivil: { select: { id: true, nombre: true } },
             },
         });
 
@@ -54,8 +56,8 @@ export async function GET(
             apellido: p.apellido,
             dni: p.dni,
             fechaNacimiento: p.fechaNacimiento.toISOString(),
-            genero: p.genero,
-            estadoCivil: p.estadoCivil,
+            genero: p.Genero,
+            estadoCivil: p.EstadoCivil,
             estado: "ACTIVO" as const, // placeholder si aún no tenés estado en BD
             celular: p.celular ?? null,
             email: p.email,
@@ -121,8 +123,8 @@ export async function PUT(
                     nombre: input.nombre,
                     apellido: input.apellido,
                     fechaNacimiento: input.fechaNacimiento,
-                    genero: input.genero,
-                    estadoCivil: input.estadoCivil,
+                    generoId: input.generoId,
+                    estadoCivilId: input.estadoCivilId,
                     pais: input.pais,
                     provinciaId: input.provinciaId,
                     localidadId: input.localidadId,

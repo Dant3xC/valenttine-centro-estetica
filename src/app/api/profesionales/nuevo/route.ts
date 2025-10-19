@@ -16,7 +16,7 @@ export const revalidate = 0;
 // GET: datos iniciales (provincias, prestaciones, obrasSociales)
 export async function GET() {
     try {
-        const [provincias, prestaciones, obrasSociales] = await Promise.all([
+        const [provincias, prestaciones, obrasSociales, generos, estadosCiviles] = await Promise.all([
             prisma.provincia.findMany({
                 select: { id: true, nombre: true },
                 orderBy: { nombre: "asc" },
@@ -29,9 +29,17 @@ export async function GET() {
                 select: { id: true, nombre: true },
                 orderBy: { nombre: "asc" },
             }),
+            prisma.genero.findMany({
+                select: { id: true, nombre: true },
+                orderBy: { nombre: "asc" },
+            }),
+            prisma.estadoCivil.findMany({
+                select: { id: true, nombre: true },
+                orderBy: { nombre: "asc" },
+            }),
         ]);
         return NextResponse.json(
-            NuevoProfesionalInitDto.parse({ provincias, prestaciones, obrasSociales })
+            NuevoProfesionalInitDto.parse({ provincias, prestaciones, obrasSociales, generos, estadosCiviles })
         );
     } catch (e) {
         console.error("[GET /api/profesionales/nuevo]", e);
@@ -82,7 +90,7 @@ export async function POST(req: NextRequest) {
                     data: {
                         username: input.usuarioNuevo.username,
                         email: input.usuarioNuevo.email,
-                        rol: "MEDICO",
+                        rolId: 4,
 
                         contraseña: hash,
                     },
@@ -102,8 +110,8 @@ export async function POST(req: NextRequest) {
                     apellido: input.apellido,
                     dni: input.dni,
                     fechaNacimiento: input.fechaNacimiento,
-                    genero: input.genero,
-                    estadoCivil: input.estadoCivil,
+                    generoId: input.generoId,
+                    estadoCivilId: input.estadoCivilId,
                     pais: input.pais,
                     provinciaId: input.provinciaId,
                     localidadId: input.localidadId,
@@ -144,6 +152,8 @@ export async function POST(req: NextRequest) {
                     prestaciones: {
                         include: { prestacion: { select: { id: true, nombre: true } } },
                     },
+                    Genero: { select: { id: true, nombre: true } },
+                    EstadoCivil: { select: { id: true, nombre: true } },
                 },
             });
 
