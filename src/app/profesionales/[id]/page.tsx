@@ -46,13 +46,14 @@ export default function Page({ params }: { params: { id: string } }) {
   const [prof, setProf] = useState<ProfesionalDetalle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const idProfesional = params.id;
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         setError(null);
-        const p = await getProfesionalById(Number(params.id));
+        const p = await getProfesionalById(Number(idProfesional));
         setProf(p);
       } catch (e: any) {
         setError(e?.message ?? 'No se pudo cargar el profesional');
@@ -61,7 +62,7 @@ export default function Page({ params }: { params: { id: string } }) {
         
       }
     })();
-  }, [params.id]);
+  }, [idProfesional]);
 
   if (loading) return <div className="p-8">Cargando…</div>;
   if (error) {
@@ -123,10 +124,8 @@ export default function Page({ params }: { params: { id: string } }) {
               <Item label="Nombre Completo" value={`${prof.nombre} ${prof.apellido}`} />
               <Item label="DNI" value={prof.dni} />
               <Item label="Fecha de Nacimiento" value={fmtDMY(prof.fechaNacimiento)} />
-              <Item label="Género" value={prof.genero === 'FEMENINO' ? 'Femenino' : prof.genero === 'MASCULINO' ? 'Masculino' : 'Otro'} />
-              <Item label="Estado Civil" value={{
-                SOLTERO: 'Soltero/a', CASADO: 'Casado/a', DIVORCIADO: 'Divorciado/a', VIUDO: 'Viudo/a', UNION_LIBRE: 'Unión Libre / Convivencia'
-              }[prof.estadoCivil]} />
+              <Item label="Género" value={prof.genero.nombre} />
+              <Item label="Estado Civil" value={prof.estadoCivil.nombre} />
             </Col>
 
             {/* Columna derecha */}
