@@ -453,7 +453,7 @@ export default function Page() {
 
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
         <h2 className="text-2xl font-bold text-purple-800 mb-2">
-          Consulta #{Number(turnoId)} — Plan de tratamiento
+          Plan de tratamiento
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>

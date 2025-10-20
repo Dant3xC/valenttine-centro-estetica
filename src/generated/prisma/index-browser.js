@@ -321,7 +321,7 @@ exports.Prisma.HistoriaClinicaScalarFieldEnum = {
 
 exports.Prisma.PlanTratamientoScalarFieldEnum = {
   id: 'id',
-  consultaId: 'consultaId',
+  historiaClinicaId: 'historiaClinicaId',
   objetivo: 'objetivo',
   frecuencia: 'frecuencia',
   sesionesTotales: 'sesionesTotales',
