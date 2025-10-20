@@ -277,7 +277,16 @@ exports.Prisma.ConsultaScalarFieldEnum = {
   documentacion: 'documentacion',
   fecha: 'fecha',
   tipoConsulta: 'tipoConsulta',
-  observaciones: 'observaciones'
+  observaciones: 'observaciones',
+  resultadosEsperados: 'resultadosEsperados',
+  motivoConsulta: 'motivoConsulta',
+  evolucion: 'evolucion',
+  comparacion: 'comparacion',
+  tratamientosRealizados: 'tratamientosRealizados',
+  productosUtilizados: 'productosUtilizados',
+  usoAnestesia: 'usoAnestesia',
+  toleranciaPaciente: 'toleranciaPaciente',
+  medicacionPrescrita: 'medicacionPrescrita'
 };
 
 exports.Prisma.DiagnosticoScalarFieldEnum = {
@@ -326,17 +335,8 @@ exports.Prisma.PlanTratamientoScalarFieldEnum = {
   frecuencia: 'frecuencia',
   sesionesTotales: 'sesionesTotales',
   indicacionesPost: 'indicacionesPost',
-  resultadosEsperados: 'resultadosEsperados',
-  motivoConsulta: 'motivoConsulta',
-  evolucion: 'evolucion',
-  comparacion: 'comparacion',
-  tratamientosRealizados: 'tratamientosRealizados',
-  productosUtilizados: 'productosUtilizados',
-  usoAnestesia: 'usoAnestesia',
-  toleranciaPaciente: 'toleranciaPaciente',
-  observaciones: 'observaciones',
-  medicacionPrescrita: 'medicacionPrescrita',
-  estado: 'estado'
+  estado: 'estado',
+  observaciones: 'observaciones'
 };
 
 exports.Prisma.RolScalarFieldEnum = {

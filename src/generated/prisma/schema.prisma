@@ -203,18 +203,27 @@ model Antecedente {
 }
 
 model Consulta {
-  id                Int             @id @default(autoincrement())
-  historiaClinicaId Int
-  turnoId           Int?
-  derivacion        Boolean         @default(false)
-  profesionalDeriva String?
-  motivoDerivacion  String?
-  documentacion     String?
-  fecha             DateTime        @default(now())
-  tipoConsulta      String?
-  observaciones     String?
-  HistoriaClinica   HistoriaClinica @relation(fields: [historiaClinicaId], references: [id])
-  Turno             Turno?          @relation(fields: [turnoId], references: [id])
+  id                     Int             @id @default(autoincrement())
+  historiaClinicaId      Int
+  turnoId                Int?
+  derivacion             Boolean         @default(false)
+  profesionalDeriva      String?
+  motivoDerivacion       String?
+  documentacion          String?
+  fecha                  DateTime        @default(now())
+  tipoConsulta           String?
+  observaciones          String?
+  resultadosEsperados    String?
+  motivoConsulta         String?
+  evolucion              String?
+  comparacion            String?
+  tratamientosRealizados Json?
+  productosUtilizados    Json?
+  usoAnestesia           Boolean?
+  toleranciaPaciente     String?
+  medicacionPrescrita    String?
+  HistoriaClinica        HistoriaClinica @relation(fields: [historiaClinicaId], references: [id])
+  Turno                  Turno?          @relation(fields: [turnoId], references: [id])
 }
 
 model Diagnostico {
@@ -270,26 +279,17 @@ model HistoriaClinica {
 }
 
 model PlanTratamiento {
-  id                     Int              @id @default(autoincrement())
+  id                Int              @id @default(autoincrement())
   // consultaId             Int?    @unique
-  historiaClinicaId      Int?             @unique
-  objetivo               String?
-  frecuencia             String?
-  sesionesTotales        Int?
-  indicacionesPost       String?
-  resultadosEsperados    String?
-  motivoConsulta         String?
-  evolucion              String?
-  comparacion            String?
-  tratamientosRealizados Json?
-  productosUtilizados    Json?
-  usoAnestesia           Boolean?
-  toleranciaPaciente     String?
-  observaciones          String?
-  medicacionPrescrita    String?
-  estado                 Boolean          @default(true)
+  historiaClinicaId Int?             @unique
+  objetivo          String?
+  frecuencia        String? //
+  sesionesTotales   Int? //
+  indicacionesPost  String? //
+  estado            Boolean          @default(true)
+  observaciones     String?
   // Consulta               Consulta? @relation(fields: [consultaId], references: [id], onDelete: SetNull)
-  historiaClinica        HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
+  historiaClinica   HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
 }
 
 model Rol {

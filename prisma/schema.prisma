@@ -213,6 +213,15 @@ model Consulta {
   fecha             DateTime         @default(now())
   tipoConsulta      String?
   observaciones     String?
+  resultadosEsperados    String?
+  motivoConsulta         String?
+  evolucion              String?
+  comparacion            String?
+  tratamientosRealizados Json?
+  productosUtilizados    Json?
+  usoAnestesia           Boolean?
+  toleranciaPaciente     String?
+  medicacionPrescrita    String?
   HistoriaClinica   HistoriaClinica  @relation(fields: [historiaClinicaId], references: [id])
   Turno             Turno?           @relation(fields: [turnoId], references: [id])
 }
@@ -274,20 +283,11 @@ model PlanTratamiento {
   // consultaId             Int?    @unique
   historiaClinicaId      Int?    @unique
   objetivo               String?
-  frecuencia             String?
-  sesionesTotales        Int?
-  indicacionesPost       String?
-  resultadosEsperados    String?
-  motivoConsulta         String?
-  evolucion              String?
-  comparacion            String?
-  tratamientosRealizados Json?
-  productosUtilizados    Json?
-  usoAnestesia           Boolean?
-  toleranciaPaciente     String?
-  observaciones          String?
-  medicacionPrescrita    String?
+  frecuencia             String? //
+  sesionesTotales        Int?  //
+  indicacionesPost       String? //
   estado                 Boolean  @default(true)
+  observaciones          String?
   // Consulta               Consulta? @relation(fields: [consultaId], references: [id], onDelete: SetNull)
   historiaClinica         HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
 }

@@ -19969,6 +19969,13 @@ export namespace Prisma {
     fecha: Date | null
     tipoConsulta: string | null
     observaciones: string | null
+    resultadosEsperados: string | null
+    motivoConsulta: string | null
+    evolucion: string | null
+    comparacion: string | null
+    usoAnestesia: boolean | null
+    toleranciaPaciente: string | null
+    medicacionPrescrita: string | null
   }
 
   export type ConsultaMaxAggregateOutputType = {
@@ -19982,6 +19989,13 @@ export namespace Prisma {
     fecha: Date | null
     tipoConsulta: string | null
     observaciones: string | null
+    resultadosEsperados: string | null
+    motivoConsulta: string | null
+    evolucion: string | null
+    comparacion: string | null
+    usoAnestesia: boolean | null
+    toleranciaPaciente: string | null
+    medicacionPrescrita: string | null
   }
 
   export type ConsultaCountAggregateOutputType = {
@@ -19995,6 +20009,15 @@ export namespace Prisma {
     fecha: number
     tipoConsulta: number
     observaciones: number
+    resultadosEsperados: number
+    motivoConsulta: number
+    evolucion: number
+    comparacion: number
+    tratamientosRealizados: number
+    productosUtilizados: number
+    usoAnestesia: number
+    toleranciaPaciente: number
+    medicacionPrescrita: number
     _all: number
   }
 
@@ -20022,6 +20045,13 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
+    resultadosEsperados?: true
+    motivoConsulta?: true
+    evolucion?: true
+    comparacion?: true
+    usoAnestesia?: true
+    toleranciaPaciente?: true
+    medicacionPrescrita?: true
   }
 
   export type ConsultaMaxAggregateInputType = {
@@ -20035,6 +20065,13 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
+    resultadosEsperados?: true
+    motivoConsulta?: true
+    evolucion?: true
+    comparacion?: true
+    usoAnestesia?: true
+    toleranciaPaciente?: true
+    medicacionPrescrita?: true
   }
 
   export type ConsultaCountAggregateInputType = {
@@ -20048,6 +20085,15 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
+    resultadosEsperados?: true
+    motivoConsulta?: true
+    evolucion?: true
+    comparacion?: true
+    tratamientosRealizados?: true
+    productosUtilizados?: true
+    usoAnestesia?: true
+    toleranciaPaciente?: true
+    medicacionPrescrita?: true
     _all?: true
   }
 
@@ -20148,6 +20194,15 @@ export namespace Prisma {
     fecha: Date
     tipoConsulta: string | null
     observaciones: string | null
+    resultadosEsperados: string | null
+    motivoConsulta: string | null
+    evolucion: string | null
+    comparacion: string | null
+    tratamientosRealizados: JsonValue | null
+    productosUtilizados: JsonValue | null
+    usoAnestesia: boolean | null
+    toleranciaPaciente: string | null
+    medicacionPrescrita: string | null
     _count: ConsultaCountAggregateOutputType | null
     _avg: ConsultaAvgAggregateOutputType | null
     _sum: ConsultaSumAggregateOutputType | null
@@ -20180,6 +20235,15 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
+    resultadosEsperados?: boolean
+    motivoConsulta?: boolean
+    evolucion?: boolean
+    comparacion?: boolean
+    tratamientosRealizados?: boolean
+    productosUtilizados?: boolean
+    usoAnestesia?: boolean
+    toleranciaPaciente?: boolean
+    medicacionPrescrita?: boolean
     HistoriaClinica?: boolean | HistoriaClinicaDefaultArgs<ExtArgs>
     Turno?: boolean | Consulta$TurnoArgs<ExtArgs>
   }, ExtArgs["result"]["consulta"]>
@@ -20195,6 +20259,15 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
+    resultadosEsperados?: boolean
+    motivoConsulta?: boolean
+    evolucion?: boolean
+    comparacion?: boolean
+    tratamientosRealizados?: boolean
+    productosUtilizados?: boolean
+    usoAnestesia?: boolean
+    toleranciaPaciente?: boolean
+    medicacionPrescrita?: boolean
     HistoriaClinica?: boolean | HistoriaClinicaDefaultArgs<ExtArgs>
     Turno?: boolean | Consulta$TurnoArgs<ExtArgs>
   }, ExtArgs["result"]["consulta"]>
@@ -20210,6 +20283,15 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
+    resultadosEsperados?: boolean
+    motivoConsulta?: boolean
+    evolucion?: boolean
+    comparacion?: boolean
+    tratamientosRealizados?: boolean
+    productosUtilizados?: boolean
+    usoAnestesia?: boolean
+    toleranciaPaciente?: boolean
+    medicacionPrescrita?: boolean
     HistoriaClinica?: boolean | HistoriaClinicaDefaultArgs<ExtArgs>
     Turno?: boolean | Consulta$TurnoArgs<ExtArgs>
   }, ExtArgs["result"]["consulta"]>
@@ -20225,9 +20307,18 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
+    resultadosEsperados?: boolean
+    motivoConsulta?: boolean
+    evolucion?: boolean
+    comparacion?: boolean
+    tratamientosRealizados?: boolean
+    productosUtilizados?: boolean
+    usoAnestesia?: boolean
+    toleranciaPaciente?: boolean
+    medicacionPrescrita?: boolean
   }
 
-  export type ConsultaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "turnoId" | "derivacion" | "profesionalDeriva" | "motivoDerivacion" | "documentacion" | "fecha" | "tipoConsulta" | "observaciones", ExtArgs["result"]["consulta"]>
+  export type ConsultaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "turnoId" | "derivacion" | "profesionalDeriva" | "motivoDerivacion" | "documentacion" | "fecha" | "tipoConsulta" | "observaciones" | "resultadosEsperados" | "motivoConsulta" | "evolucion" | "comparacion" | "tratamientosRealizados" | "productosUtilizados" | "usoAnestesia" | "toleranciaPaciente" | "medicacionPrescrita", ExtArgs["result"]["consulta"]>
   export type ConsultaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     HistoriaClinica?: boolean | HistoriaClinicaDefaultArgs<ExtArgs>
     Turno?: boolean | Consulta$TurnoArgs<ExtArgs>
@@ -20258,6 +20349,15 @@ export namespace Prisma {
       fecha: Date
       tipoConsulta: string | null
       observaciones: string | null
+      resultadosEsperados: string | null
+      motivoConsulta: string | null
+      evolucion: string | null
+      comparacion: string | null
+      tratamientosRealizados: Prisma.JsonValue | null
+      productosUtilizados: Prisma.JsonValue | null
+      usoAnestesia: boolean | null
+      toleranciaPaciente: string | null
+      medicacionPrescrita: string | null
     }, ExtArgs["result"]["consulta"]>
     composites: {}
   }
@@ -20693,6 +20793,15 @@ export namespace Prisma {
     readonly fecha: FieldRef<"Consulta", 'DateTime'>
     readonly tipoConsulta: FieldRef<"Consulta", 'String'>
     readonly observaciones: FieldRef<"Consulta", 'String'>
+    readonly resultadosEsperados: FieldRef<"Consulta", 'String'>
+    readonly motivoConsulta: FieldRef<"Consulta", 'String'>
+    readonly evolucion: FieldRef<"Consulta", 'String'>
+    readonly comparacion: FieldRef<"Consulta", 'String'>
+    readonly tratamientosRealizados: FieldRef<"Consulta", 'Json'>
+    readonly productosUtilizados: FieldRef<"Consulta", 'Json'>
+    readonly usoAnestesia: FieldRef<"Consulta", 'Boolean'>
+    readonly toleranciaPaciente: FieldRef<"Consulta", 'String'>
+    readonly medicacionPrescrita: FieldRef<"Consulta", 'String'>
   }
     
 
@@ -27803,15 +27912,8 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
-    resultadosEsperados: string | null
-    motivoConsulta: string | null
-    evolucion: string | null
-    comparacion: string | null
-    usoAnestesia: boolean | null
-    toleranciaPaciente: string | null
-    observaciones: string | null
-    medicacionPrescrita: string | null
     estado: boolean | null
+    observaciones: string | null
   }
 
   export type PlanTratamientoMaxAggregateOutputType = {
@@ -27821,15 +27923,8 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
-    resultadosEsperados: string | null
-    motivoConsulta: string | null
-    evolucion: string | null
-    comparacion: string | null
-    usoAnestesia: boolean | null
-    toleranciaPaciente: string | null
-    observaciones: string | null
-    medicacionPrescrita: string | null
     estado: boolean | null
+    observaciones: string | null
   }
 
   export type PlanTratamientoCountAggregateOutputType = {
@@ -27839,17 +27934,8 @@ export namespace Prisma {
     frecuencia: number
     sesionesTotales: number
     indicacionesPost: number
-    resultadosEsperados: number
-    motivoConsulta: number
-    evolucion: number
-    comparacion: number
-    tratamientosRealizados: number
-    productosUtilizados: number
-    usoAnestesia: number
-    toleranciaPaciente: number
-    observaciones: number
-    medicacionPrescrita: number
     estado: number
+    observaciones: number
     _all: number
   }
 
@@ -27873,15 +27959,8 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
-    resultadosEsperados?: true
-    motivoConsulta?: true
-    evolucion?: true
-    comparacion?: true
-    usoAnestesia?: true
-    toleranciaPaciente?: true
-    observaciones?: true
-    medicacionPrescrita?: true
     estado?: true
+    observaciones?: true
   }
 
   export type PlanTratamientoMaxAggregateInputType = {
@@ -27891,15 +27970,8 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
-    resultadosEsperados?: true
-    motivoConsulta?: true
-    evolucion?: true
-    comparacion?: true
-    usoAnestesia?: true
-    toleranciaPaciente?: true
-    observaciones?: true
-    medicacionPrescrita?: true
     estado?: true
+    observaciones?: true
   }
 
   export type PlanTratamientoCountAggregateInputType = {
@@ -27909,17 +27981,8 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
-    resultadosEsperados?: true
-    motivoConsulta?: true
-    evolucion?: true
-    comparacion?: true
-    tratamientosRealizados?: true
-    productosUtilizados?: true
-    usoAnestesia?: true
-    toleranciaPaciente?: true
-    observaciones?: true
-    medicacionPrescrita?: true
     estado?: true
+    observaciones?: true
     _all?: true
   }
 
@@ -28016,17 +28079,8 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
-    resultadosEsperados: string | null
-    motivoConsulta: string | null
-    evolucion: string | null
-    comparacion: string | null
-    tratamientosRealizados: JsonValue | null
-    productosUtilizados: JsonValue | null
-    usoAnestesia: boolean | null
-    toleranciaPaciente: string | null
-    observaciones: string | null
-    medicacionPrescrita: string | null
     estado: boolean
+    observaciones: string | null
     _count: PlanTratamientoCountAggregateOutputType | null
     _avg: PlanTratamientoAvgAggregateOutputType | null
     _sum: PlanTratamientoSumAggregateOutputType | null
@@ -28055,17 +28109,8 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
-    resultadosEsperados?: boolean
-    motivoConsulta?: boolean
-    evolucion?: boolean
-    comparacion?: boolean
-    tratamientosRealizados?: boolean
-    productosUtilizados?: boolean
-    usoAnestesia?: boolean
-    toleranciaPaciente?: boolean
-    observaciones?: boolean
-    medicacionPrescrita?: boolean
     estado?: boolean
+    observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
   }, ExtArgs["result"]["planTratamiento"]>
 
@@ -28076,17 +28121,8 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
-    resultadosEsperados?: boolean
-    motivoConsulta?: boolean
-    evolucion?: boolean
-    comparacion?: boolean
-    tratamientosRealizados?: boolean
-    productosUtilizados?: boolean
-    usoAnestesia?: boolean
-    toleranciaPaciente?: boolean
-    observaciones?: boolean
-    medicacionPrescrita?: boolean
     estado?: boolean
+    observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
   }, ExtArgs["result"]["planTratamiento"]>
 
@@ -28097,17 +28133,8 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
-    resultadosEsperados?: boolean
-    motivoConsulta?: boolean
-    evolucion?: boolean
-    comparacion?: boolean
-    tratamientosRealizados?: boolean
-    productosUtilizados?: boolean
-    usoAnestesia?: boolean
-    toleranciaPaciente?: boolean
-    observaciones?: boolean
-    medicacionPrescrita?: boolean
     estado?: boolean
+    observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
   }, ExtArgs["result"]["planTratamiento"]>
 
@@ -28118,20 +28145,11 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
-    resultadosEsperados?: boolean
-    motivoConsulta?: boolean
-    evolucion?: boolean
-    comparacion?: boolean
-    tratamientosRealizados?: boolean
-    productosUtilizados?: boolean
-    usoAnestesia?: boolean
-    toleranciaPaciente?: boolean
-    observaciones?: boolean
-    medicacionPrescrita?: boolean
     estado?: boolean
+    observaciones?: boolean
   }
 
-  export type PlanTratamientoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "objetivo" | "frecuencia" | "sesionesTotales" | "indicacionesPost" | "resultadosEsperados" | "motivoConsulta" | "evolucion" | "comparacion" | "tratamientosRealizados" | "productosUtilizados" | "usoAnestesia" | "toleranciaPaciente" | "observaciones" | "medicacionPrescrita" | "estado", ExtArgs["result"]["planTratamiento"]>
+  export type PlanTratamientoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "objetivo" | "frecuencia" | "sesionesTotales" | "indicacionesPost" | "estado" | "observaciones", ExtArgs["result"]["planTratamiento"]>
   export type PlanTratamientoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
   }
@@ -28154,17 +28172,8 @@ export namespace Prisma {
       frecuencia: string | null
       sesionesTotales: number | null
       indicacionesPost: string | null
-      resultadosEsperados: string | null
-      motivoConsulta: string | null
-      evolucion: string | null
-      comparacion: string | null
-      tratamientosRealizados: Prisma.JsonValue | null
-      productosUtilizados: Prisma.JsonValue | null
-      usoAnestesia: boolean | null
-      toleranciaPaciente: string | null
-      observaciones: string | null
-      medicacionPrescrita: string | null
       estado: boolean
+      observaciones: string | null
     }, ExtArgs["result"]["planTratamiento"]>
     composites: {}
   }
@@ -28595,17 +28604,8 @@ export namespace Prisma {
     readonly frecuencia: FieldRef<"PlanTratamiento", 'String'>
     readonly sesionesTotales: FieldRef<"PlanTratamiento", 'Int'>
     readonly indicacionesPost: FieldRef<"PlanTratamiento", 'String'>
-    readonly resultadosEsperados: FieldRef<"PlanTratamiento", 'String'>
-    readonly motivoConsulta: FieldRef<"PlanTratamiento", 'String'>
-    readonly evolucion: FieldRef<"PlanTratamiento", 'String'>
-    readonly comparacion: FieldRef<"PlanTratamiento", 'String'>
-    readonly tratamientosRealizados: FieldRef<"PlanTratamiento", 'Json'>
-    readonly productosUtilizados: FieldRef<"PlanTratamiento", 'Json'>
-    readonly usoAnestesia: FieldRef<"PlanTratamiento", 'Boolean'>
-    readonly toleranciaPaciente: FieldRef<"PlanTratamiento", 'String'>
-    readonly observaciones: FieldRef<"PlanTratamiento", 'String'>
-    readonly medicacionPrescrita: FieldRef<"PlanTratamiento", 'String'>
     readonly estado: FieldRef<"PlanTratamiento", 'Boolean'>
+    readonly observaciones: FieldRef<"PlanTratamiento", 'String'>
   }
     
 
@@ -30317,7 +30317,16 @@ export namespace Prisma {
     documentacion: 'documentacion',
     fecha: 'fecha',
     tipoConsulta: 'tipoConsulta',
-    observaciones: 'observaciones'
+    observaciones: 'observaciones',
+    resultadosEsperados: 'resultadosEsperados',
+    motivoConsulta: 'motivoConsulta',
+    evolucion: 'evolucion',
+    comparacion: 'comparacion',
+    tratamientosRealizados: 'tratamientosRealizados',
+    productosUtilizados: 'productosUtilizados',
+    usoAnestesia: 'usoAnestesia',
+    toleranciaPaciente: 'toleranciaPaciente',
+    medicacionPrescrita: 'medicacionPrescrita'
   };
 
   export type ConsultaScalarFieldEnum = (typeof ConsultaScalarFieldEnum)[keyof typeof ConsultaScalarFieldEnum]
@@ -30387,17 +30396,8 @@ export namespace Prisma {
     frecuencia: 'frecuencia',
     sesionesTotales: 'sesionesTotales',
     indicacionesPost: 'indicacionesPost',
-    resultadosEsperados: 'resultadosEsperados',
-    motivoConsulta: 'motivoConsulta',
-    evolucion: 'evolucion',
-    comparacion: 'comparacion',
-    tratamientosRealizados: 'tratamientosRealizados',
-    productosUtilizados: 'productosUtilizados',
-    usoAnestesia: 'usoAnestesia',
-    toleranciaPaciente: 'toleranciaPaciente',
-    observaciones: 'observaciones',
-    medicacionPrescrita: 'medicacionPrescrita',
-    estado: 'estado'
+    estado: 'estado',
+    observaciones: 'observaciones'
   };
 
   export type PlanTratamientoScalarFieldEnum = (typeof PlanTratamientoScalarFieldEnum)[keyof typeof PlanTratamientoScalarFieldEnum]
@@ -31623,6 +31623,15 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
+    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
+    motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
+    evolucion?: StringNullableFilter<"Consulta"> | string | null
+    comparacion?: StringNullableFilter<"Consulta"> | string | null
+    tratamientosRealizados?: JsonNullableFilter<"Consulta">
+    productosUtilizados?: JsonNullableFilter<"Consulta">
+    usoAnestesia?: BoolNullableFilter<"Consulta"> | boolean | null
+    toleranciaPaciente?: StringNullableFilter<"Consulta"> | string | null
+    medicacionPrescrita?: StringNullableFilter<"Consulta"> | string | null
     HistoriaClinica?: XOR<HistoriaClinicaScalarRelationFilter, HistoriaClinicaWhereInput>
     Turno?: XOR<TurnoNullableScalarRelationFilter, TurnoWhereInput> | null
   }
@@ -31638,6 +31647,15 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrderInput | SortOrder
     observaciones?: SortOrderInput | SortOrder
+    resultadosEsperados?: SortOrderInput | SortOrder
+    motivoConsulta?: SortOrderInput | SortOrder
+    evolucion?: SortOrderInput | SortOrder
+    comparacion?: SortOrderInput | SortOrder
+    tratamientosRealizados?: SortOrderInput | SortOrder
+    productosUtilizados?: SortOrderInput | SortOrder
+    usoAnestesia?: SortOrderInput | SortOrder
+    toleranciaPaciente?: SortOrderInput | SortOrder
+    medicacionPrescrita?: SortOrderInput | SortOrder
     HistoriaClinica?: HistoriaClinicaOrderByWithRelationInput
     Turno?: TurnoOrderByWithRelationInput
   }
@@ -31656,6 +31674,15 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
+    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
+    motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
+    evolucion?: StringNullableFilter<"Consulta"> | string | null
+    comparacion?: StringNullableFilter<"Consulta"> | string | null
+    tratamientosRealizados?: JsonNullableFilter<"Consulta">
+    productosUtilizados?: JsonNullableFilter<"Consulta">
+    usoAnestesia?: BoolNullableFilter<"Consulta"> | boolean | null
+    toleranciaPaciente?: StringNullableFilter<"Consulta"> | string | null
+    medicacionPrescrita?: StringNullableFilter<"Consulta"> | string | null
     HistoriaClinica?: XOR<HistoriaClinicaScalarRelationFilter, HistoriaClinicaWhereInput>
     Turno?: XOR<TurnoNullableScalarRelationFilter, TurnoWhereInput> | null
   }, "id">
@@ -31671,6 +31698,15 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrderInput | SortOrder
     observaciones?: SortOrderInput | SortOrder
+    resultadosEsperados?: SortOrderInput | SortOrder
+    motivoConsulta?: SortOrderInput | SortOrder
+    evolucion?: SortOrderInput | SortOrder
+    comparacion?: SortOrderInput | SortOrder
+    tratamientosRealizados?: SortOrderInput | SortOrder
+    productosUtilizados?: SortOrderInput | SortOrder
+    usoAnestesia?: SortOrderInput | SortOrder
+    toleranciaPaciente?: SortOrderInput | SortOrder
+    medicacionPrescrita?: SortOrderInput | SortOrder
     _count?: ConsultaCountOrderByAggregateInput
     _avg?: ConsultaAvgOrderByAggregateInput
     _max?: ConsultaMaxOrderByAggregateInput
@@ -31692,6 +31728,15 @@ export namespace Prisma {
     fecha?: DateTimeWithAggregatesFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
     observaciones?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    resultadosEsperados?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    motivoConsulta?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    evolucion?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    comparacion?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    tratamientosRealizados?: JsonNullableWithAggregatesFilter<"Consulta">
+    productosUtilizados?: JsonNullableWithAggregatesFilter<"Consulta">
+    usoAnestesia?: BoolNullableWithAggregatesFilter<"Consulta"> | boolean | null
+    toleranciaPaciente?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
+    medicacionPrescrita?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
   }
 
   export type DiagnosticoWhereInput = {
@@ -32022,17 +32067,8 @@ export namespace Prisma {
     frecuencia?: StringNullableFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableFilter<"PlanTratamiento"> | string | null
-    resultadosEsperados?: StringNullableFilter<"PlanTratamiento"> | string | null
-    motivoConsulta?: StringNullableFilter<"PlanTratamiento"> | string | null
-    evolucion?: StringNullableFilter<"PlanTratamiento"> | string | null
-    comparacion?: StringNullableFilter<"PlanTratamiento"> | string | null
-    tratamientosRealizados?: JsonNullableFilter<"PlanTratamiento">
-    productosUtilizados?: JsonNullableFilter<"PlanTratamiento">
-    usoAnestesia?: BoolNullableFilter<"PlanTratamiento"> | boolean | null
-    toleranciaPaciente?: StringNullableFilter<"PlanTratamiento"> | string | null
-    observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
-    medicacionPrescrita?: StringNullableFilter<"PlanTratamiento"> | string | null
     estado?: BoolFilter<"PlanTratamiento"> | boolean
+    observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
     historiaClinica?: XOR<HistoriaClinicaNullableScalarRelationFilter, HistoriaClinicaWhereInput> | null
   }
 
@@ -32043,17 +32079,8 @@ export namespace Prisma {
     frecuencia?: SortOrderInput | SortOrder
     sesionesTotales?: SortOrderInput | SortOrder
     indicacionesPost?: SortOrderInput | SortOrder
-    resultadosEsperados?: SortOrderInput | SortOrder
-    motivoConsulta?: SortOrderInput | SortOrder
-    evolucion?: SortOrderInput | SortOrder
-    comparacion?: SortOrderInput | SortOrder
-    tratamientosRealizados?: SortOrderInput | SortOrder
-    productosUtilizados?: SortOrderInput | SortOrder
-    usoAnestesia?: SortOrderInput | SortOrder
-    toleranciaPaciente?: SortOrderInput | SortOrder
-    observaciones?: SortOrderInput | SortOrder
-    medicacionPrescrita?: SortOrderInput | SortOrder
     estado?: SortOrder
+    observaciones?: SortOrderInput | SortOrder
     historiaClinica?: HistoriaClinicaOrderByWithRelationInput
   }
 
@@ -32067,17 +32094,8 @@ export namespace Prisma {
     frecuencia?: StringNullableFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableFilter<"PlanTratamiento"> | string | null
-    resultadosEsperados?: StringNullableFilter<"PlanTratamiento"> | string | null
-    motivoConsulta?: StringNullableFilter<"PlanTratamiento"> | string | null
-    evolucion?: StringNullableFilter<"PlanTratamiento"> | string | null
-    comparacion?: StringNullableFilter<"PlanTratamiento"> | string | null
-    tratamientosRealizados?: JsonNullableFilter<"PlanTratamiento">
-    productosUtilizados?: JsonNullableFilter<"PlanTratamiento">
-    usoAnestesia?: BoolNullableFilter<"PlanTratamiento"> | boolean | null
-    toleranciaPaciente?: StringNullableFilter<"PlanTratamiento"> | string | null
-    observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
-    medicacionPrescrita?: StringNullableFilter<"PlanTratamiento"> | string | null
     estado?: BoolFilter<"PlanTratamiento"> | boolean
+    observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
     historiaClinica?: XOR<HistoriaClinicaNullableScalarRelationFilter, HistoriaClinicaWhereInput> | null
   }, "id" | "historiaClinicaId">
 
@@ -32088,17 +32106,8 @@ export namespace Prisma {
     frecuencia?: SortOrderInput | SortOrder
     sesionesTotales?: SortOrderInput | SortOrder
     indicacionesPost?: SortOrderInput | SortOrder
-    resultadosEsperados?: SortOrderInput | SortOrder
-    motivoConsulta?: SortOrderInput | SortOrder
-    evolucion?: SortOrderInput | SortOrder
-    comparacion?: SortOrderInput | SortOrder
-    tratamientosRealizados?: SortOrderInput | SortOrder
-    productosUtilizados?: SortOrderInput | SortOrder
-    usoAnestesia?: SortOrderInput | SortOrder
-    toleranciaPaciente?: SortOrderInput | SortOrder
-    observaciones?: SortOrderInput | SortOrder
-    medicacionPrescrita?: SortOrderInput | SortOrder
     estado?: SortOrder
+    observaciones?: SortOrderInput | SortOrder
     _count?: PlanTratamientoCountOrderByAggregateInput
     _avg?: PlanTratamientoAvgOrderByAggregateInput
     _max?: PlanTratamientoMaxOrderByAggregateInput
@@ -32116,17 +32125,8 @@ export namespace Prisma {
     frecuencia?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableWithAggregatesFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    resultadosEsperados?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    motivoConsulta?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    evolucion?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    comparacion?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    tratamientosRealizados?: JsonNullableWithAggregatesFilter<"PlanTratamiento">
-    productosUtilizados?: JsonNullableWithAggregatesFilter<"PlanTratamiento">
-    usoAnestesia?: BoolNullableWithAggregatesFilter<"PlanTratamiento"> | boolean | null
-    toleranciaPaciente?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    observaciones?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
-    medicacionPrescrita?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
     estado?: BoolWithAggregatesFilter<"PlanTratamiento"> | boolean
+    observaciones?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
   }
 
   export type RolWhereInput = {
@@ -33226,6 +33226,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
     HistoriaClinica: HistoriaClinicaCreateNestedOneWithoutConsultaInput
     Turno?: TurnoCreateNestedOneWithoutConsultaInput
   }
@@ -33241,6 +33250,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type ConsultaUpdateInput = {
@@ -33251,6 +33269,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateOneRequiredWithoutConsultaNestedInput
     Turno?: TurnoUpdateOneWithoutConsultaNestedInput
   }
@@ -33266,6 +33293,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ConsultaCreateManyInput = {
@@ -33279,6 +33315,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type ConsultaUpdateManyMutationInput = {
@@ -33289,6 +33334,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ConsultaUncheckedUpdateManyInput = {
@@ -33302,6 +33356,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DiagnosticoCreateInput = {
@@ -33601,17 +33664,8 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
-    resultadosEsperados?: string | null
-    motivoConsulta?: string | null
-    evolucion?: string | null
-    comparacion?: string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: boolean | null
-    toleranciaPaciente?: string | null
-    observaciones?: string | null
-    medicacionPrescrita?: string | null
     estado?: boolean
+    observaciones?: string | null
     historiaClinica?: HistoriaClinicaCreateNestedOneWithoutPlanTratamientoInput
   }
 
@@ -33622,17 +33676,8 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
-    resultadosEsperados?: string | null
-    motivoConsulta?: string | null
-    evolucion?: string | null
-    comparacion?: string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: boolean | null
-    toleranciaPaciente?: string | null
-    observaciones?: string | null
-    medicacionPrescrita?: string | null
     estado?: boolean
+    observaciones?: string | null
   }
 
   export type PlanTratamientoUpdateInput = {
@@ -33640,17 +33685,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
     historiaClinica?: HistoriaClinicaUpdateOneWithoutPlanTratamientoNestedInput
   }
 
@@ -33661,17 +33697,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PlanTratamientoCreateManyInput = {
@@ -33681,17 +33708,8 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
-    resultadosEsperados?: string | null
-    motivoConsulta?: string | null
-    evolucion?: string | null
-    comparacion?: string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: boolean | null
-    toleranciaPaciente?: string | null
-    observaciones?: string | null
-    medicacionPrescrita?: string | null
     estado?: boolean
+    observaciones?: string | null
   }
 
   export type PlanTratamientoUpdateManyMutationInput = {
@@ -33699,17 +33717,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PlanTratamientoUncheckedUpdateManyInput = {
@@ -33719,17 +33728,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RolCreateInput = {
@@ -34746,70 +34746,6 @@ export namespace Prisma {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
-
-  export type TurnoNullableScalarRelationFilter = {
-    is?: TurnoWhereInput | null
-    isNot?: TurnoWhereInput | null
-  }
-
-  export type ConsultaCountOrderByAggregateInput = {
-    id?: SortOrder
-    historiaClinicaId?: SortOrder
-    turnoId?: SortOrder
-    derivacion?: SortOrder
-    profesionalDeriva?: SortOrder
-    motivoDerivacion?: SortOrder
-    documentacion?: SortOrder
-    fecha?: SortOrder
-    tipoConsulta?: SortOrder
-    observaciones?: SortOrder
-  }
-
-  export type ConsultaAvgOrderByAggregateInput = {
-    id?: SortOrder
-    historiaClinicaId?: SortOrder
-    turnoId?: SortOrder
-  }
-
-  export type ConsultaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    historiaClinicaId?: SortOrder
-    turnoId?: SortOrder
-    derivacion?: SortOrder
-    profesionalDeriva?: SortOrder
-    motivoDerivacion?: SortOrder
-    documentacion?: SortOrder
-    fecha?: SortOrder
-    tipoConsulta?: SortOrder
-    observaciones?: SortOrder
-  }
-
-  export type ConsultaMinOrderByAggregateInput = {
-    id?: SortOrder
-    historiaClinicaId?: SortOrder
-    turnoId?: SortOrder
-    derivacion?: SortOrder
-    profesionalDeriva?: SortOrder
-    motivoDerivacion?: SortOrder
-    documentacion?: SortOrder
-    fecha?: SortOrder
-    tipoConsulta?: SortOrder
-    observaciones?: SortOrder
-  }
-
-  export type ConsultaSumOrderByAggregateInput = {
-    id?: SortOrder
-    historiaClinicaId?: SortOrder
-    turnoId?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -34832,6 +34768,132 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type TurnoNullableScalarRelationFilter = {
+    is?: TurnoWhereInput | null
+    isNot?: TurnoWhereInput | null
+  }
+
+  export type ConsultaCountOrderByAggregateInput = {
+    id?: SortOrder
+    historiaClinicaId?: SortOrder
+    turnoId?: SortOrder
+    derivacion?: SortOrder
+    profesionalDeriva?: SortOrder
+    motivoDerivacion?: SortOrder
+    documentacion?: SortOrder
+    fecha?: SortOrder
+    tipoConsulta?: SortOrder
+    observaciones?: SortOrder
+    resultadosEsperados?: SortOrder
+    motivoConsulta?: SortOrder
+    evolucion?: SortOrder
+    comparacion?: SortOrder
+    tratamientosRealizados?: SortOrder
+    productosUtilizados?: SortOrder
+    usoAnestesia?: SortOrder
+    toleranciaPaciente?: SortOrder
+    medicacionPrescrita?: SortOrder
+  }
+
+  export type ConsultaAvgOrderByAggregateInput = {
+    id?: SortOrder
+    historiaClinicaId?: SortOrder
+    turnoId?: SortOrder
+  }
+
+  export type ConsultaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    historiaClinicaId?: SortOrder
+    turnoId?: SortOrder
+    derivacion?: SortOrder
+    profesionalDeriva?: SortOrder
+    motivoDerivacion?: SortOrder
+    documentacion?: SortOrder
+    fecha?: SortOrder
+    tipoConsulta?: SortOrder
+    observaciones?: SortOrder
+    resultadosEsperados?: SortOrder
+    motivoConsulta?: SortOrder
+    evolucion?: SortOrder
+    comparacion?: SortOrder
+    usoAnestesia?: SortOrder
+    toleranciaPaciente?: SortOrder
+    medicacionPrescrita?: SortOrder
+  }
+
+  export type ConsultaMinOrderByAggregateInput = {
+    id?: SortOrder
+    historiaClinicaId?: SortOrder
+    turnoId?: SortOrder
+    derivacion?: SortOrder
+    profesionalDeriva?: SortOrder
+    motivoDerivacion?: SortOrder
+    documentacion?: SortOrder
+    fecha?: SortOrder
+    tipoConsulta?: SortOrder
+    observaciones?: SortOrder
+    resultadosEsperados?: SortOrder
+    motivoConsulta?: SortOrder
+    evolucion?: SortOrder
+    comparacion?: SortOrder
+    usoAnestesia?: SortOrder
+    toleranciaPaciente?: SortOrder
+    medicacionPrescrita?: SortOrder
+  }
+
+  export type ConsultaSumOrderByAggregateInput = {
+    id?: SortOrder
+    historiaClinicaId?: SortOrder
+    turnoId?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type DiagnosticoCountOrderByAggregateInput = {
@@ -34863,32 +34925,6 @@ export namespace Prisma {
   export type DiagnosticoSumOrderByAggregateInput = {
     id?: SortOrder
     historiaClinicaId?: SortOrder
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EstadoCivilCountOrderByAggregateInput = {
@@ -35040,11 +35076,6 @@ export namespace Prisma {
     profesionalId?: SortOrder
   }
 
-  export type BoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
   export type HistoriaClinicaNullableScalarRelationFilter = {
     is?: HistoriaClinicaWhereInput | null
     isNot?: HistoriaClinicaWhereInput | null
@@ -35057,17 +35088,8 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
-    resultadosEsperados?: SortOrder
-    motivoConsulta?: SortOrder
-    evolucion?: SortOrder
-    comparacion?: SortOrder
-    tratamientosRealizados?: SortOrder
-    productosUtilizados?: SortOrder
-    usoAnestesia?: SortOrder
-    toleranciaPaciente?: SortOrder
-    observaciones?: SortOrder
-    medicacionPrescrita?: SortOrder
     estado?: SortOrder
+    observaciones?: SortOrder
   }
 
   export type PlanTratamientoAvgOrderByAggregateInput = {
@@ -35083,15 +35105,8 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
-    resultadosEsperados?: SortOrder
-    motivoConsulta?: SortOrder
-    evolucion?: SortOrder
-    comparacion?: SortOrder
-    usoAnestesia?: SortOrder
-    toleranciaPaciente?: SortOrder
-    observaciones?: SortOrder
-    medicacionPrescrita?: SortOrder
     estado?: SortOrder
+    observaciones?: SortOrder
   }
 
   export type PlanTratamientoMinOrderByAggregateInput = {
@@ -35101,29 +35116,14 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
-    resultadosEsperados?: SortOrder
-    motivoConsulta?: SortOrder
-    evolucion?: SortOrder
-    comparacion?: SortOrder
-    usoAnestesia?: SortOrder
-    toleranciaPaciente?: SortOrder
-    observaciones?: SortOrder
-    medicacionPrescrita?: SortOrder
     estado?: SortOrder
+    observaciones?: SortOrder
   }
 
   export type PlanTratamientoSumOrderByAggregateInput = {
     id?: SortOrder
     historiaClinicaId?: SortOrder
     sesionesTotales?: SortOrder
-  }
-
-  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type UsuarioListRelationFilter = {
@@ -36437,6 +36437,10 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
   export type HistoriaClinicaUpdateOneRequiredWithoutConsultaNestedInput = {
     create?: XOR<HistoriaClinicaCreateWithoutConsultaInput, HistoriaClinicaUncheckedCreateWithoutConsultaInput>
     connectOrCreate?: HistoriaClinicaCreateOrConnectWithoutConsultaInput
@@ -36893,10 +36897,6 @@ export namespace Prisma {
     connect?: HistoriaClinicaWhereUniqueInput
   }
 
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
-  }
-
   export type HistoriaClinicaUpdateOneWithoutPlanTratamientoNestedInput = {
     create?: XOR<HistoriaClinicaCreateWithoutPlanTratamientoInput, HistoriaClinicaUncheckedCreateWithoutPlanTratamientoInput>
     connectOrCreate?: HistoriaClinicaCreateOrConnectWithoutPlanTratamientoInput
@@ -37142,6 +37142,11 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
@@ -37171,11 +37176,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedBoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -39654,6 +39654,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
     HistoriaClinica: HistoriaClinicaCreateNestedOneWithoutConsultaInput
   }
 
@@ -39667,6 +39676,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type ConsultaCreateOrConnectWithoutTurnoInput = {
@@ -39876,6 +39894,15 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
+    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
+    motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
+    evolucion?: StringNullableFilter<"Consulta"> | string | null
+    comparacion?: StringNullableFilter<"Consulta"> | string | null
+    tratamientosRealizados?: JsonNullableFilter<"Consulta">
+    productosUtilizados?: JsonNullableFilter<"Consulta">
+    usoAnestesia?: BoolNullableFilter<"Consulta"> | boolean | null
+    toleranciaPaciente?: StringNullableFilter<"Consulta"> | string | null
+    medicacionPrescrita?: StringNullableFilter<"Consulta"> | string | null
   }
 
   export type DetalleTurnoUpsertWithWhereUniqueWithoutTurnoInput = {
@@ -40992,6 +41019,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
     Turno?: TurnoCreateNestedOneWithoutConsultaInput
   }
 
@@ -41005,6 +41041,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type ConsultaCreateOrConnectWithoutHistoriaClinicaInput = {
@@ -41042,17 +41087,8 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
-    resultadosEsperados?: string | null
-    motivoConsulta?: string | null
-    evolucion?: string | null
-    comparacion?: string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: boolean | null
-    toleranciaPaciente?: string | null
-    observaciones?: string | null
-    medicacionPrescrita?: string | null
     estado?: boolean
+    observaciones?: string | null
   }
 
   export type PlanTratamientoUncheckedCreateWithoutHistoriaClinicaInput = {
@@ -41061,17 +41097,8 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
-    resultadosEsperados?: string | null
-    motivoConsulta?: string | null
-    evolucion?: string | null
-    comparacion?: string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: boolean | null
-    toleranciaPaciente?: string | null
-    observaciones?: string | null
-    medicacionPrescrita?: string | null
     estado?: boolean
+    observaciones?: string | null
   }
 
   export type PlanTratamientoCreateOrConnectWithoutHistoriaClinicaInput = {
@@ -41295,17 +41322,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PlanTratamientoUncheckedUpdateWithoutHistoriaClinicaInput = {
@@ -41314,17 +41332,8 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
-    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
-    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
-    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
-    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
-    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
-    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
-    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PacienteUpsertWithoutHistoriaClinicaInput = {
@@ -42669,6 +42678,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type DetalleTurnoCreateManyTurnoInput = {
@@ -42686,6 +42704,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     HistoriaClinica?: HistoriaClinicaUpdateOneRequiredWithoutConsultaNestedInput
   }
 
@@ -42699,6 +42726,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ConsultaUncheckedUpdateManyWithoutTurnoInput = {
@@ -42711,6 +42747,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DetalleTurnoUpdateWithoutTurnoInput = {
@@ -43388,6 +43433,15 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
+    resultadosEsperados?: string | null
+    motivoConsulta?: string | null
+    evolucion?: string | null
+    comparacion?: string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: boolean | null
+    toleranciaPaciente?: string | null
+    medicacionPrescrita?: string | null
   }
 
   export type ConsultaUpdateWithoutHistoriaClinicaInput = {
@@ -43398,6 +43452,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
     Turno?: TurnoUpdateOneWithoutConsultaNestedInput
   }
 
@@ -43411,6 +43474,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ConsultaUncheckedUpdateManyWithoutHistoriaClinicaInput = {
@@ -43423,6 +43495,15 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
+    motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
+    evolucion?: NullableStringFieldUpdateOperationsInput | string | null
+    comparacion?: NullableStringFieldUpdateOperationsInput | string | null
+    tratamientosRealizados?: NullableJsonNullValueInput | InputJsonValue
+    productosUtilizados?: NullableJsonNullValueInput | InputJsonValue
+    usoAnestesia?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    toleranciaPaciente?: NullableStringFieldUpdateOperationsInput | string | null
+    medicacionPrescrita?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UsuarioCreateManyRolInput = {
