@@ -142,7 +142,7 @@ export async function buscarPacientes(q: string): Promise<PacienteSearchItem[]> 
   if (!res.ok) throw new Error("Error al buscar pacientes");
   const data = await res.json();
 
-  return (data || []).map((p: any) => ({
+  return (data || []).map((p: { id: number; nombre: string; apellido: string; dni: string; email: string; celular: string }) => ({
     id: p.id,
     nombreCompleto: `${p.nombre ?? ""} ${p.apellido ?? ""}`.trim(),
     dni: p.dni ?? "",
