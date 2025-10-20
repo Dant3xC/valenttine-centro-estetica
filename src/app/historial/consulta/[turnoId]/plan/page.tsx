@@ -353,28 +353,7 @@ export default function Page() {
   const [indicacionesPost, setIndicacionesPost] = useState("");
   const [resultadosEsperados, setResultadosEsperados] = useState("");
 
-  // CONSULTA DEL DÍA (DATOS DE PLANTRATAMIENTO)
-  const [motivoHoy, setMotivoHoy] = useState("");
-  const [evolucion, setEvolucion] = useState("");
-  const [examenActual, setExamenActual] = useState("");
-  const [comparacion, setComparacion] = useState("");
-  const [serviciosHoy, setServiciosHoy] = useState<string[]>([]);
-  const toggleServicio = (s: string) =>
-    setServiciosHoy((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
-
-  const [productosHoy, setProductosHoy] = useState<
-    Array<{ producto: string; dosis?: string; aplicacion?: string }>
-  >([]);
-  const [usoAnestesia, setUsoAnestesia] = useState<"NO" | "SI">("NO");
-  const [anestesia, setAnestesia] = useState<
-    Array<{ producto: string; dosis?: string; aplicacion?: string }>
-  >([]);
-  const [tolerancia, setTolerancia] = useState("");
-  const [observaciones, setObservaciones] = useState("");
-  const [indicacionesHoy, setIndicacionesHoy] = useState("");
-  const [medicacionHoy, setMedicacionHoy] = useState("");
-
-  const canSave = (objetivo.trim().length >= 3 || motivoHoy.trim().length >= 3) && !readOnly;
+  const canSave = objetivo.trim().length >= 3 && !readOnly;
 
   // ====== CARGA INICIAL ======
   useEffect(() => {
@@ -399,39 +378,15 @@ export default function Page() {
             setProfDeriva(cons.profesionalDeriva ?? "");
             setMotivoDeriva(cons.motivoDerivacion ?? "");
             setDocumentacionPath(cons.documentacion ?? "");
-            // Observaciones generales (si planData no tiene motivoConsulta/evolucion)
-            if (!planData?.motivoConsulta) {
-                 setObservaciones(cons.observaciones ?? "");
-            }
         }
 
-        // 3) Prefill Plan + Campos de Consulta del Día (Tabla PlanTratamiento)
+        // 3) Prefill Plan (Tabla PlanTratamiento)
         if (planData) {
           setObjetivo(planData.objetivo ?? "");
           setFrecuencia(planData.frecuencia ?? "");
           setSesiones(planData.sesionesTotales ?? 1);
           setIndicacionesPost(planData.indicacionesPost ?? "");
           setResultadosEsperados(planData.resultadosEsperados ?? "");
-
-          // Campos de la Consulta del día
-          setMotivoHoy(planData.motivoConsulta ?? "");
-          setEvolucion(planData.evolucion ?? "");
-          setComparacion(planData.comparacion ?? "");
-
-          // Campos JSON (tratamientos y productos)
-          const tratamientosRealizados = planData.tratamientosRealizados || [];
-          setServiciosHoy(Array.isArray(tratamientosRealizados) ? tratamientosRealizados : []);
-
-          const productosUtilizados = planData.productosUtilizados || [];
-          // El front usa dos estados (productosHoy y anestesia), aquí se simplifica
-          setProductosHoy(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => !p.esAnestesia) : []);
-          setAnestesia(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => p.esAnestesia) : []);
-
-          setUsoAnestesia(planData.usoAnestesia ? "SI" : "NO");
-          setTolerancia(planData.toleranciaPaciente ?? "");
-          setObservaciones(planData.observaciones ?? "");
-          setIndicacionesHoy(planData.indicacionesPost ?? "");
-          setMedicacionHoy(planData.medicacionPrescrita ?? "");
         }
       } catch (e: any) {
         if (!alive) return;
@@ -446,17 +401,11 @@ export default function Page() {
   }, [turnoId]);
 
   // ====== Guardar ======
-  async function savePlan(finalizar = false) {
-    if (!canSave || readOnly) return; // sin acción en modo lectura
+  async function savePlanAndContinue() {
+    if (!canSave || readOnly) return;
     try {
       setSaving(true);
       setError(null);
-
-      // Recopilar todos los productos utilizados (incluyendo anestesia)
-      const todosLosProductos = [
-          ...productosHoy.map(p => ({ ...p, esAnestesia: false })),
-          ...anestesia.map(p => ({ ...p, esAnestesia: true })),
-      ];
 
       const payload = {
         derivacion: { // Datos para la tabla Consulta
@@ -464,9 +413,8 @@ export default function Page() {
             profesionalDeriva: profDeriva || undefined,
             motivoDerivacion: motivoDeriva || undefined,
             documentacion: documentacionPath || undefined,
-            usoAnestesia: usoAnestesia as "NO" | "SI", // Se envía para simplificar la lógica del backend
         },
-        tipoConsulta: tipoConsulta || undefined, // Nuevo campo
+        tipoConsulta: tipoConsulta || undefined,
         plan: { // Datos para la tabla PlanTratamiento (Plan de sesiones)
           objetivo: objetivo || undefined,
           frecuencia: frecuencia || undefined,
@@ -474,18 +422,6 @@ export default function Page() {
           indicacionesPost: indicacionesPost || undefined,
           resultadosEsperados: resultadosEsperados || undefined,
         },
-        hoy: { // Datos para la tabla PlanTratamiento (Consulta del día)
-          motivoConsulta: motivoHoy || undefined,
-          evolucion: evolucion || undefined,
-          examenActual: examenActual || undefined, // Este campo NO existe en DB, se podría agregar a observaciones
-          comparacion: comparacion || undefined,
-          serviciosHoy,
-          productosUtilizados: todosLosProductos, // JSON: Incluye productos y anestesia
-          toleranciaPaciente: tolerancia || undefined,
-          observaciones: observaciones || undefined,
-          medicacionHoy: medicacionHoy || undefined,
-        },
-        finalizar,
       };
 
       await httpJSON(`/api/historial/plan/${turnoId}`, {
@@ -494,10 +430,8 @@ export default function Page() {
         body: JSON.stringify(payload),
       });
 
-      if (finalizar) {
-        // Redirigir al historial general de turnos
-        router.push("/turnos/hoy"); 
-      }
+      // Redirigir a la nueva página de consulta del día
+      router.push(`/historial/consulta/${turnoId}/hoy/`);
       
     } catch (e: any) {
       setError(e?.message || "No se pudo guardar el plan");
@@ -505,6 +439,7 @@ export default function Page() {
       setSaving(false);
     }
   }
+
     if (loading) {
         return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan y Consulta...</main>;
     }
@@ -609,37 +544,6 @@ export default function Page() {
         <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
       </Section>
 
-      {/* CONSULTA DEL DÍA */}
-      <Section title="Registro de la Sesión de Hoy">
-        <TextArea label="Motivo de la consulta de hoy" value={motivoHoy} onChange={setMotivoHoy} disabled={readOnly} />
-        <TextArea label="Evolución desde la última consulta" value={evolucion} onChange={setEvolucion} disabled={readOnly} />
-        <TextArea label="Examen físico actual" value={examenActual} onChange={setExamenActual} disabled={readOnly} />
-        <SelectField label="Comparación con consulta anterior" value={comparacion} onChange={setComparacion} options={COMPARACION as unknown as string[]} disabled={readOnly} />
-
-        <div className="mt-4 space-y-4">
-          <ChipsSelect label="Seleccionar servicios realizados hoy" options={[...TRAT_FACIAL, ...TRAT_CORPORAL]} values={serviciosHoy} onToggle={toggleServicio} disabled={readOnly} />
-          <TablaProductos title="Productos utilizados (sin anestesia)" items={productosHoy} setItems={setProductosHoy} readOnly={readOnly} />
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">¿Se usó anestesia?</label>
-            <div className="flex items-center gap-3">
-              {["NO", "SI"].map((o) => (
-                <label key={o} className={`inline-flex items-center gap-2 ${readOnly ? "opacity-60" : ""}`}>
-                  <input type="radio" checked={usoAnestesia === o} onChange={() => !readOnly && setUsoAnestesia(o as any)} disabled={readOnly} />
-                  <span className="text-sm">{o}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          {usoAnestesia === "SI" && (
-            <TablaProductos title="Anestesia — detalle" items={anestesia} setItems={setAnestesia} readOnly={readOnly} />
-          )}
-          <TextArea label="Tolerancia del paciente" value={tolerancia} onChange={setTolerancia} disabled={readOnly} />
-          <TextArea label="Observaciones adicionales de la sesión" value={observaciones} onChange={setObservaciones} disabled={readOnly} />
-          <TextArea label="Indicaciones post-tratamiento (hoy)" value={indicacionesHoy} onChange={setIndicacionesHoy} disabled={readOnly} />
-          <TextArea label="Medicación prescrita (si aplica)" value={medicacionHoy} onChange={setMedicacionHoy} disabled={readOnly} />
-        </div>
-      </Section>
-
       {/* Footer */}
       <div className="flex flex-col sm:flex-row justify-between gap-3">
         <Link href={`/historial/consulta/${turnoId}/datos-clinicos${readOnly ? "?readonly=1" : ""}`} className="px-5 py-2 rounded-xl bg-white border text-gray-800 hover:bg-gray-50">
@@ -649,19 +553,11 @@ export default function Page() {
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => savePlan(false)}
-              disabled={!canSave || saving}
-              className={`px-5 py-2 rounded-xl text-white ${!canSave || saving ? "bg-violet-300 cursor-not-allowed" : "bg-violet-600 hover:bg-violet-700"}`}
-            >
-              {saving ? "Guardando…" : "Guardar borrador"}
-            </button>
-            <button
-              type="button"
-              onClick={() => savePlan(true)}
+              onClick={savePlanAndContinue}
               disabled={!canSave || saving}
               className={`px-5 py-2 rounded-xl text-white ${!canSave || saving ? "bg-emerald-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"}`}
             >
-              {saving ? "Finalizando…" : "Finalizar consulta"}
+              {saving ? "Guardando..." : "Finalizar y Registrar Historia Clínica"}
             </button>
           </div>
         )}

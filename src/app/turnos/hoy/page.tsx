@@ -133,7 +133,7 @@ interface ProfesionalData {
 
       if (existeHistoria) {
         // RUTA 1: Si ya existe la Historia Clínica (Continuar Consulta/Plan)
-        finalRoute = `/historial/consulta/${turnoId}/plan/`
+        finalRoute = `/historial/consulta/${turnoId}/hoy/`
         console.log(`Paciente ${pacienteId} ya tiene historia. Redirigiendo a Plan.`)
 
       } else {
