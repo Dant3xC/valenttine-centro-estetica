@@ -107,8 +107,8 @@ type FormState = {
     apellido: string;
     dni: string; // read-only
     fechaNacimiento: string; // DD/MM/AAAA
-    genero: 'FEMENINO' | 'MASCULINO' | 'OTRO' | '';
-    estadoCivil: 'SOLTERO' | 'CASADO' | 'DIVORCIADO' | 'VIUDO' | 'UNION_LIBRE' | '';
+    generoId: string;
+    estadoCivilId: string;
 
     // Contacto
     pais: string;
@@ -153,6 +153,8 @@ export default function EditProfesionalPage() {
     const [localidades, setLocalidades] = useState<Localidad[]>([]);
     const [prestaciones, setPrestaciones] = useState<Prestacion[]>([]);
     const [obras, setObras] = useState<ObraSocial[]>([]);
+    const [generos, setGeneros] = useState<any[]>([]);
+    const [estadosCiviles, setEstadosCiviles] = useState<any[]>([]);
 
     const [form, setForm] = useState<FormState | null>(null);
     const [errors, setErrors] = useState<Errors>({});
@@ -173,6 +175,8 @@ export default function EditProfesionalPage() {
                 setProvincias(init.provincias);
                 setPrestaciones(init.prestaciones);
                 setObras(init.obrasSociales);
+                setGeneros(init.generos);
+                setEstadosCiviles(init.estadosCiviles);
 
                 // Localidades de la provincia del profesional
                 const locs = await getLocalidades(detalle.localidad.provinciaId);
@@ -204,8 +208,8 @@ export default function EditProfesionalPage() {
                     apellido: detalle.apellido,
                     dni: detalle.dni,
                     fechaNacimiento: fromISOtoDMY(detalle.fechaNacimiento),
-                    genero: detalle.genero,
-                    estadoCivil: detalle.estadoCivil,
+                    generoId: String(detalle.genero.id),
+                    estadoCivilId: String(detalle.estadoCivil.id),
 
                     pais: detalle.pais,
                     provinciaId: String(detalle.provincia.id),
@@ -286,8 +290,8 @@ export default function EditProfesionalPage() {
             else if (isFuture(d)) e.fechaNacimiento = 'No puede ser futura';
             else if (!atLeastOneYearOld(d)) e.fechaNacimiento = 'Edad mínima: 1 año';
         }
-        if (!form.genero) e.genero = 'Obligatorio';
-        if (!form.estadoCivil) e.estadoCivil = 'Obligatorio';
+        if (!form.generoId) e.generoId = 'Obligatorio';
+        if (!form.estadoCivilId) e.estadoCivilId = 'Obligatorio';
 
         // Contacto
         if (!form.pais.trim()) e.pais = 'Obligatorio';
@@ -364,8 +368,8 @@ export default function EditProfesionalPage() {
             nombre: form.nombre.trim(),
             apellido: form.apellido.trim(),
             fechaNacimiento: nac, // debe ser Date, no string
-            genero: form.genero as "FEMENINO" | "MASCULINO" | "OTRO",
-            estadoCivil: form.estadoCivil as "SOLTERO" | "CASADO" | "DIVORCIADO" | "VIUDO" | "UNION_LIBRE",
+            generoId: Number(form.generoId),
+            estadoCivilId: Number(form.estadoCivilId),
             pais: form.pais.trim(),
             provinciaId: Number(form.provinciaId),
             localidadId: Number(form.localidadId),
@@ -451,26 +455,20 @@ export default function EditProfesionalPage() {
                         {/* Género */}
                         <div>
                             <label className="block text-sm text-gray-600 mb-1">Género *</label>
-                            <select className="w-full border rounded-xl px-3 py-2" value={form.genero} onChange={e => set('genero', e.target.value as FormState['genero'])}>
+                            <select className="w-full border rounded-xl px-3 py-2" value={form.generoId} onChange={e => set('generoId', e.target.value)}>
                                 <option value="">Seleccionar…</option>
-                                <option value="FEMENINO">Femenino</option>
-                                <option value="MASCULINO">Masculino</option>
-                                <option value="OTRO">Otro</option>
+                                {generos.map(g => <option key={g.id} value={g.id}>{g.nombre}</option>)}
                             </select>
-                            {errors.genero && <p className="text-xs text-red-600 mt-1">{errors.genero}</p>}
+                            {errors.generoId && <p className="text-xs text-red-600 mt-1">{errors.generoId}</p>}
                         </div>
                         {/* Estado Civil */}
                         <div>
                             <label className="block text-sm text-gray-600 mb-1">Estado Civil *</label>
-                            <select className="w-full border rounded-xl px-3 py-2" value={form.estadoCivil} onChange={e => set('estadoCivil', e.target.value as FormState['estadoCivil'])}>
+                            <select className="w-full border rounded-xl px-3 py-2" value={form.estadoCivilId} onChange={e => set('estadoCivilId', e.target.value)}>
                                 <option value="">Seleccionar…</option>
-                                <option value="SOLTERO">Soltero/a</option>
-                                <option value="CASADO">Casado/a</option>
-                                <option value="DIVORCIADO">Divorciado/a</option>
-                                <option value="VIUDO">Viudo/a</option>
-                                <option value="UNION_LIBRE">Unión Libre / Convivencia</option>
+                                {estadosCiviles.map(ec => <option key={ec.id} value={ec.id}>{ec.nombre}</option>)}
                             </select>
-                            {errors.estadoCivil && <p className="text-xs text-red-600 mt-1">{errors.estadoCivil}</p>}
+                            {errors.estadoCivilId && <p className="text-xs text-red-600 mt-1">{errors.estadoCivilId}</p>}
                         </div>
                     </div>
                 </section>
