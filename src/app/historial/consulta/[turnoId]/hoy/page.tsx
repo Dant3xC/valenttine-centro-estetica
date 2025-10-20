@@ -248,7 +248,7 @@ export default function Page() {
   >([]);
   const [tolerancia, setTolerancia] = useState("");
   const [observaciones, setObservaciones] = useState("");
-  const [indicacionesHoy, setIndicacionesHoy] = useState("");
+  // El campo `indicacionesPost` se elimina de esta página.
   const [medicacionHoy, setMedicacionHoy] = useState("");
 
   const canSave = motivoHoy.trim().length >= 3 && !readOnly;
@@ -284,7 +284,6 @@ export default function Page() {
           setUsoAnestesia(cons.usoAnestesia ? "SI" : "NO");
           setTolerancia(cons.toleranciaPaciente ?? "");
           setObservaciones(cons.observaciones ?? "");
-          setIndicacionesHoy(cons.indicacionesPost ?? "");
           setMedicacionHoy(cons.medicacionPrescrita ?? "");
         }
       } catch (e: any) {
@@ -322,7 +321,6 @@ export default function Page() {
           usoAnestesia: usoAnestesia === "SI",
           toleranciaPaciente: tolerancia || undefined,
           observaciones: observaciones || undefined,
-          indicacionesPost: indicacionesHoy || undefined,
           medicacionPrescrita: medicacionHoy || undefined,
         },
         finalizar,
@@ -403,10 +401,19 @@ export default function Page() {
           )}
           <TextArea label="Tolerancia del paciente" value={tolerancia} onChange={setTolerancia} disabled={readOnly} />
           <TextArea label="Observaciones adicionales de la sesión" value={observaciones} onChange={setObservaciones} disabled={readOnly} />
-          <TextArea label="Indicaciones post-tratamiento (hoy)" value={indicacionesHoy} onChange={setIndicacionesHoy} disabled={readOnly} />
           <TextArea label="Medicación prescrita (si aplica)" value={medicacionHoy} onChange={setMedicacionHoy} disabled={readOnly} />
         </div>
       </Section>
+
+      {/* ENLACE AL PLAN DE TRATAMIENTO GENERAL */}
+      <div className="text-center mt-4">
+        <Link
+          href={`/historial/consulta/${turnoId}/plan?mode=view`}
+          className="text-purple-600 hover:text-purple-800 underline"
+        >
+          Ver Plan de Tratamiento General
+        </Link>
+      </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-3">
         <Link href={`/turnos/hoy`} className="px-5 py-2 rounded-xl bg-white border text-gray-800 hover:bg-gray-50">

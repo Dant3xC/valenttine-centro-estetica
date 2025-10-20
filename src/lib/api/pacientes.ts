@@ -26,11 +26,15 @@ export async function crearPaciente(paciente: PacienteDTO) {
 // CODIGO TEMPORAL //
 import { NextResponse } from "next/server";
 
-let pacientes: any[] = []; // 🟢 Esto es temporal, vive solo mientras corre el servidor
+interface Paciente {
+  [key: string]: any;
+}
+
+const pacientes: Paciente[] = []; // 🟢 Esto es temporal, vive solo mientras corre el servidor
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: Paciente = await req.json();
 
     // simular guardado
     const nuevoPaciente = { id: pacientes.length + 1, ...body };

@@ -57,19 +57,12 @@ export async function GET(
     const turnoId = Number(params.turnoId);
     const { historiaClinicaId, header } = await getTurnoHistoriaAndHeader(turnoId);
 
+    // La consulta ahora se busca directamente por el turnoId
     const consulta = await prisma.consulta.findFirst({
-        where: { historiaClinicaId, turnoId },
-        include: { PlanTratamiento: true }
+        where: { turnoId: turnoId },
     });
 
-    if (!consulta) {
-        return NextResponse.json({ header, consulta: null });
-    }
-
-    return NextResponse.json({
-        header,
-        consulta: consulta.PlanTratamiento,
-    });
+    return NextResponse.json({ header, consulta });
 
   } catch (err: any) {
     console.error("[GET CONSULTA ERROR]", err);
@@ -88,29 +81,33 @@ export async function POST(
         const turnoId = Number(params.turnoId);
         const { hoy, finalizar } = await req.json();
 
-        const { historiaClinicaId } = await getTurnoHistoriaAndHeader(turnoId);
+        if (!hoy) {
+            return NextResponse.json({ error: "Datos de la consulta requeridos." }, { status: 400 });
+        }
 
+        // Se busca la consulta por el turnoId para asegurar que operamos sobre la correcta
         const consulta = await prisma.consulta.findFirst({
-            where: { historiaClinicaId, turnoId }
+            where: { turnoId: turnoId }
         });
 
         if (!consulta) {
-            throw new Error("Consulta no encontrada.");
+            throw new Error("Registro de Consulta no encontrado. Asegúrese de haber completado la historia clínica.");
         }
 
-        await prisma.planTratamiento.update({
-            where: { consultaId: consulta.id },
+        // Se actualiza directamente la tabla 'Consulta'
+        await prisma.consulta.update({
+            where: { id: consulta.id },
             data: {
                 motivoConsulta: hoy.motivoConsulta,
                 evolucion: hoy.evolucion,
                 comparacion: hoy.comparacion,
-                tratamientosRealizados: hoy.serviciosHoy,
+                tratamientosRealizados: hoy.serviciosHoy, // Asegúrate de que el frontend envíe `serviciosHoy`
                 productosUtilizados: hoy.productosUtilizados,
                 usoAnestesia: hoy.usoAnestesia,
                 toleranciaPaciente: hoy.toleranciaPaciente,
                 observaciones: hoy.observaciones,
                 medicacionPrescrita: hoy.medicacionPrescrita,
-                indicacionesPost: hoy.indicacionesPost,
+                // El campo `indicacionesPost` ya no es parte de esta tabla según el schema.prisma
             },
         });
 

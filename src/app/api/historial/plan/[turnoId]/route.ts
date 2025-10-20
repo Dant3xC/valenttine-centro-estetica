@@ -96,7 +96,7 @@ export async function GET(
 }
 
 /**
- * POST: Crea o actualiza la Consulta del día y el Plan de Tratamiento.
+ * POST: Crea o actualiza el Plan de Tratamiento General y crea la primera consulta.
  */
 export async function POST(
     req: Request,
@@ -104,11 +104,17 @@ export async function POST(
 ) {
     try {
         const turnoId = Number(params.turnoId);
-        const { plan, derivacion, tipoConsulta } = await req.json();
+        // El payload ahora solo contiene la información del plan general.
+        const { plan } = await req.json();
+
+        if (!plan) {
+            return NextResponse.json({ error: "Datos del plan requeridos." }, { status: 400 });
+        }
 
         const { historiaClinicaId } = await getTurnoHistoriaAndHeader(turnoId);
 
-        // 1. CREAR/ACTUALIZAR PLAN DE TRATAMIENTO
+        // 1. CREAR/ACTUALIZAR PLAN DE TRATAMIENTO GENERAL
+        // Se asocia directamente con la Historia Clínica, no con la consulta.
         const planActualizado = await prisma.planTratamiento.upsert({
             where: { historiaClinicaId: historiaClinicaId },
             update: {
@@ -119,7 +125,7 @@ export async function POST(
                 resultadosEsperados: plan.resultadosEsperados,
             },
             create: {
-                historiaClinicaId : plan.historiaClinicaId,
+                historiaClinicaId: historiaClinicaId, // Se asigna la HC correcta.
                 objetivo: plan.objetivo,
                 frecuencia: plan.frecuencia,
                 sesionesTotales: plan.sesionesTotales,
@@ -128,11 +134,25 @@ export async function POST(
             }
         });
 
+        // 2. CREAR EL PRIMER REGISTRO DE CONSULTA (si no existe)
+        // Este registro estará vacío y listo para ser llenado en la siguiente pantalla.
+        const consultaExistente = await prisma.consulta.findFirst({
+            where: { turnoId: turnoId }
+        });
+
+        if (!consultaExistente) {
+            await prisma.consulta.create({
+                data: {
+                    historiaClinicaId: historiaClinicaId,
+                    turnoId: turnoId,
+                    // El resto de campos se quedan con su valor por defecto
+                }
+            });
+        }
+
         return NextResponse.json({
-            message: "Plan de Tratamiento guardado exitosamente.",
-            historiaClinicaId : plan.historiaClinicaId,
-            planId: planActualizado.id,
-            turnoId : turnoId
+            message: "Historia Clínica y Plan de Tratamiento guardados exitosamente.",
+            planId: planActualizado.id
         });
 
     } catch (err: any) {

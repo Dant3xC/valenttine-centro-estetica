@@ -312,7 +312,7 @@ function DerivacionSection({ readOnly }: { readOnly: boolean }) {
         </Section>
     );
 }
-// INTERFAZ DE DATOS
+// INTERFAZ DE DATOS SIMPLIFICADA
 interface PlanData {
     header: {
         id: number;
@@ -321,10 +321,8 @@ interface PlanData {
         fecha: string;
         hora: string;
     };
-    consulta: any | null; // Datos de la tabla Consulta
-    plan: any | null;      // Datos de la tabla PlanTratamiento
+    plan: any | null; // Solo datos de la tabla PlanTratamiento
 }
-
 
 export default function Page() {
   const { turnoId } = useParams<{ turnoId: string }>();
@@ -339,14 +337,7 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ESTADOS DE LA TABLA CONSULTA (incluyendo derivación y nuevo campo)
-  const [tipoConsulta, setTipoConsulta] = useState(""); // Nuevo campo
-  const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
-  const [profDeriva, setProfDeriva] = useState("");
-  const [motivoDeriva, setMotivoDeriva] = useState("");
-  const [documentacionPath, setDocumentacionPath] = useState(""); // Path/URL del archivo
-
-  // PLAN
+  // ESTADOS EXCLUSIVOS DEL PLAN DE TRATAMIENTO GENERAL
   const [objetivo, setObjetivo] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
   const [sesiones, setSesiones] = useState(1);
@@ -363,24 +354,15 @@ export default function Page() {
         setLoading(true);
         setError(null);
 
-        // 1) Cargar Plan y Consulta con la nueva API
+        // La API ahora solo devuelve el plan y el header
         const data = await httpJSON<PlanData>(`/api/historial/plan/${turnoId}`);
         if (!alive) return;
         
-        const { consulta: cons, plan: planData, header: h } = data;
+        const { plan: planData, header: h } = data;
         
         setHeader(h);
 
-        // 2) Prefill de Datos de la Consulta (Tabla Consulta)
-        if (cons) {
-            setTipoConsulta(cons.tipoConsulta ?? "");
-            setDerivado(cons.derivacion ? "SI" : "NO");
-            setProfDeriva(cons.profesionalDeriva ?? "");
-            setMotivoDeriva(cons.motivoDerivacion ?? "");
-            setDocumentacionPath(cons.documentacion ?? "");
-        }
-
-        // 3) Prefill Plan (Tabla PlanTratamiento)
+        // Prefill solo de los campos del Plan de Tratamiento General
         if (planData) {
           setObjetivo(planData.objetivo ?? "");
           setFrecuencia(planData.frecuencia ?? "");
@@ -390,7 +372,7 @@ export default function Page() {
         }
       } catch (e: any) {
         if (!alive) return;
-        setError(e?.message || "Error al cargar plan");
+        setError(e?.message || "Error al cargar el plan");
       } finally {
         if (alive) setLoading(false);
       }
@@ -400,22 +382,16 @@ export default function Page() {
     };
   }, [turnoId]);
 
-  // ====== Guardar ======
+  // ====== GUARDAR HISTORIA CLÍNICA Y CONTINUAR ======
   async function savePlanAndContinue() {
     if (!canSave || readOnly) return;
     try {
       setSaving(true);
       setError(null);
 
+      // El payload solo contiene los datos del plan general
       const payload = {
-        derivacion: { // Datos para la tabla Consulta
-            si: derivado === "SI",
-            profesionalDeriva: profDeriva || undefined,
-            motivoDerivacion: motivoDeriva || undefined,
-            documentacion: documentacionPath || undefined,
-        },
-        tipoConsulta: tipoConsulta || undefined,
-        plan: { // Datos para la tabla PlanTratamiento (Plan de sesiones)
+        plan: {
           objetivo: objetivo || undefined,
           frecuencia: frecuencia || undefined,
           sesionesTotales: sesiones || undefined,
@@ -430,18 +406,18 @@ export default function Page() {
         body: JSON.stringify(payload),
       });
 
-      // Redirigir a la nueva página de consulta del día
+      // Redirigir a la página de consulta del día para completar los detalles de la sesión
       router.push(`/historial/consulta/${turnoId}/hoy/`);
       
     } catch (e: any) {
-      setError(e?.message || "No se pudo guardar el plan");
+      setError(e?.message || "No se pudo guardar la Historia Clínica");
     } finally {
       setSaving(false);
     }
   }
 
     if (loading) {
-        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan y Consulta...</main>;
+        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan de Tratamiento...</main>;
     }
     if (error && !header) {
         return <main className="min-h-screen p-8 text-center text-red-600">Error Crítico: {error}</main>;
@@ -453,7 +429,7 @@ export default function Page() {
 
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
         <h2 className="text-2xl font-bold text-purple-800 mb-2">
-          Plan de tratamiento
+          Plan de Tratamiento General
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
@@ -475,73 +451,20 @@ export default function Page() {
         </div>
         {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
       </div>
-
-      {/* TIPO DE CONSULTA */}
-      <Section title="Detalles de la Consulta">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SelectField 
-                label="Tipo de Consulta" 
-                value={tipoConsulta} 
-                onChange={setTipoConsulta} 
-                options={TIPOS_CONSULTA} 
-                disabled={readOnly} 
-            />
-        </div>
-      </Section>
-
-      {/* DERIVACIÓN (RESCATADO) */}
-      <Section title="Derivación médica">
-            <div className="flex flex-wrap items-center gap-4 mb-3">
-                <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
-                {["NO", "SI"].map((o) => (
-                    <label key={o} className="inline-flex items-center gap-2">
-                        <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
-                        <span className="text-sm">{o}</span>
-                    </label>
-                ))}
-            </div>
-            {derivado === "SI" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
-                        <input
-                            value={profDeriva}
-                            onChange={(e) => setProfDeriva(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div className="md:col-span-3">
-                        <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
-                        <textarea
-                            value={motivoDeriva}
-                            onChange={(e) => setMotivoDeriva(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div className="md:col-span-3">
-                        <label className="text-sm font-medium text-gray-700">Documentación adjunta (URL o Path)</label>
-                        <input
-                            value={documentacionPath}
-                            onChange={(e) => setDocumentacionPath(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                </div>
-            )}
-        </Section>
       
-      {/* PLAN */}
-      <Section title="Plan de tratamiento">
+      {/* PLAN DE TRATAMIENTO GENERAL */}
+      <Section title="Definición del Plan de Tratamiento General">
         <TextArea label="Objetivo del tratamiento" value={objetivo} onChange={setObjetivo} disabled={readOnly} />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <SelectField label="Frecuencia" value={frecuencia} onChange={setFrecuencia} options={FRECUENCIAS as unknown as string[]} disabled={readOnly} />
           <NumberField label="Número total de sesiones" value={sesiones} onChange={setSesiones} min={1} disabled={readOnly} />
         </div>
-        <TextArea label="Indicaciones post-tratamiento (Plan General)" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
-        <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
+        <div className="mt-4">
+          <TextArea label="Indicaciones post-tratamiento (Generales)" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
+        </div>
+        <div className="mt-4">
+          <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
+        </div>
       </Section>
 
       {/* Footer */}
@@ -557,7 +480,7 @@ export default function Page() {
               disabled={!canSave || saving}
               className={`px-5 py-2 rounded-xl text-white ${!canSave || saving ? "bg-emerald-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"}`}
             >
-              {saving ? "Guardando..." : "Finalizar y Registrar Historia Clínica"}
+              {saving ? "Guardando..." : "Registrar Historia Clínica y Continuar"}
             </button>
           </div>
         )}
