@@ -1,4 +1,3 @@
-// src/app/historial/consulta/[turnoId]/hoy/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -31,6 +30,7 @@ const COMPARACION = [
   "Sin cambios",
   "Empeoramiento",
 ] as const;
+const TIPOS_CONSULTA = ["Primera Consulta", "Control"] as const;
 
 /* ========= Helpers fetch ========= */
 async function httpJSON<T>(url: string, init?: RequestInit): Promise<T> {
@@ -232,10 +232,12 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   // ESTADOS DE LA CONSULTA DEL DÍA
+  const [tipoConsulta, setTipoConsulta] = useState("");
   const [motivoHoy, setMotivoHoy] = useState("");
   const [evolucion, setEvolucion] = useState("");
   const [examenActual, setExamenActual] = useState("");
   const [comparacion, setComparacion] = useState("");
+  const [resultadosEsperados, setResultadosEsperados] = useState("");
   const [serviciosHoy, setServiciosHoy] = useState<string[]>([]);
   const toggleServicio = (s: string) =>
     setServiciosHoy((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
@@ -249,8 +251,13 @@ export default function Page() {
   >([]);
   const [tolerancia, setTolerancia] = useState("");
   const [observaciones, setObservaciones] = useState("");
-  // El campo `indicacionesPost` se elimina de esta página.
   const [medicacionHoy, setMedicacionHoy] = useState("");
+
+  // Derivación
+  const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
+  const [profDeriva, setProfDeriva] = useState("");
+  const [motivoDeriva, setMotivoDeriva] = useState("");
+  const [documentacionPath, setDocumentacionPath] = useState("");
 
   const canSave = motivoHoy.trim().length >= 3 && !readOnly;
 
@@ -271,21 +278,28 @@ export default function Page() {
         setHeader(h);
 
         if (cons) {
+          setTipoConsulta(cons.tipoConsulta ?? "");
           setMotivoHoy(cons.motivoConsulta ?? "");
           setEvolucion(cons.evolucion ?? "");
           setComparacion(cons.comparacion ?? "");
+          setResultadosEsperados(cons.resultadosEsperados ?? "");
 
           const tratamientosRealizados = cons.tratamientosRealizados || [];
           setServiciosHoy(Array.isArray(tratamientosRealizados) ? tratamientosRealizados : []);
 
           const productosUtilizados = cons.productosUtilizados || [];
-          setProductosHoy(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => !p.esAnestesia) : []);
-          setAnestesia(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => p.esAnestesia) : []);
+          setProductosHoy(Array.isArray(productosUtilizados) ? productosUtilizados.filter((p: any) => !p.esAnestesia) : []);
+          setAnestesia(Array.isArray(productosUtilizados) ? productosUtilizados.filter((p: any) => p.esAnestesia) : []);
 
           setUsoAnestesia(cons.usoAnestesia ? "SI" : "NO");
           setTolerancia(cons.toleranciaPaciente ?? "");
           setObservaciones(cons.observaciones ?? "");
           setMedicacionHoy(cons.medicacionPrescrita ?? "");
+
+          setDerivado(cons.derivacion ? "SI" : "NO");
+          setProfDeriva(cons.profesionalDeriva ?? "");
+          setMotivoDeriva(cons.motivoDerivacion ?? "");
+          setDocumentacionPath(cons.documentacion ?? "");
         }
       } catch (e: any) {
         if (!alive) return;
@@ -313,16 +327,22 @@ export default function Page() {
 
       const payload = {
         hoy: {
+          tipoConsulta: tipoConsulta || undefined,
           motivoConsulta: motivoHoy || undefined,
           evolucion: evolucion || undefined,
           examenActual: examenActual || undefined,
           comparacion: comparacion || undefined,
-          serviciosHoy,
+          resultadosEsperados: resultadosEsperados || undefined,
+          tratamientosRealizados: serviciosHoy,
           productosUtilizados: todosLosProductos,
           usoAnestesia: usoAnestesia === "SI",
           toleranciaPaciente: tolerancia || undefined,
           observaciones: observaciones || undefined,
           medicacionPrescrita: medicacionHoy || undefined,
+          derivacion: derivado === "SI",
+          profesionalDeriva: profDeriva || undefined,
+          motivoDerivacion: motivoDeriva || undefined,
+          documentacion: documentacionPath || undefined,
         },
         finalizar,
       };
@@ -378,10 +398,12 @@ export default function Page() {
       </div>
 
       <Section title="Registro de la Sesión de Hoy">
+        <SelectField label="Tipo de Consulta" value={tipoConsulta} onChange={setTipoConsulta} options={TIPOS_CONSULTA as any} disabled={readOnly} />
         <TextArea label="Motivo de la consulta de hoy" value={motivoHoy} onChange={setMotivoHoy} disabled={readOnly} />
         <TextArea label="Evolución desde la última consulta" value={evolucion} onChange={setEvolucion} disabled={readOnly} />
         <TextArea label="Examen físico actual" value={examenActual} onChange={setExamenActual} disabled={readOnly} />
         <SelectField label="Comparación con consulta anterior" value={comparacion} onChange={setComparacion} options={COMPARACION as unknown as string[]} disabled={readOnly} />
+        <TextArea label="Resultados esperados de la sesión" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
 
         <div className="mt-4 space-y-4">
           <ChipsSelect label="Seleccionar servicios realizados hoy" options={[...TRAT_FACIAL, ...TRAT_CORPORAL]} values={serviciosHoy} onToggle={toggleServicio} disabled={readOnly} />
@@ -405,6 +427,49 @@ export default function Page() {
           <TextArea label="Medicación prescrita (si aplica)" value={medicacionHoy} onChange={setMedicacionHoy} disabled={readOnly} />
         </div>
       </Section>
+
+      <Section title="Derivación médica">
+            <div className="flex flex-wrap items-center gap-4 mb-3">
+                <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
+                {["NO", "SI"].map((o) => (
+                    <label key={o} className="inline-flex items-center gap-2">
+                        <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
+                        <span className="text-sm">{o}</span>
+                    </label>
+                ))}
+            </div>
+            {derivado === "SI" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
+                        <input
+                            value={profDeriva}
+                            onChange={(e) => setProfDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
+                        <textarea
+                            value={motivoDeriva}
+                            onChange={(e) => setMotivoDeriva(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="md:col-span-3">
+                        <label className="text-sm font-medium text-gray-700">Documentación adjunta (URL o Path)</label>
+                        <input
+                            value={documentacionPath}
+                            onChange={(e) => setDocumentacionPath(e.target.value)}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+            )}
+        </Section>
 
       {/* ENLACE AL PLAN DE TRATAMIENTO GENERAL */}
       <div className="text-center mt-4">

@@ -213,6 +213,7 @@ model Consulta {
   fecha             DateTime         @default(now())
   tipoConsulta      String?
   observaciones     String?
+  resultadosEsperados    String?
   motivoConsulta         String?
   evolucion              String?
   comparacion            String?
@@ -285,7 +286,6 @@ model PlanTratamiento {
   frecuencia             String? //
   sesionesTotales        Int?  //
   indicacionesPost       String? //
-  resultadosEsperados    String?
   estado                 Boolean  @default(true)
   observaciones          String?
   // Consulta               Consulta? @relation(fields: [consultaId], references: [id], onDelete: SetNull)

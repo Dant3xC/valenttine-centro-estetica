@@ -278,6 +278,7 @@ exports.Prisma.ConsultaScalarFieldEnum = {
   fecha: 'fecha',
   tipoConsulta: 'tipoConsulta',
   observaciones: 'observaciones',
+  resultadosEsperados: 'resultadosEsperados',
   motivoConsulta: 'motivoConsulta',
   evolucion: 'evolucion',
   comparacion: 'comparacion',
@@ -334,7 +335,6 @@ exports.Prisma.PlanTratamientoScalarFieldEnum = {
   frecuencia: 'frecuencia',
   sesionesTotales: 'sesionesTotales',
   indicacionesPost: 'indicacionesPost',
-  resultadosEsperados: 'resultadosEsperados',
   estado: 'estado',
   observaciones: 'observaciones'
 };

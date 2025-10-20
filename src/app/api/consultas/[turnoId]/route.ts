@@ -98,16 +98,21 @@ export async function POST(
         await prisma.consulta.update({
             where: { id: consulta.id },
             data: {
+                tipoConsulta: hoy.tipoConsulta,
                 motivoConsulta: hoy.motivoConsulta,
                 evolucion: hoy.evolucion,
                 comparacion: hoy.comparacion,
-                tratamientosRealizados: hoy.serviciosHoy, // Asegúrate de que el frontend envíe `serviciosHoy`
+                resultadosEsperados: hoy.resultadosEsperados,
+                tratamientosRealizados: hoy.tratamientosRealizados,
                 productosUtilizados: hoy.productosUtilizados,
                 usoAnestesia: hoy.usoAnestesia,
                 toleranciaPaciente: hoy.toleranciaPaciente,
                 observaciones: hoy.observaciones,
                 medicacionPrescrita: hoy.medicacionPrescrita,
-                // El campo `indicacionesPost` ya no es parte de esta tabla según el schema.prisma
+                derivacion: hoy.derivacion,
+                profesionalDeriva: hoy.profesionalDeriva,
+                motivoDerivacion: hoy.motivoDerivacion,
+                documentacion: hoy.documentacion,
             },
         });
 
