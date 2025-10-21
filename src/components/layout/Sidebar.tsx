@@ -36,7 +36,7 @@ const ACL: Record<string, RoleKey[]> = {
   '/turnos':     ['RECEPCIONISTA', 'GERENTE'],
   '/Pacientes':  ['RECEPCIONISTA', 'GERENTE'],
   '/profesionales': ['GERENTE'],
-  '/admin':      ['GERENTE'],
+  //'/admin':      ['GERENTE'],
   '/historial':  ['MEDICO', 'GERENTE'],
   '/turnos/hoy': ['MEDICO'],
 } as const;
@@ -46,12 +46,12 @@ const LABELS: Record<keyof typeof ACL, string> = {
   '/turnos':     'Turnos',
   '/Pacientes':  'Pacientes',
   '/profesionales': 'Profesionales',
-  '/admin':      'Administración',
+  //'/admin':      'Administración',
   '/historial':  'Historial Clínico',
   '/turnos/hoy': 'Turnos del día',
 } as const;
 
-const MENU_ORDER = ['/dashboard', '/turnos', '/Pacientes', '/profesionales', '/admin', '/historial', '/turnos/hoy'] as const;
+const MENU_ORDER = ['/dashboard', '/turnos', '/Pacientes', '/profesionales', /*'/admin',*/ '/historial', '/turnos/hoy'] as const;
 
 export function Sidebar() {
   const pathname = usePathname();

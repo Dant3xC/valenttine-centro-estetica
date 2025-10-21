@@ -13,7 +13,7 @@ const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
   '/turnos/hoy': ['MEDICO'],
   '/historial': ['MEDICO', 'GERENTE'],
-  '/admin': ['GERENTE'],
+  //'/admin': ['GERENTE'],
   '/dashboard/rendimiento-profesional': ['GERENTE', 'MEDICO'],
   '/dashboard/ausentismo': ['GERENTE', 'RECEPCIONISTA', 'MEDICO'],
   '/dashboard/pacientes-profesional': ['GERENTE'],
@@ -60,12 +60,12 @@ const CARDS: Record<keyof typeof ACL_DASHBOARD, CardInfo> = {
       'Acceso seguro e inmediato al historial médico completo, diagnósticos, tratamientos y evoluciones clínicas de todos los pacientes.',
     image: '/card_historial.png',
   },
-  '/admin': {
+  /*'/admin': {
     title: 'Configuración y Administración',
     description:
       'Métricas clave y resúmenes personalizados que proporcionan una visión estratégica y relevante, alineada con las responsabilidades de su rol.',
     image: '/card_admin.png',
-  },
+  },*/
 
 //Modificar a partir de aqui
 

@@ -6,9 +6,14 @@ import type { RendimientoProfesionalResponse, DatosRendimientoProfesional } from
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+//import {BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, CartesianGrid, Legend} from 'recharts';
+
+/*si rompe borrar */
 import {
-    BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, CartesianGrid, Legend
+  BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, CartesianGrid, Legend,
+  PieChart, Pie, Cell
 } from 'recharts';
+/*si rompe borrar */
 
 // utils fecha
 const toYMD = (d: Date) => {
@@ -19,6 +24,10 @@ const toYMD = (d: Date) => {
 };
 const subDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() - n);
 type RangoPreset = 'hoy' | '7' | '30' | 'mes' | 'custom';
+
+/*si rompe borrar */
+const PIE_COLORS = ['#10b981', '#ef4444', '#f97316']; // Atendidos, Cancelados, Ausentes
+/*si rompe borrar */
 
 export default function PageRendimientoProfesional() {
     // filtros
@@ -110,6 +119,18 @@ export default function PageRendimientoProfesional() {
         }));
     }, [data]);
 
+    /*si rompe borrar */
+    const pieDistribucionGlobal = useMemo(() => {
+    if (!data?.kpis) return [];
+    const { totalAtendidos = 0, totalCancelados = 0, totalAusentes = 0 } = data.kpis;
+    return [
+        { name: 'Atendidos',  value: totalAtendidos },
+        { name: 'Cancelados', value: totalCancelados },
+        { name: 'Ausentes',   value: totalAusentes },
+    ];
+    }, [data]);
+/*si rompe borrar */
+
     const isSoloProfesional = (rol === 'PROFESIONAL' || rol === 'MEDICO');
 
     return (
@@ -186,6 +207,58 @@ export default function PageRendimientoProfesional() {
                         <p className="text-sm text-neutral-500 mt-1"></p>
                     </Card>
                 </div>
+
+{/*si rompe borrar */}
+{/* Resumen visual: Torta global */}
+<Card
+  className="shadow-md"
+  header={<h3 className="text-lg font-semibold text-white">Distribución Global</h3>}
+>
+  {err ? (
+    <div className="py-16 text-center text-red-600">
+      No fue posible obtener la información.{" "}
+      <Button variant="destructive" onClick={load} className="ml-2">Reintentar</Button>
+    </div>
+  ) : loading ? (
+    <Skeleton className="h-[360px] w-full" />
+  ) : !data || (data.kpis.totalAtendidos + data.kpis.totalCancelados + data.kpis.totalAusentes) === 0 ? (
+    <div className="py-16 text-center text-neutral-500">
+      No se registran atenciones en el rango seleccionado.
+    </div>
+  ) : (
+    <div className="h-[360px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={pieDistribucionGlobal}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={120}
+            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          >
+            {pieDistribucionGlobal.map((_, i) => (
+              <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+            ))}
+          </Pie>
+          <Legend />
+          <RTooltip
+            formatter={(v: number, n: string) => {
+              // Tooltip: "<cantidad> (<porcentaje>%)", "Etiqueta"
+              const total = pieDistribucionGlobal.reduce((acc, it) => acc + it.value, 0);
+              const pct = total > 0 ? ((Number(v) * 100) / total).toFixed(2) : '0';
+              return [`${v} (${pct}%)`, n];
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  )}
+</Card>
+
+{/*si rompe borrar */}
+
 
                 {/* Cuerpo */}
                 {err ? (
