@@ -74,3 +74,26 @@ export interface ObrasSocialesResponse {
   kpis: KPIObras;
   obras: ObraItem[];
 }
+
+// ===== Rendimiento por Profesional =====
+export interface DatosRendimientoProfesional {
+  profesionalId: number;
+  nombre: string;
+  apellido: string;
+  atendidos: number;
+  cancelados: number;
+  ausentes: number;
+  tasaConversion: number; // 0..100 (porcentaje)
+}
+
+export interface KPIRendimientoProfesional {
+  tasaConversionGlobal: number; // 0..100
+  totalAtendidos: number;
+  totalCancelados: number;
+  totalAusentes: number;
+}
+
+export interface RendimientoProfesionalResponse {
+  kpis: KPIRendimientoProfesional;
+  datosProfesionales: DatosRendimientoProfesional[];
+}
