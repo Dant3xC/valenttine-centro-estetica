@@ -19969,7 +19969,6 @@ export namespace Prisma {
     fecha: Date | null
     tipoConsulta: string | null
     observaciones: string | null
-    resultadosEsperados: string | null
     motivoConsulta: string | null
     evolucion: string | null
     comparacion: string | null
@@ -19989,7 +19988,6 @@ export namespace Prisma {
     fecha: Date | null
     tipoConsulta: string | null
     observaciones: string | null
-    resultadosEsperados: string | null
     motivoConsulta: string | null
     evolucion: string | null
     comparacion: string | null
@@ -20009,7 +20007,6 @@ export namespace Prisma {
     fecha: number
     tipoConsulta: number
     observaciones: number
-    resultadosEsperados: number
     motivoConsulta: number
     evolucion: number
     comparacion: number
@@ -20045,7 +20042,6 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
-    resultadosEsperados?: true
     motivoConsulta?: true
     evolucion?: true
     comparacion?: true
@@ -20065,7 +20061,6 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
-    resultadosEsperados?: true
     motivoConsulta?: true
     evolucion?: true
     comparacion?: true
@@ -20085,7 +20080,6 @@ export namespace Prisma {
     fecha?: true
     tipoConsulta?: true
     observaciones?: true
-    resultadosEsperados?: true
     motivoConsulta?: true
     evolucion?: true
     comparacion?: true
@@ -20194,7 +20188,6 @@ export namespace Prisma {
     fecha: Date
     tipoConsulta: string | null
     observaciones: string | null
-    resultadosEsperados: string | null
     motivoConsulta: string | null
     evolucion: string | null
     comparacion: string | null
@@ -20235,7 +20228,6 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
-    resultadosEsperados?: boolean
     motivoConsulta?: boolean
     evolucion?: boolean
     comparacion?: boolean
@@ -20259,7 +20251,6 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
-    resultadosEsperados?: boolean
     motivoConsulta?: boolean
     evolucion?: boolean
     comparacion?: boolean
@@ -20283,7 +20274,6 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
-    resultadosEsperados?: boolean
     motivoConsulta?: boolean
     evolucion?: boolean
     comparacion?: boolean
@@ -20307,7 +20297,6 @@ export namespace Prisma {
     fecha?: boolean
     tipoConsulta?: boolean
     observaciones?: boolean
-    resultadosEsperados?: boolean
     motivoConsulta?: boolean
     evolucion?: boolean
     comparacion?: boolean
@@ -20318,7 +20307,7 @@ export namespace Prisma {
     medicacionPrescrita?: boolean
   }
 
-  export type ConsultaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "turnoId" | "derivacion" | "profesionalDeriva" | "motivoDerivacion" | "documentacion" | "fecha" | "tipoConsulta" | "observaciones" | "resultadosEsperados" | "motivoConsulta" | "evolucion" | "comparacion" | "tratamientosRealizados" | "productosUtilizados" | "usoAnestesia" | "toleranciaPaciente" | "medicacionPrescrita", ExtArgs["result"]["consulta"]>
+  export type ConsultaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "turnoId" | "derivacion" | "profesionalDeriva" | "motivoDerivacion" | "documentacion" | "fecha" | "tipoConsulta" | "observaciones" | "motivoConsulta" | "evolucion" | "comparacion" | "tratamientosRealizados" | "productosUtilizados" | "usoAnestesia" | "toleranciaPaciente" | "medicacionPrescrita", ExtArgs["result"]["consulta"]>
   export type ConsultaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     HistoriaClinica?: boolean | HistoriaClinicaDefaultArgs<ExtArgs>
     Turno?: boolean | Consulta$TurnoArgs<ExtArgs>
@@ -20349,7 +20338,6 @@ export namespace Prisma {
       fecha: Date
       tipoConsulta: string | null
       observaciones: string | null
-      resultadosEsperados: string | null
       motivoConsulta: string | null
       evolucion: string | null
       comparacion: string | null
@@ -20793,7 +20781,6 @@ export namespace Prisma {
     readonly fecha: FieldRef<"Consulta", 'DateTime'>
     readonly tipoConsulta: FieldRef<"Consulta", 'String'>
     readonly observaciones: FieldRef<"Consulta", 'String'>
-    readonly resultadosEsperados: FieldRef<"Consulta", 'String'>
     readonly motivoConsulta: FieldRef<"Consulta", 'String'>
     readonly evolucion: FieldRef<"Consulta", 'String'>
     readonly comparacion: FieldRef<"Consulta", 'String'>
@@ -27912,6 +27899,7 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
+    resultadosEsperados: string | null
     estado: boolean | null
     observaciones: string | null
   }
@@ -27923,6 +27911,7 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
+    resultadosEsperados: string | null
     estado: boolean | null
     observaciones: string | null
   }
@@ -27934,6 +27923,7 @@ export namespace Prisma {
     frecuencia: number
     sesionesTotales: number
     indicacionesPost: number
+    resultadosEsperados: number
     estado: number
     observaciones: number
     _all: number
@@ -27959,6 +27949,7 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
+    resultadosEsperados?: true
     estado?: true
     observaciones?: true
   }
@@ -27970,6 +27961,7 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
+    resultadosEsperados?: true
     estado?: true
     observaciones?: true
   }
@@ -27981,6 +27973,7 @@ export namespace Prisma {
     frecuencia?: true
     sesionesTotales?: true
     indicacionesPost?: true
+    resultadosEsperados?: true
     estado?: true
     observaciones?: true
     _all?: true
@@ -28079,6 +28072,7 @@ export namespace Prisma {
     frecuencia: string | null
     sesionesTotales: number | null
     indicacionesPost: string | null
+    resultadosEsperados: string | null
     estado: boolean
     observaciones: string | null
     _count: PlanTratamientoCountAggregateOutputType | null
@@ -28109,6 +28103,7 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
+    resultadosEsperados?: boolean
     estado?: boolean
     observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
@@ -28121,6 +28116,7 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
+    resultadosEsperados?: boolean
     estado?: boolean
     observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
@@ -28133,6 +28129,7 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
+    resultadosEsperados?: boolean
     estado?: boolean
     observaciones?: boolean
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
@@ -28145,11 +28142,12 @@ export namespace Prisma {
     frecuencia?: boolean
     sesionesTotales?: boolean
     indicacionesPost?: boolean
+    resultadosEsperados?: boolean
     estado?: boolean
     observaciones?: boolean
   }
 
-  export type PlanTratamientoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "objetivo" | "frecuencia" | "sesionesTotales" | "indicacionesPost" | "estado" | "observaciones", ExtArgs["result"]["planTratamiento"]>
+  export type PlanTratamientoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "historiaClinicaId" | "objetivo" | "frecuencia" | "sesionesTotales" | "indicacionesPost" | "resultadosEsperados" | "estado" | "observaciones", ExtArgs["result"]["planTratamiento"]>
   export type PlanTratamientoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     historiaClinica?: boolean | PlanTratamiento$historiaClinicaArgs<ExtArgs>
   }
@@ -28172,6 +28170,7 @@ export namespace Prisma {
       frecuencia: string | null
       sesionesTotales: number | null
       indicacionesPost: string | null
+      resultadosEsperados: string | null
       estado: boolean
       observaciones: string | null
     }, ExtArgs["result"]["planTratamiento"]>
@@ -28604,6 +28603,7 @@ export namespace Prisma {
     readonly frecuencia: FieldRef<"PlanTratamiento", 'String'>
     readonly sesionesTotales: FieldRef<"PlanTratamiento", 'Int'>
     readonly indicacionesPost: FieldRef<"PlanTratamiento", 'String'>
+    readonly resultadosEsperados: FieldRef<"PlanTratamiento", 'String'>
     readonly estado: FieldRef<"PlanTratamiento", 'Boolean'>
     readonly observaciones: FieldRef<"PlanTratamiento", 'String'>
   }
@@ -30318,7 +30318,6 @@ export namespace Prisma {
     fecha: 'fecha',
     tipoConsulta: 'tipoConsulta',
     observaciones: 'observaciones',
-    resultadosEsperados: 'resultadosEsperados',
     motivoConsulta: 'motivoConsulta',
     evolucion: 'evolucion',
     comparacion: 'comparacion',
@@ -30396,6 +30395,7 @@ export namespace Prisma {
     frecuencia: 'frecuencia',
     sesionesTotales: 'sesionesTotales',
     indicacionesPost: 'indicacionesPost',
+    resultadosEsperados: 'resultadosEsperados',
     estado: 'estado',
     observaciones: 'observaciones'
   };
@@ -31623,7 +31623,6 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
-    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
     motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
     evolucion?: StringNullableFilter<"Consulta"> | string | null
     comparacion?: StringNullableFilter<"Consulta"> | string | null
@@ -31647,7 +31646,6 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrderInput | SortOrder
     observaciones?: SortOrderInput | SortOrder
-    resultadosEsperados?: SortOrderInput | SortOrder
     motivoConsulta?: SortOrderInput | SortOrder
     evolucion?: SortOrderInput | SortOrder
     comparacion?: SortOrderInput | SortOrder
@@ -31674,7 +31672,6 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
-    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
     motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
     evolucion?: StringNullableFilter<"Consulta"> | string | null
     comparacion?: StringNullableFilter<"Consulta"> | string | null
@@ -31698,7 +31695,6 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrderInput | SortOrder
     observaciones?: SortOrderInput | SortOrder
-    resultadosEsperados?: SortOrderInput | SortOrder
     motivoConsulta?: SortOrderInput | SortOrder
     evolucion?: SortOrderInput | SortOrder
     comparacion?: SortOrderInput | SortOrder
@@ -31728,7 +31724,6 @@ export namespace Prisma {
     fecha?: DateTimeWithAggregatesFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
     observaciones?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
-    resultadosEsperados?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
     motivoConsulta?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
     evolucion?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
     comparacion?: StringNullableWithAggregatesFilter<"Consulta"> | string | null
@@ -32067,6 +32062,7 @@ export namespace Prisma {
     frecuencia?: StringNullableFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableFilter<"PlanTratamiento"> | string | null
+    resultadosEsperados?: StringNullableFilter<"PlanTratamiento"> | string | null
     estado?: BoolFilter<"PlanTratamiento"> | boolean
     observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
     historiaClinica?: XOR<HistoriaClinicaNullableScalarRelationFilter, HistoriaClinicaWhereInput> | null
@@ -32079,6 +32075,7 @@ export namespace Prisma {
     frecuencia?: SortOrderInput | SortOrder
     sesionesTotales?: SortOrderInput | SortOrder
     indicacionesPost?: SortOrderInput | SortOrder
+    resultadosEsperados?: SortOrderInput | SortOrder
     estado?: SortOrder
     observaciones?: SortOrderInput | SortOrder
     historiaClinica?: HistoriaClinicaOrderByWithRelationInput
@@ -32094,6 +32091,7 @@ export namespace Prisma {
     frecuencia?: StringNullableFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableFilter<"PlanTratamiento"> | string | null
+    resultadosEsperados?: StringNullableFilter<"PlanTratamiento"> | string | null
     estado?: BoolFilter<"PlanTratamiento"> | boolean
     observaciones?: StringNullableFilter<"PlanTratamiento"> | string | null
     historiaClinica?: XOR<HistoriaClinicaNullableScalarRelationFilter, HistoriaClinicaWhereInput> | null
@@ -32106,6 +32104,7 @@ export namespace Prisma {
     frecuencia?: SortOrderInput | SortOrder
     sesionesTotales?: SortOrderInput | SortOrder
     indicacionesPost?: SortOrderInput | SortOrder
+    resultadosEsperados?: SortOrderInput | SortOrder
     estado?: SortOrder
     observaciones?: SortOrderInput | SortOrder
     _count?: PlanTratamientoCountOrderByAggregateInput
@@ -32125,6 +32124,7 @@ export namespace Prisma {
     frecuencia?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
     sesionesTotales?: IntNullableWithAggregatesFilter<"PlanTratamiento"> | number | null
     indicacionesPost?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
+    resultadosEsperados?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
     estado?: BoolWithAggregatesFilter<"PlanTratamiento"> | boolean
     observaciones?: StringNullableWithAggregatesFilter<"PlanTratamiento"> | string | null
   }
@@ -33226,7 +33226,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -33250,7 +33249,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -33269,7 +33267,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33293,7 +33290,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33315,7 +33311,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -33334,7 +33329,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33356,7 +33350,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33664,6 +33657,7 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
+    resultadosEsperados?: string | null
     estado?: boolean
     observaciones?: string | null
     historiaClinica?: HistoriaClinicaCreateNestedOneWithoutPlanTratamientoInput
@@ -33676,6 +33670,7 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
+    resultadosEsperados?: string | null
     estado?: boolean
     observaciones?: string | null
   }
@@ -33685,6 +33680,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
     historiaClinica?: HistoriaClinicaUpdateOneWithoutPlanTratamientoNestedInput
@@ -33697,6 +33693,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -33708,6 +33705,7 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
+    resultadosEsperados?: string | null
     estado?: boolean
     observaciones?: string | null
   }
@@ -33717,6 +33715,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -33728,6 +33727,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -34791,7 +34791,6 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrder
     observaciones?: SortOrder
-    resultadosEsperados?: SortOrder
     motivoConsulta?: SortOrder
     evolucion?: SortOrder
     comparacion?: SortOrder
@@ -34819,7 +34818,6 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrder
     observaciones?: SortOrder
-    resultadosEsperados?: SortOrder
     motivoConsulta?: SortOrder
     evolucion?: SortOrder
     comparacion?: SortOrder
@@ -34839,7 +34837,6 @@ export namespace Prisma {
     fecha?: SortOrder
     tipoConsulta?: SortOrder
     observaciones?: SortOrder
-    resultadosEsperados?: SortOrder
     motivoConsulta?: SortOrder
     evolucion?: SortOrder
     comparacion?: SortOrder
@@ -35088,6 +35085,7 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
+    resultadosEsperados?: SortOrder
     estado?: SortOrder
     observaciones?: SortOrder
   }
@@ -35105,6 +35103,7 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
+    resultadosEsperados?: SortOrder
     estado?: SortOrder
     observaciones?: SortOrder
   }
@@ -35116,6 +35115,7 @@ export namespace Prisma {
     frecuencia?: SortOrder
     sesionesTotales?: SortOrder
     indicacionesPost?: SortOrder
+    resultadosEsperados?: SortOrder
     estado?: SortOrder
     observaciones?: SortOrder
   }
@@ -39654,7 +39654,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -39676,7 +39675,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -39894,7 +39892,6 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"Consulta"> | Date | string
     tipoConsulta?: StringNullableFilter<"Consulta"> | string | null
     observaciones?: StringNullableFilter<"Consulta"> | string | null
-    resultadosEsperados?: StringNullableFilter<"Consulta"> | string | null
     motivoConsulta?: StringNullableFilter<"Consulta"> | string | null
     evolucion?: StringNullableFilter<"Consulta"> | string | null
     comparacion?: StringNullableFilter<"Consulta"> | string | null
@@ -41019,7 +41016,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -41041,7 +41037,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -41087,6 +41082,7 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
+    resultadosEsperados?: string | null
     estado?: boolean
     observaciones?: string | null
   }
@@ -41097,6 +41093,7 @@ export namespace Prisma {
     frecuencia?: string | null
     sesionesTotales?: number | null
     indicacionesPost?: string | null
+    resultadosEsperados?: string | null
     estado?: boolean
     observaciones?: string | null
   }
@@ -41322,6 +41319,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -41332,6 +41330,7 @@ export namespace Prisma {
     frecuencia?: NullableStringFieldUpdateOperationsInput | string | null
     sesionesTotales?: NullableIntFieldUpdateOperationsInput | number | null
     indicacionesPost?: NullableStringFieldUpdateOperationsInput | string | null
+    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     estado?: BoolFieldUpdateOperationsInput | boolean
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -42678,7 +42677,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -42704,7 +42702,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42726,7 +42723,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42747,7 +42743,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43433,7 +43428,6 @@ export namespace Prisma {
     fecha?: Date | string
     tipoConsulta?: string | null
     observaciones?: string | null
-    resultadosEsperados?: string | null
     motivoConsulta?: string | null
     evolucion?: string | null
     comparacion?: string | null
@@ -43452,7 +43446,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43474,7 +43467,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43495,7 +43487,6 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
     tipoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     observaciones?: NullableStringFieldUpdateOperationsInput | string | null
-    resultadosEsperados?: NullableStringFieldUpdateOperationsInput | string | null
     motivoConsulta?: NullableStringFieldUpdateOperationsInput | string | null
     evolucion?: NullableStringFieldUpdateOperationsInput | string | null
     comparacion?: NullableStringFieldUpdateOperationsInput | string | null

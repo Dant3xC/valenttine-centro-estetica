@@ -213,7 +213,6 @@ model Consulta {
   fecha                  DateTime        @default(now())
   tipoConsulta           String?
   observaciones          String?
-  resultadosEsperados    String?
   motivoConsulta         String?
   evolucion              String?
   comparacion            String?
@@ -279,17 +278,18 @@ model HistoriaClinica {
 }
 
 model PlanTratamiento {
-  id                Int              @id @default(autoincrement())
+  id                  Int              @id @default(autoincrement())
   // consultaId             Int?    @unique
-  historiaClinicaId Int?             @unique
-  objetivo          String?
-  frecuencia        String? //
-  sesionesTotales   Int? //
-  indicacionesPost  String? //
-  estado            Boolean          @default(true)
-  observaciones     String?
+  historiaClinicaId   Int?             @unique
+  objetivo            String?
+  frecuencia          String? //
+  sesionesTotales     Int? //
+  indicacionesPost    String? //
+  resultadosEsperados String?
+  estado              Boolean          @default(true)
+  observaciones       String?
   // Consulta               Consulta? @relation(fields: [consultaId], references: [id], onDelete: SetNull)
-  historiaClinica   HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
+  historiaClinica     HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
 }
 
 model Rol {
