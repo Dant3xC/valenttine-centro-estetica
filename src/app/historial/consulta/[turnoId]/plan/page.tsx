@@ -312,7 +312,7 @@ function DerivacionSection({ readOnly }: { readOnly: boolean }) {
         </Section>
     );
 }
-// INTERFAZ DE DATOS
+// INTERFAZ DE DATOS SIMPLIFICADA
 interface PlanData {
     header: {
         id: number;
@@ -321,10 +321,8 @@ interface PlanData {
         fecha: string;
         hora: string;
     };
-    consulta: any | null; // Datos de la tabla Consulta
-    plan: any | null;      // Datos de la tabla PlanTratamiento
+    plan: any | null; // Solo datos de la tabla PlanTratamiento
 }
-
 
 export default function Page() {
   const { turnoId } = useParams<{ turnoId: string }>();
@@ -339,42 +337,14 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ESTADOS DE LA TABLA CONSULTA (incluyendo derivación y nuevo campo)
-  const [tipoConsulta, setTipoConsulta] = useState(""); // Nuevo campo
-  const [derivado, setDerivado] = useState<"NO" | "SI">("NO");
-  const [profDeriva, setProfDeriva] = useState("");
-  const [motivoDeriva, setMotivoDeriva] = useState("");
-  const [documentacionPath, setDocumentacionPath] = useState(""); // Path/URL del archivo
-
-  // PLAN
+  // ESTADOS EXCLUSIVOS DEL PLAN DE TRATAMIENTO GENERAL
   const [objetivo, setObjetivo] = useState("");
   const [frecuencia, setFrecuencia] = useState("");
   const [sesiones, setSesiones] = useState(1);
   const [indicacionesPost, setIndicacionesPost] = useState("");
   const [resultadosEsperados, setResultadosEsperados] = useState("");
 
-  // CONSULTA DEL DÍA (DATOS DE PLANTRATAMIENTO)
-  const [motivoHoy, setMotivoHoy] = useState("");
-  const [evolucion, setEvolucion] = useState("");
-  const [examenActual, setExamenActual] = useState("");
-  const [comparacion, setComparacion] = useState("");
-  const [serviciosHoy, setServiciosHoy] = useState<string[]>([]);
-  const toggleServicio = (s: string) =>
-    setServiciosHoy((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
-
-  const [productosHoy, setProductosHoy] = useState<
-    Array<{ producto: string; dosis?: string; aplicacion?: string }>
-  >([]);
-  const [usoAnestesia, setUsoAnestesia] = useState<"NO" | "SI">("NO");
-  const [anestesia, setAnestesia] = useState<
-    Array<{ producto: string; dosis?: string; aplicacion?: string }>
-  >([]);
-  const [tolerancia, setTolerancia] = useState("");
-  const [observaciones, setObservaciones] = useState("");
-  const [indicacionesHoy, setIndicacionesHoy] = useState("");
-  const [medicacionHoy, setMedicacionHoy] = useState("");
-
-  const canSave = (objetivo.trim().length >= 3 || motivoHoy.trim().length >= 3) && !readOnly;
+  const canSave = objetivo.trim().length >= 3 && !readOnly;
 
   // ====== CARGA INICIAL ======
   useEffect(() => {
@@ -384,58 +354,25 @@ export default function Page() {
         setLoading(true);
         setError(null);
 
-        // 1) Cargar Plan y Consulta con la nueva API
+        // La API ahora solo devuelve el plan y el header
         const data = await httpJSON<PlanData>(`/api/historial/plan/${turnoId}`);
         if (!alive) return;
         
-        const { consulta: cons, plan: planData, header: h } = data;
+        const { plan: planData, header: h } = data;
         
         setHeader(h);
 
-        // 2) Prefill de Datos de la Consulta (Tabla Consulta)
-        if (cons) {
-            setTipoConsulta(cons.tipoConsulta ?? "");
-            setDerivado(cons.derivacion ? "SI" : "NO");
-            setProfDeriva(cons.profesionalDeriva ?? "");
-            setMotivoDeriva(cons.motivoDerivacion ?? "");
-            setDocumentacionPath(cons.documentacion ?? "");
-            // Observaciones generales (si planData no tiene motivoConsulta/evolucion)
-            if (!planData?.motivoConsulta) {
-                 setObservaciones(cons.observaciones ?? "");
-            }
-        }
-
-        // 3) Prefill Plan + Campos de Consulta del Día (Tabla PlanTratamiento)
+        // Prefill solo de los campos del Plan de Tratamiento General
         if (planData) {
           setObjetivo(planData.objetivo ?? "");
           setFrecuencia(planData.frecuencia ?? "");
           setSesiones(planData.sesionesTotales ?? 1);
           setIndicacionesPost(planData.indicacionesPost ?? "");
           setResultadosEsperados(planData.resultadosEsperados ?? "");
-
-          // Campos de la Consulta del día
-          setMotivoHoy(planData.motivoConsulta ?? "");
-          setEvolucion(planData.evolucion ?? "");
-          setComparacion(planData.comparacion ?? "");
-
-          // Campos JSON (tratamientos y productos)
-          const tratamientosRealizados = planData.tratamientosRealizados || [];
-          setServiciosHoy(Array.isArray(tratamientosRealizados) ? tratamientosRealizados : []);
-
-          const productosUtilizados = planData.productosUtilizados || [];
-          // El front usa dos estados (productosHoy y anestesia), aquí se simplifica
-          setProductosHoy(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => !p.esAnestesia) : []);
-          setAnestesia(Array.isArray(productosUtilizados) ? productosUtilizados.filter(p => p.esAnestesia) : []);
-
-          setUsoAnestesia(planData.usoAnestesia ? "SI" : "NO");
-          setTolerancia(planData.toleranciaPaciente ?? "");
-          setObservaciones(planData.observaciones ?? "");
-          setIndicacionesHoy(planData.indicacionesPost ?? "");
-          setMedicacionHoy(planData.medicacionPrescrita ?? "");
         }
       } catch (e: any) {
         if (!alive) return;
-        setError(e?.message || "Error al cargar plan");
+        setError(e?.message || "Error al cargar el plan");
       } finally {
         if (alive) setLoading(false);
       }
@@ -445,47 +382,22 @@ export default function Page() {
     };
   }, [turnoId]);
 
-  // ====== Guardar ======
-  async function savePlan(finalizar = false) {
-    if (!canSave || readOnly) return; // sin acción en modo lectura
+  // ====== GUARDAR HISTORIA CLÍNICA Y CONTINUAR ======
+  async function savePlanAndContinue() {
+    if (!canSave || readOnly) return;
     try {
       setSaving(true);
       setError(null);
 
-      // Recopilar todos los productos utilizados (incluyendo anestesia)
-      const todosLosProductos = [
-          ...productosHoy.map(p => ({ ...p, esAnestesia: false })),
-          ...anestesia.map(p => ({ ...p, esAnestesia: true })),
-      ];
-
+      // El payload solo contiene los datos del plan general
       const payload = {
-        derivacion: { // Datos para la tabla Consulta
-            si: derivado === "SI",
-            profesionalDeriva: profDeriva || undefined,
-            motivoDerivacion: motivoDeriva || undefined,
-            documentacion: documentacionPath || undefined,
-            usoAnestesia: usoAnestesia as "NO" | "SI", // Se envía para simplificar la lógica del backend
-        },
-        tipoConsulta: tipoConsulta || undefined, // Nuevo campo
-        plan: { // Datos para la tabla PlanTratamiento (Plan de sesiones)
+        plan: {
           objetivo: objetivo || undefined,
           frecuencia: frecuencia || undefined,
           sesionesTotales: sesiones || undefined,
           indicacionesPost: indicacionesPost || undefined,
           resultadosEsperados: resultadosEsperados || undefined,
         },
-        hoy: { // Datos para la tabla PlanTratamiento (Consulta del día)
-          motivoConsulta: motivoHoy || undefined,
-          evolucion: evolucion || undefined,
-          examenActual: examenActual || undefined, // Este campo NO existe en DB, se podría agregar a observaciones
-          comparacion: comparacion || undefined,
-          serviciosHoy,
-          productosUtilizados: todosLosProductos, // JSON: Incluye productos y anestesia
-          toleranciaPaciente: tolerancia || undefined,
-          observaciones: observaciones || undefined,
-          medicacionHoy: medicacionHoy || undefined,
-        },
-        finalizar,
       };
 
       await httpJSON(`/api/historial/plan/${turnoId}`, {
@@ -494,19 +406,18 @@ export default function Page() {
         body: JSON.stringify(payload),
       });
 
-      if (finalizar) {
-        // Redirigir al historial general de turnos
-        router.push("/turnos/hoy"); 
-      }
+      // Redirigir a la página de consulta del día para completar los detalles de la sesión
+      router.push(`/historial/consulta/${turnoId}/hoy/`);
       
     } catch (e: any) {
-      setError(e?.message || "No se pudo guardar el plan");
+      setError(e?.message || "No se pudo guardar la Historia Clínica");
     } finally {
       setSaving(false);
     }
   }
+
     if (loading) {
-        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan y Consulta...</main>;
+        return <main className="min-h-screen p-8 text-center text-gray-500">Cargando Plan de Tratamiento...</main>;
     }
     if (error && !header) {
         return <main className="min-h-screen p-8 text-center text-red-600">Error Crítico: {error}</main>;
@@ -518,7 +429,7 @@ export default function Page() {
 
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
         <h2 className="text-2xl font-bold text-purple-800 mb-2">
-          Consulta #{Number(turnoId)} — Plan de tratamiento
+          Plan de Tratamiento General
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
@@ -540,103 +451,19 @@ export default function Page() {
         </div>
         {error && <div className="mt-3 text-sm text-red-600">⚠️ {error}</div>}
       </div>
-
-      {/* TIPO DE CONSULTA */}
-      <Section title="Detalles de la Consulta">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SelectField 
-                label="Tipo de Consulta" 
-                value={tipoConsulta} 
-                onChange={setTipoConsulta} 
-                options={TIPOS_CONSULTA} 
-                disabled={readOnly} 
-            />
-        </div>
-      </Section>
-
-      {/* DERIVACIÓN (RESCATADO) */}
-      <Section title="Derivación médica">
-            <div className="flex flex-wrap items-center gap-4 mb-3">
-                <span className="text-sm font-medium text-gray-700">Paciente derivado por profesional</span>
-                {["NO", "SI"].map((o) => (
-                    <label key={o} className="inline-flex items-center gap-2">
-                        <input type="radio" checked={derivado === o} onChange={() => !readOnly && setDerivado(o as any)} disabled={readOnly} />
-                        <span className="text-sm">{o}</span>
-                    </label>
-                ))}
-            </div>
-            {derivado === "SI" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Profesional que deriva (ID o nombre)</label>
-                        <input
-                            value={profDeriva}
-                            onChange={(e) => setProfDeriva(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div className="md:col-span-3">
-                        <label className="text-sm font-medium text-gray-700">Motivo de derivación</label>
-                        <textarea
-                            value={motivoDeriva}
-                            onChange={(e) => setMotivoDeriva(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full min-h-24 px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div className="md:col-span-3">
-                        <label className="text-sm font-medium text-gray-700">Documentación adjunta (URL o Path)</label>
-                        <input
-                            value={documentacionPath}
-                            onChange={(e) => setDocumentacionPath(e.target.value)}
-                            disabled={readOnly}
-                            className="w-full px-3 py-2 border rounded-xl disabled:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-                </div>
-            )}
-        </Section>
       
-      {/* PLAN */}
-      <Section title="Plan de tratamiento">
+      {/* PLAN DE TRATAMIENTO GENERAL */}
+      <Section title="Definición del Plan de Tratamiento General">
         <TextArea label="Objetivo del tratamiento" value={objetivo} onChange={setObjetivo} disabled={readOnly} />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <SelectField label="Frecuencia" value={frecuencia} onChange={setFrecuencia} options={FRECUENCIAS as unknown as string[]} disabled={readOnly} />
           <NumberField label="Número total de sesiones" value={sesiones} onChange={setSesiones} min={1} disabled={readOnly} />
         </div>
-        <TextArea label="Indicaciones post-tratamiento (Plan General)" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
-        <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
-      </Section>
-
-      {/* CONSULTA DEL DÍA */}
-      <Section title="Registro de la Sesión de Hoy">
-        <TextArea label="Motivo de la consulta de hoy" value={motivoHoy} onChange={setMotivoHoy} disabled={readOnly} />
-        <TextArea label="Evolución desde la última consulta" value={evolucion} onChange={setEvolucion} disabled={readOnly} />
-        <TextArea label="Examen físico actual" value={examenActual} onChange={setExamenActual} disabled={readOnly} />
-        <SelectField label="Comparación con consulta anterior" value={comparacion} onChange={setComparacion} options={COMPARACION as unknown as string[]} disabled={readOnly} />
-
-        <div className="mt-4 space-y-4">
-          <ChipsSelect label="Seleccionar servicios realizados hoy" options={[...TRAT_FACIAL, ...TRAT_CORPORAL]} values={serviciosHoy} onToggle={toggleServicio} disabled={readOnly} />
-          <TablaProductos title="Productos utilizados (sin anestesia)" items={productosHoy} setItems={setProductosHoy} readOnly={readOnly} />
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">¿Se usó anestesia?</label>
-            <div className="flex items-center gap-3">
-              {["NO", "SI"].map((o) => (
-                <label key={o} className={`inline-flex items-center gap-2 ${readOnly ? "opacity-60" : ""}`}>
-                  <input type="radio" checked={usoAnestesia === o} onChange={() => !readOnly && setUsoAnestesia(o as any)} disabled={readOnly} />
-                  <span className="text-sm">{o}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          {usoAnestesia === "SI" && (
-            <TablaProductos title="Anestesia — detalle" items={anestesia} setItems={setAnestesia} readOnly={readOnly} />
-          )}
-          <TextArea label="Tolerancia del paciente" value={tolerancia} onChange={setTolerancia} disabled={readOnly} />
-          <TextArea label="Observaciones adicionales de la sesión" value={observaciones} onChange={setObservaciones} disabled={readOnly} />
-          <TextArea label="Indicaciones post-tratamiento (hoy)" value={indicacionesHoy} onChange={setIndicacionesHoy} disabled={readOnly} />
-          <TextArea label="Medicación prescrita (si aplica)" value={medicacionHoy} onChange={setMedicacionHoy} disabled={readOnly} />
+        <div className="mt-4">
+          <TextArea label="Indicaciones post-tratamiento (Generales)" value={indicacionesPost} onChange={setIndicacionesPost} disabled={readOnly} />
+        </div>
+        <div className="mt-4">
+          <TextArea label="Resultados esperados y expectativas" value={resultadosEsperados} onChange={setResultadosEsperados} disabled={readOnly} />
         </div>
       </Section>
 
@@ -649,19 +476,11 @@ export default function Page() {
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => savePlan(false)}
-              disabled={!canSave || saving}
-              className={`px-5 py-2 rounded-xl text-white ${!canSave || saving ? "bg-violet-300 cursor-not-allowed" : "bg-violet-600 hover:bg-violet-700"}`}
-            >
-              {saving ? "Guardando…" : "Guardar borrador"}
-            </button>
-            <button
-              type="button"
-              onClick={() => savePlan(true)}
+              onClick={savePlanAndContinue}
               disabled={!canSave || saving}
               className={`px-5 py-2 rounded-xl text-white ${!canSave || saving ? "bg-emerald-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"}`}
             >
-              {saving ? "Finalizando…" : "Finalizar consulta"}
+              {saving ? "Guardando..." : "Registrar Historia Clínica y Continuar"}
             </button>
           </div>
         )}

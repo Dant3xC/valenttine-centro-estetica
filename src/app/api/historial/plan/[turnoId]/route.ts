@@ -69,21 +69,21 @@ export async function GET(
 
     const { historiaClinicaId, header } = await getTurnoHistoriaAndHeader(turnoId);
 
-    // 3. Buscar el registro de Consulta asociado a este Turno
-    const consulta = await prisma.consulta.findFirst({
-        where: { historiaClinicaId, turnoId },
+    // 3. Buscar el registro historiaClinica asociado a este Turno
+    const historiaClinica = await prisma.historiaClinica.findFirst({
+        where: { id: historiaClinicaId },
         include: { PlanTratamiento: true }
     });
     
     // Si no existe, devolvemos solo el header.
-    if (!consulta) {
+    if (!historiaClinica) {
         return NextResponse.json({ header, consulta: null, plan: null });
     }
 
     return NextResponse.json({
         header,
-        consulta: consulta,
-        plan: consulta.PlanTratamiento,
+        historiaClinica : historiaClinica,
+        plan: historiaClinica.PlanTratamiento,
     });
 
   } catch (err: any) {
@@ -96,7 +96,7 @@ export async function GET(
 }
 
 /**
- * POST: Crea o actualiza la Consulta del día y el Plan de Tratamiento.
+ * POST: Crea o actualiza el Plan de Tratamiento General y crea la primera consulta.
  */
 export async function POST(
     req: Request,
@@ -104,111 +104,55 @@ export async function POST(
 ) {
     try {
         const turnoId = Number(params.turnoId);
-        const { plan, hoy, derivacion, tipoConsulta, finalizar } = await req.json();
+        // El payload ahora solo contiene la información del plan general.
+        const { plan } = await req.json();
+
+        if (!plan) {
+            return NextResponse.json({ error: "Datos del plan requeridos." }, { status: 400 });
+        }
 
         const { historiaClinicaId } = await getTurnoHistoriaAndHeader(turnoId);
 
-        // Los campos Json (tratamientosRealizados, productosUtilizados) se guardarán como JSON
-        const tratamientosJson = hoy.serviciosHoy;
-        const productosJson = hoy.productosUtilizados;
-        const usoAnestesiaBool = derivacion.usoAnestesia === "SI";
-
-        let consultaId: number;
-
-        // 1. CREAR/ACTUALIZAR CONSULTA
-        // Buscamos si ya existe una consulta para este turno para actualizarla (patrón upsert implícito)
-        let consulta = await prisma.consulta.findFirst({
-            where: { historiaClinicaId, turnoId }
-        });
-
-        if (consulta) {
-            // Si ya existe, actualizamos los datos de la consulta de hoy, incluyendo derivación.
-            consulta = await prisma.consulta.update({
-                where: { id: consulta.id },
-                data: {
-                    derivacion: derivacion.si,
-                    profesionalDeriva: derivacion.profesionalDeriva,
-                    motivoDerivacion: derivacion.motivoDerivacion,
-                    documentacion: derivacion.documentacion, // Asumimos que es una URL o path
-                    tipoConsulta: tipoConsulta,
-                    observaciones: hoy.observaciones,
-                }
-            });
-            consultaId = consulta.id;
-        } else {
-            // Si no existe, creamos el registro de la Consulta de hoy.
-            consulta = await prisma.consulta.create({
-                data: {
-                    historiaClinicaId: historiaClinicaId,
-                    turnoId: turnoId, // Enlaza el turno
-                    derivacion: derivacion.si,
-                    profesionalDeriva: derivacion.profesionalDeriva,
-                    motivoDerivacion: derivacion.motivoDerivacion,
-                    documentacion: derivacion.documentacion,
-                    tipoConsulta: tipoConsulta,
-                    observaciones: hoy.observaciones, // Observaciones generales de la consulta
-                }
-            });
-            consultaId = consulta.id;
-        }
-
-
-        // 2. CREAR/ACTUALIZAR PLAN DE TRATAMIENTO (siempre debe existir un Plan asociado a la Consulta)
+        // 1. CREAR/ACTUALIZAR PLAN DE TRATAMIENTO GENERAL
+        // Se asocia directamente con la Historia Clínica, no con la consulta.
         const planActualizado = await prisma.planTratamiento.upsert({
-            where: { consultaId: consultaId }, // Usamos el campo @unique
+            where: { historiaClinicaId: historiaClinicaId },
             update: {
                 objetivo: plan.objetivo,
                 frecuencia: plan.frecuencia,
                 sesionesTotales: plan.sesionesTotales,
                 indicacionesPost: plan.indicacionesPost,
                 resultadosEsperados: plan.resultadosEsperados,
-                
-                // Campos de la Consulta del Día (Guardados en PlanTratamiento por tu schema)
-                motivoConsulta: hoy.motivoConsulta,
-                evolucion: hoy.evolucion,
-                comparacion: hoy.comparacion,
-                tratamientosRealizados: tratamientosJson,
-                productosUtilizados: productosJson,
-                usoAnestesia: usoAnestesiaBool,
-                toleranciaPaciente: hoy.toleranciaPaciente,
-                observaciones: hoy.observaciones, // Sobrescribe si se actualizó antes en Consulta
-                medicacionPrescrita: hoy.medicacionHoy,
             },
             create: {
-                consultaId: consultaId,
+                historiaClinicaId: historiaClinicaId, // Se asigna la HC correcta.
                 objetivo: plan.objetivo,
                 frecuencia: plan.frecuencia,
                 sesionesTotales: plan.sesionesTotales,
                 indicacionesPost: plan.indicacionesPost,
                 resultadosEsperados: plan.resultadosEsperados,
-
-                // Campos de la Consulta del Día
-                motivoConsulta: hoy.motivoConsulta,
-                evolucion: hoy.evolucion,
-                comparacion: hoy.comparacion,
-                tratamientosRealizados: tratamientosJson,
-                productosUtilizados: productosJson,
-                usoAnestesia: usoAnestesiaBool,
-                toleranciaPaciente: hoy.toleranciaPaciente,
-                observaciones: hoy.observaciones,
-                medicacionPrescrita: hoy.medicacionHoy,
             }
         });
 
-        // 3. FINALIZAR TURNO (si se solicitó)
-        if (finalizar) {
-            await prisma.turno.update({
-                where: { id: turnoId },
+        // 2. CREAR EL PRIMER REGISTRO DE CONSULTA (si no existe)
+        // Este registro estará vacío y listo para ser llenado en la siguiente pantalla.
+        const consultaExistente = await prisma.consulta.findFirst({
+            where: { turnoId: turnoId }
+        });
+
+        if (!consultaExistente) {
+            await prisma.consulta.create({
                 data: {
-                    estadoId: ESTADO_TURNO_FINALIZADO_ID // Cambiar el estado a "Atendido"
+                    historiaClinicaId: historiaClinicaId,
+                    turnoId: turnoId,
+                    // El resto de campos se quedan con su valor por defecto
                 }
             });
         }
 
         return NextResponse.json({
-            message: "Plan de Tratamiento y Consulta guardados exitosamente.",
-            consultaId: consultaId,
-            planId: planActualizado.id,
+            message: "Historia Clínica y Plan de Tratamiento guardados exitosamente.",
+            planId: planActualizado.id
         });
 
     } catch (err: any) {

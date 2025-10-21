@@ -212,42 +212,31 @@ interface ProfesionalData {
     }
   }
 
-  // Lógica de ATENDER (Modificada)
+  // Lógica de ATENDER (Refactorizada)
   const onAtender = useCallback(async (turnoId: number) => {
     try {
       setUpdatingId(turnoId)
       
-      // 1. Llamar a la API de validación
+      // 1. Validar si el paciente tiene una historia clínica existente.
       const res = await fetch(`/api/historial/${turnoId}/validarHC`)
       if (!res.ok) throw new Error('Error al validar la historia clínica.')
       
-      const { existeHistoria, pacienteId } = await res.json()
+      const { existeHistoria } = await res.json()
       
       let finalRoute = ''
 
       if (existeHistoria) {
-        // RUTA 1: Si ya existe la Historia Clínica (Continuar Consulta/Plan)
-        finalRoute = `/historial/consulta/${turnoId}/plan/`
-        console.log(`Paciente ${pacienteId} ya tiene historia. Redirigiendo a Plan.`)
-
+        // RUTA 1: Paciente existente -> Redirigir a la consulta del día.
+        finalRoute = `/historial/consulta/${turnoId}/hoy/`
       } else {
-        // RUTA 2: Si NO existe la Historia Clínica (Crear Historia y Anamnesis)
-        console.log(`Paciente ${pacienteId} NO tiene historia. Creando base...`)
-        
-        // Llamar a la API para crear Historia Clínica y Anamnesis base
-        const resCrear = await fetch(`/api/historial/crear-base`, {
+        // RUTA 2: Paciente nuevo -> Iniciar el flujo de creación de historia clínica.
+        // a. Crear la historia clínica base (si aún no se ha hecho).
+        await fetch(`/api/historial/crear-base`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ turnoId }),
         })
-
-        if (!resCrear.ok) throw new Error('Error al crear la Historia Clínica base.')
-
-        // La respuesta de crear-base devuelve la nueva ID
-        const dataCrear = await resCrear.json()
-        
-        // Redirigir a Anamnesis (la ruta para cargar los datos iniciales)
-        // La ruta a Anamnesis usa el turnoId para seguir la lógica del flujo.
+        // b. Redirigir al primer paso del formulario de historia: Anamnesis.
         finalRoute = `/historial/consulta/${turnoId}/anamnesis/`
       }
       
@@ -256,12 +245,11 @@ interface ProfesionalData {
 
     } catch (e: any) {
       console.error('Error en el proceso de atención:', e.message)
-      // En un entorno real, mostrar un toast o modal de error
-      // alert(e.message || 'Ocurrió un error al intentar atender el turno.')
+      // Aquí se podría mostrar un toast o modal de error.
     } finally {
       setUpdatingId(null)
     }
-  }, [router]) // Dependencia router
+  }, [router])
 
 
   // AGREGAMOS ------------------------------------------------------------------------------------- CAMBIO ORDEN

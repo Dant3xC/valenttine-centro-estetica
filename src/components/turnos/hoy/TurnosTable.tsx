@@ -26,7 +26,6 @@ export function TurnosTable({
   onSort?: (key: 'hora' | 'paciente' | 'id' | 'estado') => void
 }) {
 
-
   
 const caret = (k: 'hora' | 'paciente' | 'id' | 'estado') =>
   sort?.key === k ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕';

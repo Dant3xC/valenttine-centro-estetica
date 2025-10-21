@@ -12,7 +12,7 @@ import {
   ProfesionalDto,
 } from '@/lib/profesionales/types'
 
-function buildQS(params: Record<string, any>) {
+function buildQS(params: Record<string, string | number | null | undefined>) {
   const qs = new URLSearchParams()
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && String(v).length) qs.set(k, String(v))
