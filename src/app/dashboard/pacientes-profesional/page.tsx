@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPacientesPorProfesional, listProfesionalesLite, getMiRol } from '@/lib/dashboard/api';
-import type { PacientesProfesionalResponse,  DatosProfesiona } from '@/lib/dashboard/types';
+import type { PacientesProfesionalResponse,  DatosProfesional } from '@/lib/dashboard/types';
 import type { ProfesionalLite } from '@/lib/dashboard/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

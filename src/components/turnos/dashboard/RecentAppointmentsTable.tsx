@@ -6,6 +6,7 @@ import { getDashboard } from "@/lib/turnos/api"
 import type { DashboardResponse } from "@/lib/turnos/types"
 import { useAuth } from "@/hooks/useAuth"
 import type { TurnosFiltersState } from "@/components/turnos/dashboard/TurnosFilters"
+import { useRouter } from "next/navigation"
 
 // 🎨 Chip por estado (coincide con tu tabla EstadoTurno)
 function chip(estado: string) {
@@ -89,6 +90,14 @@ export function RecentAppointmentsTable({ filters, onSelect }: Props) {
   const [info, setInfo] = useState<string | null>(null)
   const { session } = useAuth()
   const isRecepcionista = session?.role === "RECEPCIONISTA"
+  const router = useRouter()
+  // --- AÑADIDO: Estados para manejar el modal ---
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  // Usamos el tipo de un elemento del array 'recientes'
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState<DashboardResponse["recientes"][0] | null>(null)
+
+  // El useEffect para cargar los datos iniciales no necesita cambios...
+  useEffect(() => { /* ... */ }, [])
 
   useEffect(() => {
     ;(async () => {
