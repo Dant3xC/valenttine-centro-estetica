@@ -18,6 +18,11 @@ const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/turnos/hoy': ['MEDICO'], // 
   '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],
+  '/dashboard/rendimiento-profesional': ['GERENTE', 'MEDICO'],
+  '/dashboard/pacientes-profesional': ['GERENTE'],
+  '/dashboard/servicios-populares': ['GERENTE'],
+  '/dashboard/horarios-demanda': ['GERENTE'],
+  '/dashboard/obras-sociales': ['GERENTE'],
   // '/reception': ['RECEPCIONISTA', 'GERENTE'], // cuando exista, lo habilitás
 } as const;
 
@@ -58,6 +63,31 @@ const CARDS: Record<
     title: 'Administración',
     description: 'Parámetros, seguridad y configuración.',
     icon: '⚙️',
+  },
+  '/dashboard/rendimiento-profesional': {
+    title: 'Rendimiento por Profesional',
+    description: 'Evalúa efectividad y tasa de conversión.',
+    icon: '📊',
+  },
+  '/dashboard/pacientes-profesional': {
+    title: 'Pacientes por Profesional',
+    description: 'Distribución de carga de trabajo.',
+    icon: '👥',
+  },
+  '/dashboard/servicios-populares': {
+    title: 'Servicios Populares',
+    description: 'Análisis de servicios más solicitados.',
+    icon: '⭐',
+  },
+  '/dashboard/horarios-demanda': {
+    title: 'Horarios de Demanda',
+    description: 'Análisis de turnos por horario y día.',
+    icon: '🕒',
+  },
+  '/dashboard/obras-sociales': {
+    title: 'Obras Sociales',
+    description: 'Distribución de coberturas médicas.',
+    icon: '🏥',
   },
 };
 
