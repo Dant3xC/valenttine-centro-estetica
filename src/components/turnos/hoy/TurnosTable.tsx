@@ -49,10 +49,10 @@ const caret = (k: 'hora' | 'paciente' | 'id' | 'estado') =>
         <div className="overflow-x-auto">
           <table className="w-full table-fixed">
           <colgroup>
-            <col className="w-2/5" />   {/* Paciente 30% */}
-            <col className="w-1/5" />   {/* Hora ~16.7% */}
-            <col className="w-1/5" />   {/* Estado ~16.7% */}
-            <col className="w-1/5" />   {/* Acciones ~16.7% */}
+            <col className="w-2/5" />  
+            <col className="w-1/5" />  
+            <col className="w-1/5" />   
+            <col className="w-1/5" />  
           </colgroup>
 
             <thead className="bg-gray-50">
