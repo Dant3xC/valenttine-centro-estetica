@@ -13,8 +13,9 @@ const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
   '/turnos/hoy': ['MEDICO'],
   '/historial': ['MEDICO', 'GERENTE'],
-  '/admin': ['GERENTE'],
+  //'/admin': ['GERENTE'],
   '/dashboard/rendimiento-profesional': ['GERENTE', 'MEDICO'],
+  '/dashboard/ausentismo': ['GERENTE', 'RECEPCIONISTA', 'MEDICO'],
   '/dashboard/pacientes-profesional': ['GERENTE'],
   '/dashboard/servicios-populares': ['GERENTE'],
   '/dashboard/horarios-demanda': ['GERENTE'],
@@ -59,41 +60,57 @@ const CARDS: Record<keyof typeof ACL_DASHBOARD, CardInfo> = {
       'Acceso seguro e inmediato al historial médico completo, diagnósticos, tratamientos y evoluciones clínicas de todos los pacientes.',
     image: '/card_historial.png',
   },
-  '/admin': {
+  /*'/admin': {
     title: 'Configuración y Administración',
     description:
       'Métricas clave y resúmenes personalizados que proporcionan una visión estratégica y relevante, alineada con las responsabilidades de su rol.',
     image: '/card_admin.png',
+  },*/
+
+//Modificar a partir de aqui
+
+  '/dashboard/servicios-populares': {
+    title: 'Servicios Populares',
+    description:
+      'Top de prestaciones atendidas con filtros por rango de fechas.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/horarios-demanda': {
+    title: 'Horarios de Mayor Demanda',
+    description:
+      'Ver turnos reservados y confirmados mas demandados por fecha.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/pacientes-profesional': {
+    title: 'Pacientes Atendidos por Profesional',
+    description:
+      'Mide pacientes únicos y atenciones.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/obras-sociales': {
+    title: 'Obras Sociales más Utilizadas',
+    description:
+      'Conteo de Atendidos por obra social (incluye Particular si aplica).',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+
+  },
+  '/dashboard/ausentismo': {
+    title: 'Tasa de Ausentismo (No-Show)',
+    description:
+      'Ausente/Reservados (dentro de un determinado período).',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
   },
   '/dashboard/rendimiento-profesional': {
     title: 'Rendimiento por Profesional',
     description:
-      'Módulo de control para la gestión de parámetros del sistema, administración de usuarios, roles y ajustes de seguridad de la plataforma.',
-    icon: '📊',
-  },
-  '/dashboard/pacientes-profesional': {
-    title: 'Pacientes por Profesional',
-    description:
-      'Distribución de carga de trabajo.',
-    icon: '👥',
-  },
-  '/dashboard/servicios-populares': {
-    title: 'Servicios Populares',
-    description:
-      'Análisis de servicios más solicitados.',
-    icon: '⭐',
-  },
-  '/dashboard/horarios-demanda': {
-    title: 'Horarios de Demanda',
-    description:
-      'Análisis de turnos por día y hora.',
-    icon: '🕒',
-  },
-  '/dashboard/obras-sociales': {
-    title: 'Obras Sociales',
-    description:
-      'Distribución de coberturas médicas.',
-    icon: '🏥',
+      'Evalúa efectividad y toma decisiones operativas.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
   },
 };
 

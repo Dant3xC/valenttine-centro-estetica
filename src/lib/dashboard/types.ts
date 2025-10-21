@@ -97,3 +97,33 @@ export interface RendimientoProfesionalResponse {
   kpis: KPIRendimientoProfesional;
   datosProfesionales: DatosRendimientoProfesional[];
 }
+
+// ===== Ausentismo =====
+export interface DatosAusentismoProfesional {
+  profesionalId: number;
+  nombre: string;
+  apellido: string;
+  ausentes: number;
+  reservados: number;
+  porcentajeAusentismo: number; // 0..100
+}
+
+export interface TendenciaAusentismo {
+  fecha: string; // YYYY-MM-DD
+  ausentes: number;
+  reservados: number;
+  porcentajeAusentismo: number; // 0..100
+}
+
+export interface KPIAusentismo {
+  porcentajeAusentismo: number; // 0..100
+  totalAusentes: number;
+  totalReservados: number;
+}
+
+export interface AusentismoResponse {
+  kpis: KPIAusentismo;
+  datosProfesionales: DatosAusentismoProfesional[];
+  tendencia: TendenciaAusentismo[];
+  promedioGeneral?: number; // 0..100, solo para vista profesional
+}
