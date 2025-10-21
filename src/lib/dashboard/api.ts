@@ -2,7 +2,9 @@ import type {
     ServiciosPopularesResponse,
     HorariosDemandaResponse,
     PacientesProfesionalResponse,
-    ObrasSocialesResponse
+    ObrasSocialesResponse,
+    RendimientoProfesionalResponse,
+    AusentismoResponse
 } from "./types";
 
 // Helpers
@@ -89,4 +91,27 @@ export async function getObrasSociales(params: {
     const r = await fetch(`/api/dashboard/obras-sociales?${sp.toString()}`, { cache: "no-store" });
     if (!r.ok) throw new Error((await r.json().catch(() => null))?.error ?? `HTTP ${r.status}`);
     return r.json() as Promise<ObrasSocialesResponse>;
+}
+
+// ==== Rendimiento por Profesional ====
+export async function getRendimientoProfesional(params: {
+    fechaDesde: string; // YYYY-MM-DD
+    fechaHasta: string; // YYYY-MM-DD
+}): Promise<RendimientoProfesionalResponse> {
+    const qs = toQuery(params);
+    const r = await fetch(`/api/dashboard/rendimiento-profesional?${qs}`, { cache: "no-store" });
+    if (!r.ok) throw new Error((await r.json().catch(() => null))?.error ?? `HTTP ${r.status}`);
+    return r.json() as Promise<RendimientoProfesionalResponse>;
+}
+
+// ==== Ausentismo (No-Show Rate) ====
+export async function getAusentismo(params: {
+    fechaDesde: string; // YYYY-MM-DD
+    fechaHasta: string; // YYYY-MM-DD
+    profesionalId?: number;
+}): Promise<AusentismoResponse> {
+    const qs = toQuery(params);
+    const r = await fetch(`/api/dashboard/no-show-rate?${qs}`, { cache: "no-store" });
+    if (!r.ok) throw new Error((await r.json().catch(() => null))?.error ?? `HTTP ${r.status}`);
+    return r.json() as Promise<AusentismoResponse>;
 }
