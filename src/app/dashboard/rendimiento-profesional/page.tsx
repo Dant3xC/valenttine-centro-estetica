@@ -183,7 +183,7 @@ export default function PageRendimientoProfesional() {
                         {loading ? <Skeleton className="h-10 w-24" /> : (
                             <p className="text-3xl font-semibold text-neutral-900">{data?.kpis.totalAusentes ?? 0}</p>
                         )}
-                        <p className="text-sm text-neutral-500 mt-1">Solo referencia</p>
+                        <p className="text-sm text-neutral-500 mt-1"></p>
                     </Card>
                 </div>
 

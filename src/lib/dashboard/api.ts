@@ -3,7 +3,8 @@ import type {
     HorariosDemandaResponse,
     PacientesProfesionalResponse,
     ObrasSocialesResponse,
-    RendimientoProfesionalResponse
+    RendimientoProfesionalResponse,
+    AusentismoResponse
 } from "./types";
 
 // Helpers
@@ -98,4 +99,16 @@ export async function getRendimientoProfesional(params: {
     const r = await fetch(`/api/dashboard/rendimiento-profesional?${qs}`, { cache: "no-store" });
     if (!r.ok) throw new Error((await r.json().catch(() => null))?.error ?? `HTTP ${r.status}`);
     return r.json() as Promise<RendimientoProfesionalResponse>;
+}
+
+// ==== Ausentismo (No-Show Rate) ====
+export async function getAusentismo(params: {
+    fechaDesde: string; // YYYY-MM-DD
+    fechaHasta: string; // YYYY-MM-DD
+    profesionalId?: number;
+}): Promise<AusentismoResponse> {
+    const qs = toQuery(params);
+    const r = await fetch(`/api/dashboard/no-show-rate?${qs}`, { cache: "no-store" });
+    if (!r.ok) throw new Error((await r.json().catch(() => null))?.error ?? `HTTP ${r.status}`);
+    return r.json() as Promise<AusentismoResponse>;
 }

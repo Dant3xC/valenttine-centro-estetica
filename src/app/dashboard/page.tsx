@@ -15,6 +15,7 @@ const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/historial': ['MEDICO', 'GERENTE'],
   '/admin': ['GERENTE'],
   '/dashboard/rendimiento-profesional': ['GERENTE', 'MEDICO'],
+  '/dashboard/ausentismo': ['GERENTE', 'RECEPCIONISTA', 'MEDICO'],
   '/dashboard/pacientes-profesional': ['GERENTE'],
   '/dashboard/servicios-populares': ['GERENTE'],
   '/dashboard/horarios-demanda': ['GERENTE'],
@@ -65,35 +66,45 @@ const CARDS: Record<keyof typeof ACL_DASHBOARD, CardInfo> = {
       'Métricas clave y resúmenes personalizados que proporcionan una visión estratégica y relevante, alineada con las responsabilidades de su rol.',
     image: '/card_admin.png',
   },
-  '/dashboard/rendimiento-profesional': {
-    title: 'Rendimiento por Profesional',
-    description:
-      'Módulo de control para la gestión de parámetros del sistema, administración de usuarios, roles y ajustes de seguridad de la plataforma.',
-    icon: '📊',
-  },
-  '/dashboard/pacientes-profesional': {
-    title: 'Pacientes por Profesional',
-    description:
-      'Distribución de carga de trabajo.',
-    icon: '👥',
-  },
+
+//Modificar a partir de aqui
+
   '/dashboard/servicios-populares': {
     title: 'Servicios Populares',
     description:
-      'Análisis de servicios más solicitados.',
-    icon: '⭐',
+      'Top de prestaciones atendidas (Estado: Atendido) con filtros por rango de fechas (presets y personalizado) y, para Gerente/Recepción, por profesional. KPIs: total atendidos, servicio más solicitado y diversidad. Gráficas: barras Top N y torta de participación, con tooltip (Servicio, Cantidad, %). Auto-refresh 60s y botón Actualizar. Mensajes de “Sin datos” y “Error” incluidos.',
+    // Reemplazá por tu URL de Cloudinary
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
   },
   '/dashboard/horarios-demanda': {
-    title: 'Horarios de Demanda',
+    title: 'Horarios de Mayor Demanda',
     description:
-      'Análisis de turnos por día y hora.',
-    icon: '🕒',
+      'Demanda = turnos (Reservado/Confirmado/En consulta/Atendido) dentro del rango. Respeta disponibilidad real de agenda. Filtros: fechas (presets y personalizado) y profesional (solo Gerente/Recepción). KPIs: franja más demandada, demanda total, ocupación promedio (si hay slots). Gráficas: heatmap Hora×Día y barras por hora (promedio). Auto-refresh 60s.',
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+  },
+  '/dashboard/pacientes-profesional': {
+    title: 'Pacientes Atendidos por Profesional',
+    description:
+      'Mide pacientes únicos y atenciones (Atendido). Filtros: fechas (presets y personalizado) y profesional (solo Gerente/Recepción). KPIs: únicos totales, atenciones totales, promedio únicos/profesional. Gráfica principal: barras por profesional (toggle para ver Atenciones). Respeta visibilidad: el Profesional solo ve lo propio. Auto-refresh 60s.',
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
   },
   '/dashboard/obras-sociales': {
-    title: 'Obras Sociales',
+    title: 'Obras Sociales más Utilizadas',
     description:
-      'Distribución de coberturas médicas.',
-    icon: '🏥',
+      'Conteo de Atendidos por obra social (incluye Particular si aplica). Filtros: fechas (presets/personalizado) y profesional (solo Gerente/Recepción). KPIs: obra más utilizada (nombre, cantidad, %), total atendidos con obra y diversidad de obras. Gráficas: barras Top N y torta de participación (con “Otras” si excede N). Auto-refresh 60s.',
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+  },
+  '/dashboard/ausentismo': {
+    title: 'Tasa de Ausentismo (No-Show)',
+    description:
+      'Ausente/Reservados (dentro del período). Filtros: fechas (presets/personalizado) y profesional (solo Gerente/Recepción). KPIs: % de ausentismo (2 decimales), Ausentes y Reservados. Visualizaciones: barras por profesional (tooltip con %/Ausentes/Reservados) y tendencia temporal % por día/semana. Auto-refresh 60s y tabla opcional.',
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+  },
+  '/dashboard/rendimiento-profesional': {
+    title: 'Rendimiento por Profesional',
+    description:
+      'KPI principal: Conversión = Atendidos / (Atendidos + Cancelados). Filtros: fechas (presets y personalizado). KPIs: conversión, Atendidos y Cancelados (Ausentes opcional como referencia). Gráficas: barras de conversión por profesional (orden desc.) y barras apiladas por resultados (Atendidos/Cancelados[/Ausentes]). Auto-refresh 60s.',
+    image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
   },
 };
 
