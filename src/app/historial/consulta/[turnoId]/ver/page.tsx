@@ -144,7 +144,7 @@ export default function Page() {
         <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
             <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
                 <h2 className="text-2xl font-bold text-purple-800 mb-2">
-                    Detalle de Consulta #{header.id}
+                    Detalle de turno
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
                     <div><strong>Paciente:</strong> {header.paciente.nombre} {header.paciente.apellido} · DNI {header.paciente.dni}</div>

@@ -204,7 +204,7 @@ export default function Page() {
                             <table className="w-full">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <TH>ID Paciente</TH> {/* CAMBIADO: Mostramos ID Paciente */}
+                                        
                                         <TH>Paciente</TH>
                                         <TH>DNI</TH>
                                         <TH>Fecha de registro HC</TH>
@@ -215,7 +215,7 @@ export default function Page() {
                                     {currentItems.map((it, i) => (
                                         // Usamos it.paciente.id para la navegación, ya que la API espera el pacienteId
                                         <tr key={it.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                            <TD className="font-semibold text-purple-800">{`PAC-${it.paciente.id}`}</TD> 
+                                            
                                             <TD><div className="font-medium text-gray-900">{it.paciente.nombre} {it.paciente.apellido}</div></TD>
                                             <TD className="font-semibold text-gray-900">{it.paciente.dni}</TD>
                                             <TD className="text-gray-700">{it.fecha}</TD>
