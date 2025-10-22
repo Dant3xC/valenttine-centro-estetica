@@ -1,63 +1,116 @@
-// src/app/dashboard/page.tsx
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 type RoleKey = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE';
 
-/**
- * ACL de accesos rápidos del Dashboard (coherente con middleware y Sidebar).
- * Claves = rutas base existentes en tu app.
- */
 const ACL_DASHBOARD: Record<string, RoleKey[]> = {
   '/Pacientes': ['RECEPCIONISTA', 'GERENTE'],
   '/profesionales': ['GERENTE'],
   '/turnos': ['RECEPCIONISTA', 'GERENTE'],
-  '/turnos/hoy': ['MEDICO'], // 
+  '/turnos/hoy': ['MEDICO'],
   '/historial': ['MEDICO', 'GERENTE'],
-  '/admin': ['GERENTE'],
-  // '/reception': ['RECEPCIONISTA', 'GERENTE'], // cuando exista, lo habilitás
+  //'/admin': ['GERENTE'],
+  '/dashboard/rendimiento-profesional': ['GERENTE', 'MEDICO'],
+  '/dashboard/ausentismo': ['GERENTE', 'RECEPCIONISTA', 'MEDICO'],
+  '/dashboard/pacientes-profesional': ['GERENTE'],
+  '/dashboard/servicios-populares': ['GERENTE'],
+  '/dashboard/horarios-demanda': ['GERENTE'],
+  '/dashboard/obras-sociales': ['GERENTE'],
 } as const;
 
-/**
- * Contenido de las tarjetas por ruta. Podés ajustar títulos/descripciones/íconos a gusto.
- */
-const CARDS: Record<
-  keyof typeof ACL_DASHBOARD,
-  { title: string; description: string; icon: string }
-> = {
+type CardInfo = {
+  title: string;
+  description: string;
+  image?: string; // opcional: si existe, mostramos <Image>; si no, mostramos icono
+  icon?: string;  // fallback a emoji/icono
+};
+
+const CARDS: Record<keyof typeof ACL_DASHBOARD, CardInfo> = {
   '/Pacientes': {
-    title: 'Pacientes',
-    description: 'Registrar, editar y consultar pacientes.',
-    icon: '👥',
+    title: 'Gestión de Pacientes',
+    description:
+      'Plataforma centralizada para el registro, edición y consulta detallada de la información demográfica y administrativa de cada paciente.',
+    image: '/card_paciente.png',
   },
   '/profesionales': {
-    title: 'Profesionales',
-    description: 'Listado y gestión del staff médico.',
-    icon: '👨‍⚕️',
+    title: 'Administración de Profesionales',
+    description:
+      'Control integral del personal médico: listado, gestión de credenciales y administración de la información de todo el staff asistencial.',
+    image: '/card_medico.png',
   },
   '/turnos': {
-    title: 'Turnos',
-    description: 'Programá y administrá citas rápidamente.',
-    icon: '📅',
+    title: 'Programación de Turnos',
+    description:
+      'Herramienta avanzada para la programación eficiente, administración y modificación de todos los turnos y horarios del centro médico.',
+    image: '/card_turno.png',
   },
-    '/turnos/hoy': {
-    title: 'Turnos del Día',
-    description: 'Consultá y gestioná los turnos de hoy.',
-    icon: '🕒',
+  '/turnos/hoy': {
+    title: 'Agenda Diaria Ejecutiva',
+    description:
+      'Visibilidad inmediata y gestión dinámica de la agenda de turnos programados para el día en curso, optimizando la operación diaria.',
+    image: '/card_reloj_turnos.png',
   },
-
   '/historial': {
-    title: 'Historia Clínica',
-    description: 'Acceso a historias clínicas y evoluciones.',
-    icon: '📋',
+    title: 'Historias Clínicas Digitales',
+    description:
+      'Acceso seguro e inmediato al historial médico completo, diagnósticos, tratamientos y evoluciones clínicas de todos los pacientes.',
+    image: '/card_historial.png',
   },
-  '/admin': {
-    title: 'Administración',
-    description: 'Parámetros, seguridad y configuración.',
-    icon: '⚙️',
+  /*'/admin': {
+    title: 'Configuración y Administración',
+    description:
+      'Métricas clave y resúmenes personalizados que proporcionan una visión estratégica y relevante, alineada con las responsabilidades de su rol.',
+    image: '/card_admin.png',
+  },*/
+
+//Modificar a partir de aqui
+
+  '/dashboard/servicios-populares': {
+    title: 'Servicios Populares',
+    description:
+      'Top de prestaciones atendidas con filtros por rango de fechas.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/horarios-demanda': {
+    title: 'Horarios de Mayor Demanda',
+    description:
+      'Ver turnos reservados y confirmados mas demandados por fecha.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/pacientes-profesional': {
+    title: 'Pacientes Atendidos por Profesional',
+    description:
+      'Mide pacientes únicos y atenciones.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/obras-sociales': {
+    title: 'Obras Sociales más Utilizadas',
+    description:
+      'Conteo de Atendidos por obra social (incluye Particular si aplica).',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+
+  },
+  '/dashboard/ausentismo': {
+    title: 'Tasa de Ausentismo (No-Show)',
+    description:
+      'Ausente/Reservados (dentro de un determinado período).',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
+  },
+  '/dashboard/rendimiento-profesional': {
+    title: 'Rendimiento por Profesional',
+    description:
+      'Evalúa efectividad y toma decisiones operativas.',
+    //image: 'https://res.cloudinary.com/dqulznz36/image/upload/v1760459152/samples/logo.png',
+    icon: '📈',
   },
 };
 
@@ -72,7 +125,6 @@ function normalizeRole(input?: string | null): RoleKey | null {
 export default function DashboardHome() {
   const { session } = useAuth();
   const role = normalizeRole(session?.role);
-  console.log("Sesión actual:", session);
 
   const quickAccess = useMemo(() => {
     if (!role) return [];
@@ -83,44 +135,51 @@ export default function DashboardHome() {
   }, [role]);
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Bienvenido al sistema de gestión médica
+    <div className="min-h-screen bg-white flex flex-col items-start py-12 px-4">
+      <div className="mb-10">
+        <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight">
+          <span className="bg-gradient-to-r from-[#9929EA] to-[#D78FEE] bg-clip-text text-transparent">
+            Bienvenido al sistema de gestión médica
+          </span>
         </h2>
-        <p className="text-gray-600">
-          Aqui encuentra un acceso rapido a las paginas que quiera ir
+
+        <p className="mt-2 text-lg sm:text-xl font-medium leading-snug">
+          <span className="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 bg-clip-text text-transparent">
+            Aquí encontrás accesos rápidos según tu rol.
+          </span>
         </p>
       </div>
 
-      {/* Accesos rápidos por rol */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
         {quickAccess.map((card) => {
-          // tarjeta del calendario del médico, personalizamos el link
-          let href = card.href;
-
-          if (card.href === '/turnos/calendario' && session?.role === 'MEDICO') {
-            // 🔹 Redirigimos al calendario general de turnos
-            href = '/turnos';
-          } else if (card.href === '/turnos/calendario' && session?.id) {
-            // (fallback por si se necesita más adelante)
-            href = `/turnos/calendario/${session.id}`;
-          }
-
-          console.log("Card:", card.href, "→ href final:", href);
+          const href = card.href;
 
           return (
             <Link
-              key={card.href}
+              key={href}
               href={href}
               aria-label={`Ir a ${card.title}`}
-              className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60"
+              className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 duration-300 flex flex-col items-center text-center border border-gray-200"
             >
-              <div className="text-3xl mb-4">{card.icon}</div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-purple-700">
+              <div className="mb-4 h-[120px] flex items-center justify-center">
+                {card.image ? (
+                  <Image
+                    src={card.image}
+                    alt={card.title}
+                    width={120}
+                    height={120}
+                    className="mx-auto"
+                  />
+                ) : (
+                  <div className="text-4xl" aria-hidden>
+                    {card.icon ?? '📌'}
+                  </div>
+                )}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 group-hover:text-pink-700">
                 {card.title}
               </h3>
-              <p className="text-gray-600 text-sm">{card.description}</p>
+              <p className="text-gray-600 text-sm mt-1">{card.description}</p>
             </Link>
           );
         })}

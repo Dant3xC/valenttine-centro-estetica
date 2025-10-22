@@ -46,8 +46,8 @@ export function Header({ subtitle = '' }: Props) {
           {/* DERECHA: Usuario + cerrar sesión */}
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="font-medium text-gray-800">{session?.name}</p>
-              <p className="text-sm text-gray-600">{session?.role}</p>
+              <p className="font-medium text-gray-800">{session?.role}</p>
+              <p className="text-sm text-gray-600">{session?.name}</p>
             </div>
             <button
               onClick={() => setOpen(true)}

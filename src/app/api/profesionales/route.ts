@@ -26,6 +26,24 @@ export async function GET(req: NextRequest) {
 
     if (dni) where.dni = dni;
 
+    if (url.searchParams.get('lite') === '1') {
+      try {
+        const data = await prisma.profesional.findMany({
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            especialidad: true,
+          },
+          orderBy: [{ apellido: 'asc' }, { nombre: 'asc' }],
+        });
+        return NextResponse.json(data);
+      } catch (e) {
+        console.error('[GET /api/profesionales?lite=1]', e);
+        return NextResponse.json({ error: 'Error al listar profesionales (lite)' }, { status: 500 });
+      }
+    }
+    
     if (nombre) {
       const tokens = nombre.split(/\s+/).filter(Boolean);
       where.AND = (where.AND ?? []).concat(

@@ -13,6 +13,8 @@ export function TurnosTable({
   updatingId,
   onChangeEstado,
   onAtender,
+  sort,
+  onSort,
 }: {
   rows: Row[]
   loading: boolean
@@ -20,37 +22,13 @@ export function TurnosTable({
   updatingId: number | null
   onChangeEstado: (id: number, nuevo: EstadoBD) => void
   onAtender: (id: number) => void
+  sort?: { key: 'hora' | 'paciente' | 'id' | 'estado'; dir: 'asc' | 'desc' }
+  onSort?: (key: 'hora' | 'paciente' | 'id' | 'estado') => void
 }) {
-  const toMinutes = (t?: string) => {
-    if (!t) return NaN
-    const [hStr, mStr] = t.split(':')
-    const h = Number(hStr)
-    const m = Number(mStr)
-    if (Number.isNaN(h) || Number.isNaN(m)) return NaN
-    return h * 60 + m
-  }
 
-// Orden: hora ASC (más temprano primero). Si hay empate o hora inválida, usa ID ASC como desempate.
-const sortedRows = useMemo(() => {
-  return [...rows].sort((a, b) => {
-    const A = toMinutes(a.hora)
-    const B = toMinutes(b.hora)
-
-    const aValid = !Number.isNaN(A)
-    const bValid = !Number.isNaN(B)
-
-    if (aValid && bValid) {
-      const byTime = A - B // ASC
-      if (byTime !== 0) return byTime
-    } else if (aValid && !bValid) {
-      return -1 // válidos primero
-    } else if (!aValid && bValid) {
-      return 1
-    }
-    // Desempate por ID ASC
-    return a.id - b.id
-  })
-}, [rows])
+  
+const caret = (k: 'hora' | 'paciente' | 'id' | 'estado') =>
+  sort?.key === k ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕';
 
 
   return (
@@ -63,26 +41,76 @@ const sortedRows = useMemo(() => {
         <div className="p-6 text-sm text-gray-500">Cargando…</div>
       ) : error ? (
         <div className="p-6 text-sm text-red-600">{error}</div>
-      ) : sortedRows.length === 0 ? (
+      ) : rows.length === 0 ? (  
         <div className="p-10 text-center text-gray-500 italic">
           No tenés turnos asignados para hoy.
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+          <colgroup>
+            <col className="w-2/5" />  
+            <col className="w-1/5" />  
+            <col className="w-1/5" />   
+            <col className="w-1/5" />  
+          </colgroup>
+
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">ID Turno</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">Paciente</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">Hora</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">Estado</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-purple-800">Acciones</th>
+                {/* Paciente (ordenable) */}
+                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
+                  <button
+                    type="button"
+                    onClick={() => onSort?.('paciente')}
+                    className="inline-flex items-center gap-1 group"
+                    aria-sort={
+                      sort?.key === 'paciente'
+                        ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
+                        : 'none'
+                    }
+                  >
+                    Paciente
+                    <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
+                      {sort?.key === 'paciente' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </button>
+                </th>
+
+                {/* Hora (ordenable) */}
+                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
+                  <button
+                    type="button"
+                    onClick={() => onSort?.('hora')}
+                    className="inline-flex items-center gap-1 group"
+                    aria-sort={
+                      sort?.key === 'hora'
+                        ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
+                        : 'none'
+                    }
+                  >
+                    Hora
+                    <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
+                      {sort?.key === 'hora' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </button>
+                </th>
+
+                {/* Estado (NO ordenable) */}
+                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
+                  Estado
+                </th>
+
+                {/* Acciones (NO ordenable) */}
+                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
+                  Acciones
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              {sortedRows.map((r, i) => (
+              {rows.map((r, i) => (    
                 <tr key={r.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 font-semibold text-purple-800">{r.id}</td>
+                  
                   <td className="px-6 py-4">
                     <div className="font-medium text-gray-900">{r.paciente}</div>
                   </td>

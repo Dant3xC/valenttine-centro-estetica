@@ -4,12 +4,13 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
-
 import { DashboardHeader } from "@/components/turnos/dashboard/DashboardHeader"
 import { StatsGrid } from "@/components/turnos/dashboard/StatsGrid"
 import { RecentAppointmentsTable } from "@/components/turnos/dashboard/RecentAppointmentsTable"
 import { TurnosFilters, TurnosFiltersState } from "@/components/turnos/dashboard/TurnosFilters"
 import type { DashboardResponse } from "@/lib/turnos/types"
+import { Row } from "@/components/turnos/hoy/types"
+
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers locales
@@ -43,7 +44,48 @@ const validarMotivo = (s: string) => /^[\p{L}\p{N}\p{P}\p{Zs}]{10,200}$/u.test(s
 export default function TurnosDashboard() {
   const router = useRouter()
   const { session } = useAuth()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState<Row | null>(null); // Usamos el tipo Row que ya tienes
 
+  
+  const handleOpenModal = (turno: Row) => {
+    setTurnoSeleccionado(turno); // Guardamos el turno seleccionado
+    setIsModalOpen(true);      // Abrimos el modal
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);       // Cerramos el modal
+    setTurnoSeleccionado(null);  // Limpiamos la selección
+  };
+
+  // 🔸 “Marcar como Ausente”
+  const handleMarcarAusente = async (turnoId: number) => {
+  try {
+    const res = await fetch(`/api/turnos/${turnoId}/estado`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado: 'Ausente' }),
+    });
+
+    if (!res.ok) {
+      throw new Error('No se pudo actualizar el estado a "Ausente"');
+    }
+
+    // Para actualizar la UI, necesitarás acceso a la función que
+    // modifica el estado de la tabla (probablemente se llame 'setRows' o similar
+    // y esté dentro de <RecentAppointmentsTable />).
+    // Por ahora, recargaremos los datos para ver el cambio.
+    // Más adelante podemos refinar esto para que sea instantáneo.
+    router.refresh(); 
+
+    // Aquí deberías llamar a la función que cierra el modal
+    // onCloseModal(); 
+
+  } catch (error) {
+    console.error(error);
+    alert('Hubo un error al marcar el turno como ausente.');
+  }
+};
   // 🔸 “Ver Calendario”
   async function handleCalendarClick() {
     if (session?.role === "MEDICO") {
@@ -255,6 +297,13 @@ export default function TurnosDashboard() {
                   title={puedeCancelar(selected) ? "Cancelar turno" : "Solo turnos Reservados con ≥ 48h de anticipación"}
                 >
                   Cancelar turno
+                </button>
+
+                <button
+                  onClick={() => handleMarcarAusente(turnoSeleccionado!.id)}
+                  className="px-4 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-sm transition-all duration-200"
+                >
+                  Marcar como Ausente
                 </button>
 
                 <button

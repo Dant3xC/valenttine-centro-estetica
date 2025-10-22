@@ -14,6 +14,29 @@ function parseISODateOnly(s?: string | null) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+// ... (justo después de tus imports y antes de 'export async function GET...')
+
+function calculateAge(dob: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Definimos el orden y los nombres de las bandas
+const AGE_BANDS_ORDER = ['0-18', '19-30', '31-45', '46-60', '60+'];
+
+function getAgeBand(age: number): string {
+  if (age <= 18) return '0-18';
+  if (age <= 30 && age > 18) return '19-30';
+  if (age <= 45 && age > 30) return '31-45';
+  if (age <= 60 && age > 45) return '46-60';
+  return '60+';
+}
+
 export async function GET(req: NextRequest) {
   try {
     // ===== Auth
@@ -35,6 +58,11 @@ export async function GET(req: NextRequest) {
     const fechaDesdeStr = searchParams.get("fechaDesde");
     const fechaHastaStr = searchParams.get("fechaHasta");
     const profesionalIdStr = searchParams.get("profesionalId");
+
+    // 👇 --- AÑADE ESTAS 3 LÍNEAS ---
+    console.log("--- DEBUG: PARÁMETROS DE FECHA RECIBIDOS ---");
+    console.log("fechaDesdeStr:", fechaDesdeStr);
+    console.log("fechaHastaStr:", fechaHastaStr);
 
     const fechaDesde = parseISODateOnly(fechaDesdeStr);
     const fechaHasta = parseISODateOnly(fechaHastaStr);
@@ -87,6 +115,99 @@ export async function GET(req: NextRequest) {
     });
     const pacientesUnicosByProf = new Map<number, number>();
     const pacientesGlobal = new Set<number>();
+    
+    // ... (Tu código existente hasta la línea 100)
+    for (const r of distinctPairs) {
+      pacientesUnicosByProf.set(r.profesionalId, (pacientesUnicosByProf.get(r.profesionalId) ?? 0) + 1);
+      pacientesGlobal.add(r.pacienteId);
+    }
+    
+    //  --- INICIO DE LA NUEVA LÓGICA DE DEMOGRAFÍA ---
+
+    // 1. Convertimos el Set de pacientes a un Array para usarlo en Prisma
+    const pacientesUnicosIds = Array.from(pacientesGlobal);
+
+    // 2. Consultamos la tabla Genero para tener los nombres (ej: "Femenino", "Masculino")
+    const generosDB = await prisma.genero.findMany({
+      select: { id: true, nombre: true }
+    });
+    // Creamos un "mapa" para buscar nombres por ID fácilmente
+    const generosMap = new Map(generosDB.map(g => [g.id, g.nombre]));
+
+    // 3. Contamos cuántos pacientes hay de cada género
+    const generosCountRaw = await prisma.paciente.groupBy({
+      by: ['generoId'],
+      where: {
+        id: { in: pacientesUnicosIds.length ? pacientesUnicosIds : [-1] } // Usamos la lista de pacientes únicos
+      },
+      _count: { _all: true },
+    });
+
+    // 4. Formateamos los datos para el gráfico de torta
+    const data_porGenero = generosCountRaw.map(g => ({
+      nombre: generosMap.get(g.generoId) ?? 'No especificado',
+      valor: g._count._all
+    }));
+
+    // 5. Calculamos el KPI de género predominante
+    const kpi_genero = data_porGenero.length > 0 
+      ? data_porGenero.sort((a, b) => b.valor - a.valor)[0].nombre 
+      : 'N/D';
+
+    //  --- FIN DE LA LÓGICA DE GÉNERO ---
+
+    //  --- INICIO DE LA LÓGICA DE EDAD (NUEVO) ---
+
+    // 6. Consultamos las fechas de nacimiento y género de esos pacientes
+    const pacientesParaEdad = await prisma.paciente.findMany({
+      where: {
+        id: { in: pacientesUnicosIds.length ? pacientesUnicosIds : [-1] }
+      },
+      select: { fechaNacimiento: true, generoId: true }
+    });
+
+    // 7. Inicializamos las estructuras de datos para las bandas
+    const bandsMap = new Map<string, { femenino: number, masculino: number, otro: number }>();
+    for (const band of AGE_BANDS_ORDER) {
+      bandsMap.set(band, { femenino: 0, masculino: 0, otro: 0 });
+    }
+    
+    let totalAgeSum = 0;
+
+    // 8. Procesamos cada paciente para calcular edad y banda
+    for (const p of pacientesParaEdad) {
+      if (!p.fechaNacimiento) continue; // Salta si no tiene fecha de nacimiento
+
+      const age = calculateAge(p.fechaNacimiento);
+      totalAgeSum += age;
+
+      const band = getAgeBand(age);
+      // Usamos el 'generosMap' que creamos en el paso anterior
+      const genderName = (generosMap.get(p.generoId) ?? 'Otro').toLowerCase();
+      
+      const bandData = bandsMap.get(band);
+      if (bandData) {
+        if (genderName === 'femenino') bandData.femenino++;
+        else if (genderName === 'masculino') bandData.masculino++;
+        else bandData.otro++;
+      }
+    }
+
+    // 9. Calculamos el KPI de edad promedio
+    const kpi_edad = pacientesParaEdad.length > 0 
+      ? Math.round(totalAgeSum / pacientesParaEdad.length) 
+      : 0;
+
+    // 10. Formateamos los datos para el gráfico de barras apiladas
+    const data_porBandaEtaria = Array.from(bandsMap.entries()).map(([banda, counts]) => ({
+      banda,
+      ...counts
+    }));
+
+    //  --- FIN DE LA LÓGICA DE EDAD ---
+
+    // ...
+    
     for (const r of distinctPairs) {
       pacientesUnicosByProf.set(r.profesionalId, (pacientesUnicosByProf.get(r.profesionalId) ?? 0) + 1);
       pacientesGlobal.add(r.pacienteId);
@@ -128,8 +249,15 @@ export async function GET(req: NextRequest) {
         pacientesAtendidos,
         atenciones: totalAtenciones,
         promedioPacientesProfesional,
+        generoPredominante: kpi_genero, 
+        edadPromedio: kpi_edad,
+        
       },
       datosProfesionales,
+      datosDemograficos: {
+        porGenero: data_porGenero,
+        porBandaEtaria: data_porBandaEtaria,
+      }
     });
   } catch (e) {
     console.error("GET /api/dashboard/pacientes-profesional", e);
