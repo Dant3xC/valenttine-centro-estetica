@@ -203,26 +203,26 @@ model Antecedente {
 }
 
 model Consulta {
-  id                     Int             @id @default(autoincrement())
-  historiaClinicaId      Int
-  turnoId                Int?
-  derivacion             Boolean         @default(false)
-  profesionalDeriva      String?
-  motivoDerivacion       String?
-  documentacion          String?
-  fecha                  DateTime        @default(now())
-  tipoConsulta           String?
-  observaciones          String?
-  comparacion            String?
-  evolucion              String?
-  medicacionPrescrita    String?
+  id                Int              @id @default(autoincrement())
+  historiaClinicaId Int
+  turnoId           Int?
+  derivacion        Boolean          @default(false)
+  profesionalDeriva String?
+  motivoDerivacion  String?
+  documentacion     String?
+  fecha             DateTime         @default(now())
+  tipoConsulta      String?
+  observaciones     String?
   motivoConsulta         String?
-  productosUtilizados    Json?
-  toleranciaPaciente     String?
+  evolucion              String?
+  comparacion            String?
   tratamientosRealizados Json?
+  productosUtilizados    Json?
   usoAnestesia           Boolean?
-  HistoriaClinica        HistoriaClinica @relation(fields: [historiaClinicaId], references: [id])
-  Turno                  Turno?          @relation(fields: [turnoId], references: [id])
+  toleranciaPaciente     String?
+  medicacionPrescrita    String?
+  HistoriaClinica   HistoriaClinica  @relation(fields: [historiaClinicaId], references: [id])
+  Turno             Turno?           @relation(fields: [turnoId], references: [id])
 }
 
 model Diagnostico {
@@ -262,32 +262,34 @@ model Genero {
 }
 
 model HistoriaClinica {
-  id              Int              @id @default(autoincrement())
-  pacienteId      Int
-  profesionalId   Int
-  fechaApertura   DateTime         @default(now())
-  motivoInicial   String?
-  observaciones   String?
-  estado          String?          @default("Abierto")
-  Anamnesis       Anamnesis?
-  Consulta        Consulta[]
-  Diagnostico     Diagnostico?
-  Paciente        Paciente         @relation(fields: [pacienteId], references: [id])
-  Profesional     Profesional      @relation(fields: [profesionalId], references: [id])
+  id            Int          @id @default(autoincrement())
+  pacienteId    Int
+  profesionalId Int
+  fechaApertura DateTime     @default(now())
+  motivoInicial String?
+  observaciones String?
+  estado        String?      @default("Abierto")
+  Anamnesis     Anamnesis?
+  Consulta      Consulta[]
+  Diagnostico   Diagnostico?
   PlanTratamiento PlanTratamiento?
+  Paciente      Paciente     @relation(fields: [pacienteId], references: [id])
+  Profesional   Profesional  @relation(fields: [profesionalId], references: [id])
 }
 
 model PlanTratamiento {
-  id                  Int              @id @default(autoincrement())
-  objetivo            String?
-  frecuencia          String?
-  sesionesTotales     Int?
-  indicacionesPost    String?
-  observaciones       String?
-  estado              Boolean          @default(true)
-  historiaClinicaId   Int?             @unique
-  resultadosEsperados String?
-  historiaClinica     HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
+  id                     Int      @id @default(autoincrement())
+  // consultaId             Int?    @unique
+  historiaClinicaId      Int?    @unique
+  objetivo               String?
+  frecuencia             String? //
+  sesionesTotales        Int?  //
+  indicacionesPost       String? //
+  resultadosEsperados    String?
+  estado                 Boolean  @default(true)
+  observaciones          String?
+  // Consulta               Consulta? @relation(fields: [consultaId], references: [id], onDelete: SetNull)
+  historiaClinica         HistoriaClinica? @relation(fields: [historiaClinicaId], references: [id])
 }
 
 model Rol {
@@ -295,3 +297,4 @@ model Rol {
   nombre  String    @unique
   Usuario Usuario[]
 }
+
