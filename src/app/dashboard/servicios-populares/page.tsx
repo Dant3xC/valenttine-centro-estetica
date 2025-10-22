@@ -4,9 +4,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getServiciosPopulares, listProfesionalesLite, getMiRol } from '@/lib/dashboard/api';
 import type { ServiciosPopularesResponse, ServicioPopular } from '@/lib/dashboard/types';
 import type { ProfesionalLite } from '@/lib/dashboard/api';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend,
+    PieChart, Pie, Cell, Legend, CartesianGrid
 } from 'recharts';
 
 // util fechas
@@ -109,33 +112,29 @@ export default function PageServiciosPopulares() {
 
     const topServicios = useMemo(() => serviciosOrdenados.slice(0, topN), [serviciosOrdenados, topN]);
 
-    return (
-        <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
-            <div className="screen-transition">
-                {/* Breadcrumb */}
-                <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
-                    <span>Inicio</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span className="text-purple-500 font-medium">Servicios populares</span>
-                </div>
+/*borrar si rompe */
+const pieData: any[] = (data?.servicios ?? []).map(s => ({
+  ...s, // { nombre, cantidad, porcentaje }
+}));
+/*borrar si rompe */
 
+    return (
+        <main className="min-h-screen bg-neutral-50 p-8">
+            <div className="mx-auto max-w-7xl space-y-6">
                 {/* Header */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900">Servicios populares</h1>
-                        <p className="text-gray-600">Análisis de servicios más otorgados a pacientes</p>
-                        <p className="text-gray-500 text-sm mt-3">
+                        <h1 className="text-3xl font-semibold tracking-tight text-neutral-900">Servicios Populares</h1>
+                        <p className="text-neutral-500">Análisis de servicios más otorgados a pacientes</p>
+                        <p className="text-neutral-400 text-sm mt-2">
                             Última actualización: {updatedAt ? updatedAt.toLocaleString() : '—'}
                         </p>
                     </div>
 
-                    {/* Filtros header */}
-                    <div className="flex flex-wrap gap-3 items-center">
-                        {/* Rango */}
+                    {/* Filtros */}
+                    <div className="flex flex-wrap items-center gap-2">
                         <select
-                            className="px-4 py-2 rounded-xl border border-gray-300 bg-white"
+                            className="px-3 py-2 rounded-lg border border-neutral-300 bg-white"
                             value={preset}
                             onChange={(e) => setPreset(e.target.value as RangoPreset)}
                         >
@@ -146,29 +145,27 @@ export default function PageServiciosPopulares() {
                             <option value="custom">Personalizado</option>
                         </select>
 
-                        {/* Fechas (solo custom) */}
                         {preset === 'custom' && (
                             <>
                                 <input
                                     type="date"
+                                    className="px-3 py-2 rounded-lg border border-neutral-300 bg-white"
                                     value={toYMD(from)}
                                     onChange={(e) => setFrom(new Date(`${e.target.value}T00:00:00`))}
-                                    className="px-3 py-2 rounded-xl border border-gray-300 bg-white"
                                 />
-                                <span className="text-gray-600">a</span>
+                                <span className="text-neutral-500">a</span>
                                 <input
                                     type="date"
+                                    className="px-3 py-2 rounded-lg border border-neutral-300 bg-white"
                                     value={toYMD(to)}
                                     onChange={(e) => setTo(new Date(`${e.target.value}T00:00:00`))}
-                                    className="px-3 py-2 rounded-xl border border-gray-300 bg-white"
                                 />
                             </>
                         )}
 
-                        {/* Profesional (solo gerente/recep) */}
                         {(rol === 'GERENTE' || rol === 'RECEPCIONISTA') && (
                             <select
-                                className="px-4 py-2 rounded-xl border border-gray-300 bg-white min-w-[260px]"
+                                className="px-3 py-2 rounded-lg border border-neutral-300 bg-white min-w-[260px]"
                                 value={String(profSel ?? '')}
                                 onChange={(e) => setProfSel(e.target.value ? Number(e.target.value) : undefined)}
                             >
@@ -181,50 +178,41 @@ export default function PageServiciosPopulares() {
                             </select>
                         )}
 
-                        {/* Botón refrescar */}
-                        <button
-                            onClick={load}
-                            title="Actualizar"
-                            className="p-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer"
-                        >
-                            <svg className="w-5 h-5 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                    d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-7.45 7.95" />
-                            </svg>
-                        </button>
+                        <Button variant="outline" onClick={load}>Actualizar</Button>
                     </div>
                 </div>
 
                 {/* KPIs */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <KpiCard
-                        title="Total de servicios atendidos"
-                        value={data?.kpis.totalServicios ?? 0}
-                        subtitle="En el período seleccionado"
-                        icon="trend"
-                        loading={loading}
-                    />
-                    <KpiCard
-                        title="Servicio más solicitado"
-                        valueText={data?.kpis.servicioMasSolicitado?.nombre ?? '—'}
-                        subtitle={`${data?.kpis.servicioMasSolicitado?.cantidad ?? 0} veces`}
-                        icon="award"
-                        loading={loading}
-                    />
-                    <KpiCard
-                        title="Diversidad de servicios"
-                        value={data?.kpis.diversidadServicios ?? 0}
-                        subtitle="Tipos distintos atendidos"
-                        icon="layers"
-                        loading={loading}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card header={<h3 className="text-lg font-semibold text-white">Total Servicios Atendidos</h3>} className="shadow-md">
+                        {loading ? <Skeleton className="h-10 w-24" /> : (
+                            <p className="text-3xl font-semibold text-neutral-900">{data?.kpis.totalServicios ?? 0}</p>
+                        )}
+                        <p className="text-sm text-neutral-500 mt-1">En el período seleccionado</p>
+                    </Card>
+
+                    <Card header={<h3 className="text-lg font-semibold text-white">Servicio Más Solicitado</h3>} className="shadow-md">
+                        {loading ? <Skeleton className="h-10 w-full" /> : (
+                            <>
+                                <p className="text-xl font-semibold text-neutral-900">{data?.kpis.servicioMasSolicitado?.nombre ?? '—'}</p>
+                                <p className="text-sm text-neutral-500 mt-1">{data?.kpis.servicioMasSolicitado?.cantidad ?? 0} veces</p>
+                            </>
+                        )}
+                    </Card>
+
+                    <Card header={<h3 className="text-lg font-semibold text-white">Diversidad de Servicios</h3>} className="shadow-md">
+                        {loading ? <Skeleton className="h-10 w-24" /> : (
+                            <p className="text-3xl font-semibold text-neutral-900">{data?.kpis.diversidadServicios ?? 0}</p>
+                        )}
+                        <p className="text-sm text-neutral-500 mt-1">Tipos distintos atendidos</p>
+                    </Card>
                 </div>
 
                 {/* Selector TOP */}
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="text-gray-700">Mostrar top:</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-neutral-700 font-medium">Mostrar top:</span>
                     <select
-                        className="px-3 py-2 rounded-xl border border-gray-300 bg-white"
+                        className="px-3 py-2 rounded-lg border border-neutral-300 bg-white"
                         value={topN}
                         onChange={(e) => setTopN(Number(e.target.value))}
                     >
@@ -233,112 +221,84 @@ export default function PageServiciosPopulares() {
                 </div>
 
                 {/* Estados */}
-                {err && (
-                    <div className="p-6 bg-red-50 text-red-700 rounded-2xl mb-6 flex items-center justify-between">
-                        <span>No fue posible obtener la información: {err}</span>
-                        <button onClick={load} className="px-4 py-2 bg-red-600 text-white rounded-xl cursor-pointer">Reintentar</button>
-                    </div>
-                )}
-
-                {!loading && !err && (!data || data.servicios.length === 0) && (
-                    <div className="p-6 bg-white rounded-2xl shadow mb-6">
-                        No se registraron servicios atendidos en el rango seleccionado.
-                    </div>
-                )}
-
-                {/* Gráficos */}
-                {!loading && !err && data && data.servicios.length > 0 && (
+                {err ? (
+                    <Card className="shadow-md" header={<h3 className="text-lg font-semibold text-white">Detalle</h3>}>
+                        <div className="py-16 text-center text-red-600">
+                            No fue posible obtener la información.{" "}
+                            <Button variant="destructive" onClick={load} className="ml-2">Reintentar</Button>
+                        </div>
+                    </Card>
+                ) : loading ? (
+                    <Card className="shadow-md" header={<h3 className="text-lg font-semibold text-white">Detalle</h3>}>
+                        <Skeleton className="h-[360px] w-full" />
+                    </Card>
+                ) : !data || data.servicios.length === 0 ? (
+                    <Card className="shadow-md" header={<h3 className="text-lg font-semibold text-white">Detalle</h3>}>
+                        <div className="py-16 text-center text-neutral-500">No se registraron servicios atendidos en el rango seleccionado.</div>
+                    </Card>
+                ) : (
+                <>
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                         {/* Barras */}
-                        <div className="glass-effect rounded-2xl p-6 card-hover shadow-md bg-white">
-                            <h3 className="text-xl font-bold text-gray-900 mb-1">Top servicios más otorgados</h3>
-                            <p className="text-gray-600 mb-4">Cantidad de servicios atendidos por tipo</p>
-                            <div className="h-[360px]">
+                        <Card className="shadow-md" header={<h3 className="text-lg font-semibold text-white">Top Servicios Más Otorgados</h3>}>
+                            <p className="text-neutral-500 text-sm mb-4">Cantidad de servicios atendidos por tipo</p>
+                            <div className="h-[420px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={topServicios}>
-                                        <XAxis dataKey="nombre" tick={{ fontSize: 12 }} interval={0} height={60} angle={-15} textAnchor="end" />
+                                    <BarChart data={topServicios} margin={{ top: 8, right: 24, bottom: 60, left: 24 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="nombre"
+                                            tick={{ fontSize: 11 }}
+                                            interval={0}
+                                            angle={-45}
+                                            textAnchor="end"
+                                            height={80}
+                                        />
                                         <YAxis />
                                         <RTooltip
-                                            formatter={(value: any, name, props) => {
+                                            formatter={(value: any, _name, props) => {
                                                 const item = props?.payload as ServicioPopular;
-                                                return [`${value} (${item?.porcentaje ?? 0}%)`, 'Cantidad'];
+                                                return [`${value} servicios (${item?.porcentaje ?? 0}%)`, 'Cantidad'];
                                             }}
                                         />
                                         <Bar dataKey="cantidad" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
-                        </div>
+                        </Card>
 
                         {/* Torta */}
-                        <div className="glass-effect rounded-2xl p-6 card-hover shadow-md bg-white">
-                            <h3 className="text-xl font-bold text-gray-900 mb-1">Participación por servicio</h3>
-                            <p className="text-gray-600 mb-4">Distribución porcentual de servicios</p>
-                            <div className="h-[360px]">
+                        <Card className="shadow-md" header={<h3 className="text-lg font-semibold text-white">Participación por Servicio</h3>}>
+                            <p className="text-neutral-500 text-sm mb-4">Distribución porcentual de servicios</p>
+                            <div className="h-[420px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={data.servicios} dataKey="porcentaje" nameKey="nombre" cx="50%" cy="50%" outerRadius={120} label>
+                                        <Pie
+                                            data={pieData}
+                                            dataKey="cantidad"
+                                            nameKey="nombre"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={120}
+                                            label={({ nombre, porcentaje }) => `${nombre}: ${porcentaje}%`}
+                                        >
                                             {data.servicios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                                         </Pie>
                                         <Legend />
                                         <RTooltip
-                                            formatter={(value: any, name, props) => {
+                                            formatter={(value: any, _name, props) => {
                                                 const item = props?.payload as ServicioPopular;
-                                                return [`${item?.cantidad ?? 0} (${item?.porcentaje ?? 0}%)`, item?.nombre ?? 'Servicio'];
+                                                return [`${item?.cantidad ?? 0} servicios (${item?.porcentaje ?? 0}%)`, item?.nombre ?? 'Servicio'];
                                             }}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                        </div>
+                        </Card>
                     </div>
+                </>
                 )}
             </div>
         </main>
-    );
-}
-
-function KpiCard({
-    title, value, valueText, subtitle, icon, loading,
-}: {
-    title: string;
-    value?: number;
-    valueText?: string;
-    subtitle?: string;
-    icon: 'trend' | 'award' | 'layers';
-    loading?: boolean;
-}) {
-    return (
-        <div className="rounded-2xl p-6 shadow-md bg-purple-200/80">
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-gray-700 text-sm font-medium">{title}</p>
-                    <p className="text-4xl font-extrabold text-gray-900 mt-1">
-                        {loading ? '—' : (valueText ?? value ?? 0)}
-                    </p>
-                    {subtitle && <p className="text-gray-700 mt-2">{loading ? ' ' : subtitle}</p>}
-                </div>
-                <div className="w-12 h-12 bg-purple-500 text-white rounded-xl flex items-center justify-center">
-                    {icon === 'trend' && (
-                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 7-7" />
-                        </svg>
-                    )}
-                    {icon === 'award' && (
-                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8.21 13.89L7 21l5-3 5 3-1.21-7.11" />
-                        </svg>
-                    )}
-                    {icon === 'layers' && (
-                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 2l9 4-9 4-9-4 9-4z" />
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 10l9 4 9-4" />
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 16l9 4 9-4" />
-                        </svg>
-                    )}
-                </div>
-            </div>
-        </div>
     );
 }
