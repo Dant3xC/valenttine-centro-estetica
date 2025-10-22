@@ -316,7 +316,7 @@ export default function Page() {
       <TopNav turnoId={turnoId} current="clinicos" readOnly={readOnly} />
 
       <div className="glass-effect rounded-2xl p-6 mb-6 shadow-md">
-        <h2 className="text-2xl font-bold text-purple-800 mb-2">Consulta #{header?.id ?? Number(turnoId)} — Datos clínicos</h2>
+        <h2 className="text-2xl font-bold text-purple-800 mb-2"> Datos clínicos</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-700">
           <div>
             <strong>Paciente:</strong>{" "}

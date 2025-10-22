@@ -357,10 +357,10 @@ async function main() {
   console.log('Seeding PlanTratamiento...');
   await prisma.planTratamiento.createMany({
     data: [
-        { id: 5, consultaId: 13, objetivo: 'Tratamiento de piel', frecuencia: 'Sesión única', sesionesTotales: 1, indicacionesPost: 'tomar mucho liquido', resultadosEsperados: 'mejoria considerable', motivoConsulta: 'primera consulta, estado', evolucion: null, comparacion: 'Sin cambios', tratamientosRealizados: ["Toxina Botulínica"], productosUtilizados: [], usoAnestesia: false, toleranciaPaciente: null, observaciones: null, medicacionPrescrita: null, estado: true },
-        { id: 6, consultaId: 14, objetivo: 'Ejemplo de superar', frecuencia: 'Cada 3 meses', sesionesTotales: 1, indicacionesPost: 'pruebas', resultadosEsperados: null, motivoConsulta: null, evolucion: null, comparacion: null, tratamientosRealizados: ["Toxina Botulínica"], productosUtilizados: [], usoAnestesia: false, toleranciaPaciente: null, observaciones: null, medicacionPrescrita: null, estado: true },
-        { id: 7, consultaId: 15, objetivo: 'mejora', frecuencia: 'Una vez por semana', sesionesTotales: 1, indicacionesPost: 'tomar medicacion', resultadosEsperados: 'mejoria en 2 meses', motivoConsulta: 'primera vez', evolucion: '-', comparacion: 'Sin cambios', tratamientosRealizados: ["PRP"], productosUtilizados: [], usoAnestesia: false, toleranciaPaciente: null, observaciones: null, medicacionPrescrita: 'ibuprofeno 400', estado: true },
-        { id: 8, consultaId: 16, objetivo: 'fadgd', frecuencia: null, sesionesTotales: 1, indicacionesPost: 'kgrwgmrg', resultadosEsperados: 'kmgreg', motivoConsulta: null, evolucion: null, comparacion: 'Mejoría significativa', tratamientosRealizados: [], productosUtilizados: [], usoAnestesia: false, toleranciaPaciente: null, observaciones: null, medicacionPrescrita: null, estado: true },
+        { id: 5, historiaClinicaId: 16, objetivo: 'Tratamiento de piel', frecuencia: 'Sesión única', sesionesTotales: 1, indicacionesPost: 'tomar mucho liquido', resultadosEsperados: 'mejoria considerable', observaciones: null, estado: true },
+        { id: 6, historiaClinicaId: 16, objetivo: 'Ejemplo de superar', frecuencia: 'Cada 3 meses', sesionesTotales: 1, indicacionesPost: 'pruebas', resultadosEsperados: null, observaciones: null, estado: true },
+        { id: 7, historiaClinicaId: 18, objetivo: 'mejora', frecuencia: 'Una vez por semana', sesionesTotales: 1, indicacionesPost: 'tomar medicacion', resultadosEsperados: 'mejoria en 2 meses', observaciones: null, estado: true },
+        { id: 8, historiaClinicaId: 19, objetivo: 'fadgd', frecuencia: null, sesionesTotales: 1, indicacionesPost: 'kgrwgmrg', resultadosEsperados: 'kmgreg', observaciones: null, estado: true },
     ],
     skipDuplicates: true,
   });

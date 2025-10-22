@@ -52,7 +52,10 @@ export async function listProfesionalesLite(): Promise<ProfesionalLite[]> {
 // ==== Aux: rol actual (ajusta si tu endpoint es otro) ====
 export async function getMiRol(): Promise<"GERENTE" | "RECEPCIONISTA" | "PROFESIONAL" | "MEDICO"> {
     try {
-        const r = await fetch("/api/sesion/rol", { cache: "no-store" });
+        const r = await fetch("/api/yo", { 
+            method: "POST", 
+            cache: "no-store" 
+        });
         if (!r.ok) return "PROFESIONAL";
         const { rol } = await r.json();
         const up = String(rol ?? "").toUpperCase();
