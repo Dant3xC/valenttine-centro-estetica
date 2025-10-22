@@ -1,0 +1,18 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: valenttine-db
+    restart: always
+    environment:
+      POSTGRES_USER: user_local    # <-- ¡Inventá un usuario!
+      POSTGRES_PASSWORD: inge123  # <-- ¡Inventá una contraseña!
+      POSTGRES_DB: valenttine_db     # <-- Dale un nombre a tu BD local
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
