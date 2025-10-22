@@ -1,8 +1,15 @@
+// src/app/api/consultas/[turnoId]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const ESTADO_TURNO_FINALIZADO_ID = 4;
 
+/**
+ * Helper function to get the appointment, clinical history, and header data.
+ * This is used by both GET and POST handlers to ensure consistency.
+ * @param turnoId - The ID of the appointment.
+ * @returns An object containing the clinical history ID and header information.
+ */
 async function getTurnoHistoriaAndHeader(turnoId: number) {
     const turno = await prisma.turno.findUnique({
         where: { id: turnoId },
@@ -49,30 +56,37 @@ async function getTurnoHistoriaAndHeader(turnoId: number) {
     return { historiaClinicaId: historia.id, header };
 }
 
+/**
+ * GET handler to fetch consultation data for a specific appointment.
+ */
 export async function GET(
-  _req: Request,
-  { params }: { params: { turnoId: string } }
+    _req: Request,
+    { params }: { params: { turnoId: string } }
 ) {
-  try {
-    const turnoId = Number(params.turnoId);
-    const { historiaClinicaId, header } = await getTurnoHistoriaAndHeader(turnoId);
+    try {
+        const turnoId = Number(params.turnoId);
+        // We get header info, which implicitly validates the appointment and history.
+        const { header } = await getTurnoHistoriaAndHeader(turnoId);
 
-    // La consulta ahora se busca directamente por el turnoId
-    const consulta = await prisma.consulta.findFirst({
-        where: { turnoId: turnoId },
-    });
+        // Find the consultation directly associated with the appointment ID.
+        const consulta = await prisma.consulta.findFirst({
+            where: { turnoId: turnoId },
+        });
 
-    return NextResponse.json({ header, consulta });
+        return NextResponse.json({ header, consulta });
 
-  } catch (err: any) {
-    console.error("[GET CONSULTA ERROR]", err);
-    return NextResponse.json(
-      { error: err.message || "Error al cargar la consulta." },
-      { status: 500 }
-    );
-  }
+    } catch (err: any) {
+        console.error("[GET CONSULTA ERROR]", err);
+        return NextResponse.json(
+            { error: err.message || "Error al cargar la consulta." },
+            { status: 500 }
+        );
+    }
 }
 
+/**
+ * POST handler to create or update a consultation for a specific appointment.
+ */
 export async function POST(
     req: Request,
     { params }: { params: { turnoId: string } }
@@ -91,30 +105,55 @@ export async function POST(
         });
 
         if (!consulta) {
-            throw new Error("Registro de Consulta no encontrado. Asegúrese de haber completado la historia clínica.");
+            // Se obtiene el ID de la historia clínica para poder asociarlo a la nueva consulta.
+            const { historiaClinicaId } = await getTurnoHistoriaAndHeader(turnoId);
+            
+            await prisma.consulta.create({
+                data: {
+                    // Se asignan directamente los IDs de las relaciones
+                    turnoId: turnoId,
+                    historiaClinicaId: historiaClinicaId,
+                    // Se agregan los datos de la consulta
+                    tipoConsulta: hoy.tipoConsulta,
+                    motivoConsulta: hoy.motivoConsulta,
+                    evolucion: hoy.evolucion,
+                    comparacion: hoy.comparacion,
+                    tratamientosRealizados: hoy.tratamientosRealizados,
+                    productosUtilizados: hoy.productosUtilizados,
+                    usoAnestesia: hoy.usoAnestesia,
+                    toleranciaPaciente: hoy.toleranciaPaciente,
+                    observaciones: hoy.observaciones,
+                    medicacionPrescrita: hoy.medicacionPrescrita,
+                    indicacionesPost: hoy.indicacionesPost,
+                    derivacion: hoy.derivacion,
+                    profesionalDeriva: hoy.profesionalDeriva,
+                    motivoDerivacion: hoy.motivoDerivacion,
+                    documentacion: hoy.documentacion,
+                },
+            });
+        } else {
+            // Se actualiza directamente la tabla 'Consulta'
+            await prisma.consulta.update({
+                where: { id: consulta.id },
+                data: {
+                    tipoConsulta: hoy.tipoConsulta,
+                    motivoConsulta: hoy.motivoConsulta,
+                    evolucion: hoy.evolucion,
+                    comparacion: hoy.comparacion,
+                    tratamientosRealizados: hoy.tratamientosRealizados,
+                    productosUtilizados: hoy.productosUtilizados,
+                    usoAnestesia: hoy.usoAnestesia,
+                    toleranciaPaciente: hoy.toleranciaPaciente,
+                    observaciones: hoy.observaciones,
+                    medicacionPrescrita: hoy.medicacionPrescrita,
+                    indicacionesPost: hoy.indicacionesPost,
+                    derivacion: hoy.derivacion,
+                    profesionalDeriva: hoy.profesionalDeriva,
+                    motivoDerivacion: hoy.motivoDerivacion,
+                    documentacion: hoy.documentacion,
+                },
+            });
         }
-
-        // Se actualiza directamente la tabla 'Consulta'
-        await prisma.consulta.update({
-            where: { id: consulta.id },
-            data: {
-                tipoConsulta: hoy.tipoConsulta,
-                motivoConsulta: hoy.motivoConsulta,
-                evolucion: hoy.evolucion,
-                comparacion: hoy.comparacion,
-                resultadosEsperados: hoy.resultadosEsperados,
-                tratamientosRealizados: hoy.tratamientosRealizados,
-                productosUtilizados: hoy.productosUtilizados,
-                usoAnestesia: hoy.usoAnestesia,
-                toleranciaPaciente: hoy.toleranciaPaciente,
-                observaciones: hoy.observaciones,
-                medicacionPrescrita: hoy.medicacionPrescrita,
-                derivacion: hoy.derivacion,
-                profesionalDeriva: hoy.profesionalDeriva,
-                motivoDerivacion: hoy.motivoDerivacion,
-                documentacion: hoy.documentacion,
-            },
-        });
 
         if (finalizar) {
             await prisma.turno.update({
@@ -137,3 +176,4 @@ export async function POST(
         );
     }
 }
+
