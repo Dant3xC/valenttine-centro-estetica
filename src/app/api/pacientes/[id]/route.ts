@@ -27,16 +27,16 @@ const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
 // ───────────────────────── GET /api/pacientes/:id
 export async function GET(
   _req: Request,
-  ctx: { params: Promise<{ id: string }> } // Next 15
+  { params }: { params: Promise<{ id: string }> } // Next 15
 ) {
-  const { params } = await ctx
-  const id = Number(params.id)
-  if (!Number.isInteger(id)) {
+  const { id } = await params
+  const idNum = Number(id)
+  if (!Number.isInteger(idNum) || idNum <= 0) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 })
   }
 
   const paciente = await prisma.paciente.findUnique({
-    where: { id },
+    where: { id: idNum },
     include: {
       provincia: { select: { id: true, nombre: true } },
       localidad: { select: { id: true, nombre: true, provinciaId: true } },
@@ -121,12 +121,12 @@ async function resolveEstadoPacienteId(b: Record<string, unknown>): Promise<numb
 
 export async function PUT(
   req: Request,
-  ctx: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { params } = await ctx
-    const id = Number(params.id)
-    if (!Number.isInteger(id)) {
+  const { id } = await params
+  const idNum = Number(id)
+    if (!Number.isInteger(idNum) || idNum <= 0) {
       return NextResponse.json({ error: "ID inválido" }, { status: 400 })
     }
 
@@ -137,7 +137,7 @@ export async function PUT(
     const b = bodyUnknown as Record<string, unknown>
 
     // Verificar existencia
-    const existe = await prisma.paciente.findUnique({ where: { id } })
+    const existe = await prisma.paciente.findUnique({ where: { id: idNum } })
     if (!existe) {
       return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 })
     }
@@ -157,7 +157,7 @@ export async function PUT(
     }
 
     // Construir data para Prisma (mapeando textos -> IDs si corresponden)
-    const data: Prisma.PacienteUpdateInput = {
+    const data: Record<string, unknown> = {
       ...(typeof b.nombre === "string" && { nombre: b.nombre.trim() }),
       ...(typeof b.apellido === "string" && { apellido: b.apellido.trim() }),
       ...(typeof b.dni === "string" && { dni: b.dni.trim() }),
@@ -203,7 +203,7 @@ export async function PUT(
     // (Opcional: podrías validar existencia con findUnique antes de conectar)
 
     const actualizado = await prisma.paciente.update({
-      where: { id },
+      where: { id: idNum },
       data,
       include: {
         provincia: true,

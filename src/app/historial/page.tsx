@@ -56,12 +56,18 @@ export default function Page() {
     // filtros
     const [dni, setDni] = useState('');
     const [nombre, setNombre] = useState('');
-    const [fecha, setFecha] = useState<string>(todayYMD());
+    const [fechaDesde, setFechaDesde] = useState<string>('');
+    const [fechaHasta, setFechaHasta] = useState<string>('');
+    const [verTodos, setVerTodos] = useState<boolean>(false);
 
     // validaciones básicas
     const dniOk = dni === '' || /^\d{7,8}$/.test(dni);
     const nombreOk = nombre === '' || /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(nombre);
-    const fechaOk = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
+    const fechaOk = verTodos || (
+      (fechaDesde === '' || /^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) &&
+      (fechaHasta === '' || /^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) &&
+      (fechaDesde === '' || fechaHasta === '' || fechaDesde <= fechaHasta)
+    );
     const filtrosValidos = dniOk && nombreOk && fechaOk;
     // const hayAlguno = [dni, nombre, fecha].some(v => String(v).trim() !== ''); // No se usa
 
@@ -91,9 +97,10 @@ export default function Page() {
             // porque está pensado para mostrar TODAS las historias, o que la API lo infiere.
             // Si la API del listado necesita el ID del profesional, debe ser inyectado aquí también.
             const res = await listHistorialConsultas({
-                fecha,
                 dni: dni || undefined,
                 nombre: nombre || undefined,
+                fechaDesde: verTodos ? undefined : (fechaDesde || undefined),
+                fechaHasta: verTodos ? undefined : (fechaHasta || undefined),
                 page: 1,
                 pageSize: 100,
             });
@@ -162,19 +169,44 @@ export default function Page() {
                             {nombre !== '' && !nombreOk && <p className="text-xs text-red-600 mt-1">Solo letras y espacios</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Desde</label>
                             <input
                                 type="date"
-                                value={fecha}
-                                onChange={(e) => setFecha(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                value={fechaDesde}
+                                onChange={(e) => setFechaDesde(e.target.value)}
+                                disabled={verTodos}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
                             />
                         </div>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
+                            <input
+                                type="date"
+                                value={fechaHasta}
+                                onChange={(e) => setFechaHasta(e.target.value)}
+                                disabled={verTodos}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
+                            />
+                        </div>
+                        <div className="col-span-full flex items-center">
+                            <input
+                                type="checkbox"
+                                id="verTodos"
+                                checked={verTodos}
+                                onChange={(e) => setVerTodos(e.target.checked)}
+                                className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                            />
+                            <label htmlFor="verTodos" className="ml-2 text-sm font-medium text-gray-700">
+                                Ver todos los registros (ignorar filtro de fecha)
+                            </label>
+                        </div>
+                    </div>
 
-                    <div className="flex space-x-4">
+                        <div className="flex space-x-4">
                         <button
-                            onClick={() => { setDni(''); setNombre(''); setFecha(todayYMD()); refresh(); }}
+                            onClick={() => { setDni(''); setNombre(''); setFechaDesde(''); setFechaHasta(''); setVerTodos(true); refresh(); }}
                             className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all cursor-pointer"
                         >
                             Limpiar
@@ -202,37 +234,16 @@ export default function Page() {
                     {!loading && !error && (filtered.length ? (
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <TH>ID Paciente</TH> {/* CAMBIADO: Mostramos ID Paciente */}
+                                <thead className="bg-gray-50"><tr>
+                                        <TH>ID Paciente</TH>{/* CAMBIADO: Mostramos ID Paciente */}
                                         <TH>Paciente</TH>
                                         <TH>DNI</TH>
                                         <TH>Fecha de registro HC</TH>
                                         <TH>Acciones</TH>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentItems.map((it, i) => (
-                                        // Usamos it.paciente.id para la navegación, ya que la API espera el pacienteId
-                                        <tr key={it.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                            <TD className="font-semibold text-purple-800">{`PAC-${it.paciente.id}`}</TD> 
-                                            <TD><div className="font-medium text-gray-900">{it.paciente.nombre} {it.paciente.apellido}</div></TD>
-                                            <TD className="font-semibold text-gray-900">{it.paciente.dni}</TD>
-                                            <TD className="text-gray-700">{it.fecha}</TD>
-                                            <TD>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {/* CAMBIO CLAVE: Agregamos el profesionalUserId (session.id) a la URL */}
-                                                    <Link
-                                                        href={`/historial/paciente/${it.paciente.id}?profesionalUserId=${profesionalUserId}`}
-                                                        className="bg-purple-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-purple-600 transition-colors cursor-pointer"
-                                                    >
-                                                        Ver historial
-                                                    </Link>
-                                                </div>
-                                            </TD>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                                    </tr></thead>
+                                <tbody>{currentItems.map((it, i) => (
+                                        <tr key={it.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}><TD className="font-semibold text-purple-800">{`PAC-${it.paciente.id}`}</TD><TD><div className="font-medium text-gray-900">{it.paciente.nombre} {it.paciente.apellido}</div></TD><TD className="font-semibold text-gray-900">{it.paciente.dni}</TD><TD className="text-gray-700">{it.fecha}</TD><TD><div className="flex flex-wrap gap-2"><Link href={`/historial/paciente/${it.paciente.id}?profesionalUserId=${profesionalUserId}`} className="bg-purple-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-purple-600 transition-colors cursor-pointer">Ver historial</Link></div></TD></tr>
+                                    ))}</tbody>
                             </table>
                         </div>
                     ) : (

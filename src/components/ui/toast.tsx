@@ -1,6 +1,15 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+export type ToastProps = {
+  message?: string
+  title?: string
+  description?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+export type ToastActionElement = React.ReactNode
 
 export function Toast({ message }: { message: string }) {
 const [show, setShow] = useState(true)

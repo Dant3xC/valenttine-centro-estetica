@@ -3,11 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifyJwt } from "@/lib/usuarios/auth";
-import type { JwtUser } from "@/lib/usuarios/types";
+import type { JwtUser, Role } from "@/lib/usuarios/types";
 
 export const runtime = "nodejs";
 
-type Rol = "GERENTE" | "RECEPCIONISTA" | "PROFESIONAL" | "MEDICO";
+// ⚠️ NOTE: "PROFESIONAL" es un alias de "MEDICO" para compatibilidad
+// El JWT siempre usa "MEDICO", pero el frontend puede enviar "PROFESIONAL"
+type RolDashboard = "GERENTE" | "RECEPCIONISTA" | "PROFESIONAL" | "MEDICO";
 
 // ==== utils ====
 function parseISODateOnly(s?: string | null) {
@@ -51,7 +53,7 @@ export async function GET(req: NextRequest) {
         if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
 
         const rawRole = String(payload.role ?? "").toUpperCase();
-        const rol: Rol =
+        const rol: RolDashboard =
             rawRole === "GERENTE" ? "GERENTE" :
                 rawRole === "RECEPCIONISTA" ? "RECEPCIONISTA" :
                     rawRole === "MEDICO" ? "MEDICO" : "PROFESIONAL";
@@ -178,7 +180,11 @@ export async function GET(req: NextRequest) {
             if (hcIds.length) {
                 const planes = await prisma.planTratamiento.findMany({
                     where: { historiaClinicaId: { in: hcIds } },
-                    select: { historiaClinicaId: true, /* @ts-expect-error col legado */ tratamientosRealizados: true as any },
+                    select: {
+                        historiaClinicaId: true,
+                        // @ts-expect-error - col legacy no existe en schema
+                        tratamientosRealizados: true as any
+                    },
                 });
                 for (const p of planes as any[]) {
                     const tr = p.tratamientosRealizados;

@@ -109,7 +109,7 @@ export default function HorariosPage() {
         setLoading(true)
         setError(null)
 
-        let date = dateISO || todayYMD
+        const date = dateISO || todayYMD
         let prof = profesionalId
 
         if (!prof && session?.role === 'MEDICO') {

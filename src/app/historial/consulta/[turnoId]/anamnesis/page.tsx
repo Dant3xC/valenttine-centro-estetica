@@ -223,7 +223,7 @@ function AntecedentesTable({
               <TH>Detalle</TH>
               <TH>Desde</TH>
               <TH>Estado</TH>
-              <TH></TH>
+              <TH>{" "}</TH>
             </tr>
           </thead>
           <tbody>
@@ -354,7 +354,7 @@ function TablaQuir({
               <TH>Cirugía</TH>
               <TH>Fecha (Desde)</TH>
               <TH>Detalle/Observaciones</TH>
-              <TH></TH>
+              <TH>{" "}</TH>
             </tr>
           </thead>
           <tbody>
@@ -466,7 +466,7 @@ function TablaTratPrev({
                 <TH>Zona</TH>
                 <TH>Resultado</TH>
                 <TH>Observaciones (Detalle)</TH>
-                <TH></TH>
+                <TH>{" "}</TH>
               </tr>
             </thead>
             <tbody>
@@ -811,7 +811,7 @@ export default function Page() {
       <TablaQuir rows={quirurgicos} setRows={setQuirurgicos} disabled={readOnly} />
 
       {/* Tratamientos estéticos previos */}
-      <TablaTratPrev rows={tratPrevios} setRows={setTratPrevios} opciones={TRAT_PREV_OPTS} disabled={readOnly} />
+      <TablaTratPrev rows={tratPrevios} setRows={setTratPrevios} disabled={readOnly} />
 
       {/* Footer */}
       {readOnly ? (

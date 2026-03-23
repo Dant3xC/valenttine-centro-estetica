@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 export async function GET(
     _req: Request,
     ctx: { params: Promise<{ id: string }> }
 ) {
-    
+    const store = await cookies();
+    const token = store.get("auth_token")?.value;
+    if (!token) {
+        return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload) {
+        return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+
     const { id } = await ctx.params;
     const profesionalId = Number(id);
 

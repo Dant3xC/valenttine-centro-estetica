@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -6,6 +9,16 @@ import { prisma } from "@/lib/prisma";
  * utilizando el turnoId para obtener el paciente y profesional.
  */
 export async function POST(req: Request) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
   try {
     const { turnoId } = await req.json();
     const idNum = Number(turnoId);
@@ -40,7 +53,7 @@ export async function POST(req: Request) {
             pacienteId: pacienteId,
             profesionalId: profesionalId,
             motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.',
-            estado: true,
+            estado: "Abierto",
             Anamnesis: {
                 create: {
                     fuma: 0, // Default value (ajustar si es necesario)

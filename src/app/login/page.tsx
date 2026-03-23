@@ -1,12 +1,12 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Button from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { type LoginResponse, LoginResponseSchema } from '@/lib/usuarios/types'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const search = useSearchParams()
   const nextPath = search.get('next')
@@ -282,5 +282,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

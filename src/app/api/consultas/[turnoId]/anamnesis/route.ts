@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 import { prisma } from "@/lib/prisma";
 
 type AntecedenteDTO = { nombre: string; detalle?: string; desde?: string; estado?: string; categoria: string };
@@ -18,8 +21,19 @@ async function getIds(turnoId: number) {
   return { consultaId: c.id, historiaClinicaId: c.historiaClinicaId };
 }
 
-export async function GET(_: Request, { params }: { params: { turnoId: string } }) {
-  const ids = await getIds(Number(params.turnoId));
+export async function GET(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
+  const { turnoId: turnoIdStr } = await params;
+  const ids = await getIds(Number(turnoIdStr));
   if (!ids) return NextResponse.json({}, { status: 404 });
 
   const ana = await prisma.anamnesis.findUnique({
@@ -42,8 +56,19 @@ export async function GET(_: Request, { params }: { params: { turnoId: string } 
   });
 }
 
-export async function POST(req: Request, { params }: { params: { turnoId: string } }) {
-  const turnoId = Number(params.turnoId);
+export async function POST(req: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
+  const { turnoId: turnoIdStr } = await params;
+  const turnoId = Number(turnoIdStr);
   const body = (await req.json()) as Body;
 
   const ids = await getIds(turnoId);

@@ -50,7 +50,9 @@ export async function listProfesionalesLite(): Promise<ProfesionalLite[]> {
 }
 
 // ==== Aux: rol actual (ajusta si tu endpoint es otro) ====
-export async function getMiRol(): Promise<"GERENTE" | "RECEPCIONISTA" | "PROFESIONAL" | "MEDICO"> {
+type RolDashboard = "GERENTE" | "RECEPCIONISTA" | "PROFESIONAL" | "MEDICO";
+
+export async function getMiRol(): Promise<RolDashboard> {
     try {
         const r = await fetch("/api/yo", { 
             method: "POST", 
@@ -58,8 +60,8 @@ export async function getMiRol(): Promise<"GERENTE" | "RECEPCIONISTA" | "PROFESI
         });
         if (!r.ok) return "PROFESIONAL";
         const { rol } = await r.json();
-        const up = String(rol ?? "").toUpperCase();
-        if (up === "GERENTE" || up === "RECEPCIONISTA" || up === "PROFESIONAL" || up === "MEDICO") return up as any;
+        const up = String(rol ?? "").toUpperCase() as RolDashboard;
+        if (up === "GERENTE" || up === "RECEPCIONISTA" || up === "PROFESIONAL" || up === "MEDICO") return up;
         return "PROFESIONAL";
     } catch {
         return "PROFESIONAL";

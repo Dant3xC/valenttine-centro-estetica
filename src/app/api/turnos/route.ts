@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 const ymd = /^\d{4}-\d{2}-\d{2}$/;
@@ -33,6 +36,19 @@ async function fixTurnoIdSequenceOnce() {
 }
 
 export async function POST(req: Request) {
+    const store = await cookies();
+    const token = store.get("auth_token")?.value;
+    if (!token) {
+        return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload) {
+        return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+    if (!["RECEPCIONISTA", "GERENTE", "MEDICO"].includes(payload.role)) {
+        return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
+    }
+
     const body = (await req.json().catch(() => null)) as {
         pacienteId?: number;
         profesionalId?: number;

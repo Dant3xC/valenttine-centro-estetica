@@ -1,8 +1,29 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
-export async function POST(_: Request, { params }: { params: { turnoId: string } }) {
-    const turnoId = Number(params.turnoId);
+/**
+ * POST /api/consultas/[turnoId]/iniciar
+ * Inicia una consulta médica.
+ * RBAC: Solo MEDICO puede iniciar consultas.
+ */
+export async function POST(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+    // Verificar autenticación y rol
+    const store = await cookies();
+    const token = store.get("auth_token")?.value;
+    if (!token) {
+        return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+    
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload || payload.role !== "MEDICO") {
+        return NextResponse.json({ error: "Acceso denegado. Solo médicos pueden iniciar consultas." }, { status: 403 });
+    }
+
+    const { turnoId: turnoIdStr } = await params;
+    const turnoId = Number(turnoIdStr);
 
     const turno = await prisma.turno.findUnique({
         where: { id: turnoId },
@@ -12,7 +33,7 @@ export async function POST(_: Request, { params }: { params: { turnoId: string }
 
     // Historia clínica activa paciente–profesional
     let hc = await prisma.historiaClinica.findFirst({
-        where: { pacienteId: turno.pacienteId, profesionalId: turno.profesionalId, estado: true }
+        where: { pacienteId: turno.pacienteId, profesionalId: turno.profesionalId, estado: "Abierto" }
     });
     if (!hc) {
         hc = await prisma.historiaClinica.create({

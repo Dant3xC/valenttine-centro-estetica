@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 import { prisma } from "@/lib/prisma";
 
 // Definimos las categorías para los antecedentes que vienen del frontend
@@ -15,10 +18,21 @@ const ANTECEDENTE_CATEGORIES = {
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } }
+  { params }: { params: Promise<{ turnoId: string }> }
 ) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId: turnoIdStr } = await params;
+    const turnoId = Number(turnoIdStr);
 
     // 1. Obtener IDs del Turno
     const turno = await prisma.turno.findUnique({
@@ -114,10 +128,21 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
+    const store = await cookies();
+    const token = store.get("auth_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload || payload.role !== "MEDICO") {
+      return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+    }
+
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId: turnoIdStr } = await params;
+        const turnoId = Number(turnoIdStr);
         const { habitos, antecedentes } = await req.json();
 
         // 1. Obtener IDs (igual que en GET)
@@ -161,23 +186,23 @@ export async function POST(
             // ya que se asume que esta página solo se usa una vez al comienzo.
             // Si el front implementa persistencia completa, esta lógica debería ser más compleja (DELETE/CREATE ALL o UPSERT).
             
-            const antecedenteCreations = [];
+            const antecedenteCreations: any[] = [];
 
             // Helper para mapear y agregar antecedentes a la lista de creación
             const addAntecedentes = (list: any[], categoriaKey: keyof typeof ANTECEDENTE_CATEGORIES) => {
                 const categoria = ANTECEDENTE_CATEGORIES[categoriaKey];
                 for (const item of list) {
-                    antecedenteCreations.push(tx.antecedente.create({
+                    antecedenteCreations.push({
                         data: {
                             anamnesisId: anamnesisId,
-                            tipo: categoria, // Usamos 'tipo' para el POST
-                            categoria: categoria, // Usamos 'categoria' para el GET y consistencia
+                            tipo: categoria,
+                            categoria: categoria,
                             nombre: item.nombre,
                             detalle: item.detalle,
                             desde: item.desde ? new Date(item.desde) : null,
                             estado: item.estado,
                         }
-                    }));
+                    });
                 }
             };
             
@@ -192,7 +217,7 @@ export async function POST(
             addAntecedentes(antecedentes.alergias, 'alergias');
             
             // Ejecutar todas las creaciones de antecedentes
-            await Promise.all(antecedenteCreations);
+            await Promise.all(antecedenteCreations.map(data => tx.antecedente.create({ data })));
 
             // Nota: Para los Antecedentes Quirúrgicos y Estéticos, el front los maneja en tablas
             // separadas (TablaQuir, TablaTratPrev) que usan su propio estado local.

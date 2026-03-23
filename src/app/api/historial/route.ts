@@ -56,11 +56,12 @@ export async function POST(req: Request) {
         },
       });
 
-      // 4. Crear el Plan de Tratamiento vinculado a la consulta
+      // 4. Crear el Plan de Tratamiento vinculado a la historia clínica
+      // ⚠️ FIX: El schema no tiene consultaId, solo historiaClinicaId
       await tx.planTratamiento.create({
         data: {
-          consultaId: consulta.id,
-          // Aquí mapeas los campos de tu formulario del plan
+          historiaClinicaId: historiaClinica.id,
+          // Aquí mapeas los campos del formulario del plan
           objetivo: planData?.objetivo,
           frecuencia: planData?.frecuencia,
           // ...otros campos del plan

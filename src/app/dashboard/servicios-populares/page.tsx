@@ -277,7 +277,7 @@ export default function PageServiciosPopulares() {
                             <div className="h-[360px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={data.servicios} dataKey="porcentaje" nameKey="nombre" cx="50%" cy="50%" outerRadius={120} label>
+                                        <Pie data={data.servicios as any} dataKey="porcentaje" nameKey="nombre" cx="50%" cy="50%" outerRadius={120} label>
                                             {data.servicios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                                         </Pie>
                                         <Legend />

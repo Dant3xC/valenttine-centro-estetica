@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { getProfesionalById } from '@/lib/profesionales/api';
 import type { ProfesionalDetalle } from '@/lib/profesionales/types';
 
@@ -41,12 +41,13 @@ const estadoPill = (estado: 'ACTIVO'|'INACTIVO'|'SUSPENDIDO') => {
   return { text: 'Suspendido', cls: 'bg-red-100 text-red-700' };
 };
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page() {
   const router = useRouter();
+  const params = useParams();
   const [prof, setProf] = useState<ProfesionalDetalle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const idProfesional = params.id;
+  const idProfesional = params.id as string;
 
   useEffect(() => {
     (async () => {

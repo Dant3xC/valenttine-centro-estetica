@@ -19,7 +19,7 @@ export function AppointmentCalendar({ date, slots, onSlotClick }: Props) {
       {slots.map((s) => {
         // 🟣 Nuevo: ocupados (booked) y disponibles (available)
         const isAvailable = s.status === "available"
-        const isBooked = s.status === "booked"
+        const isBooked = s.status === "unavailable"
 
         return (
           <button

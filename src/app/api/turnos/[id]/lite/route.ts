@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 
 export async function GET(
     _req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const store = await cookies();
@@ -25,7 +25,8 @@ export async function GET(
         }
         const profesionalId = payload.profId;
 
-        const id = Number(params.id);
+        const { id: idStr } = await params;
+        const id = Number(idStr);
         if (!Number.isInteger(id)) return NextResponse.json({ error: "Turno inválido" }, { status: 400 });
 
         const t = await prisma.turno.findUnique({
