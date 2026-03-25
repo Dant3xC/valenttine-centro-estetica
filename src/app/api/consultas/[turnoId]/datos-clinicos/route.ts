@@ -20,15 +20,16 @@ async function getHCId(turnoId: number) {
   return c?.historiaClinicaId ?? null;
 }
 
-export async function GET(_: Request, { params }: { params: { turnoId: string } }) {
-  const hcId = await getHCId(Number(params.turnoId));
+export async function GET(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
+  const hcId = await getHCId(Number(turnoId));
   if (!hcId) return NextResponse.json({}, { status: 404 });
   const d = await prisma.diagnostico.findUnique({ where: { historiaClinicaId: hcId } });
   return NextResponse.json(d ?? {});
 }
 
-export async function POST(req: Request, { params }: { params: { turnoId: string } }) {
-  const turnoId = Number(params.turnoId);
+export async function POST(req: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
   const hcId = await getHCId(turnoId);
   if (!hcId) return NextResponse.json({ error: "Consulta inexistente" }, { status: 404 });
 

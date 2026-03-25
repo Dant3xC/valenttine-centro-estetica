@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(_: Request, { params }: { params: { turnoId: string } }) {
-    const turnoId = Number(params.turnoId);
+export async function POST(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+    const { turnoId } = await params;
 
     const turno = await prisma.turno.findUnique({
         where: { id: turnoId },

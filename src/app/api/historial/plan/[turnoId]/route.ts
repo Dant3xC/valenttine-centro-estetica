@@ -62,10 +62,10 @@ async function getTurnoHistoriaAndHeader(turnoId: number) {
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } }
+  { params }: { params: Promise<{ turnoId: string }> }
 ) {
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId } = await params;
 
     const { historiaClinicaId, header } = await getTurnoHistoriaAndHeader(turnoId);
 
@@ -100,10 +100,10 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId } = await params;
         // El payload ahora solo contiene la información del plan general.
         const { plan } = await req.json();
 

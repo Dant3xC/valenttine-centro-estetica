@@ -22,16 +22,17 @@ async function getConsulta(turnoId: number) {
   return prisma.consulta.findFirst({ where: { turnoId } });
 }
 
-export async function GET(_: Request, { params }: { params: { turnoId: string } }) {
-  const c = await getConsulta(Number(params.turnoId));
+export async function GET(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
+  const c = await getConsulta(Number(turnoId));
   if (!c) return NextResponse.json({}, { status: 404 });
 
   const plan = await prisma.planTratamiento.findUnique({ where: { consultaId: c.id } });
   return NextResponse.json({ plan, consulta: c });
 }
 
-export async function POST(req: Request, { params }: { params: { turnoId: string } }) {
-  const turnoId = Number(params.turnoId);
+export async function POST(req: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
   const c = await getConsulta(turnoId);
   if (!c) return NextResponse.json({ error: "Consulta inexistente" }, { status: 404 });
 

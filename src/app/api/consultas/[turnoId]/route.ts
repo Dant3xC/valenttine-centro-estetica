@@ -61,10 +61,10 @@ async function getTurnoHistoriaAndHeader(turnoId: number) {
  */
 export async function GET(
     _req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId } = await params;
         // We get header info, which implicitly validates the appointment and history.
         const { header } = await getTurnoHistoriaAndHeader(turnoId);
 
@@ -89,10 +89,10 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId } = await params;
         const { hoy, finalizar } = await req.json();
 
         if (!hoy) {

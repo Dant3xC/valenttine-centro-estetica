@@ -18,8 +18,9 @@ async function getIds(turnoId: number) {
   return { consultaId: c.id, historiaClinicaId: c.historiaClinicaId };
 }
 
-export async function GET(_: Request, { params }: { params: { turnoId: string } }) {
-  const ids = await getIds(Number(params.turnoId));
+export async function GET(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
+  const ids = await getIds(Number(turnoId));
   if (!ids) return NextResponse.json({}, { status: 404 });
 
   const ana = await prisma.anamnesis.findUnique({
@@ -42,8 +43,8 @@ export async function GET(_: Request, { params }: { params: { turnoId: string } 
   });
 }
 
-export async function POST(req: Request, { params }: { params: { turnoId: string } }) {
-  const turnoId = Number(params.turnoId);
+export async function POST(req: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
   const body = (await req.json()) as Body;
 
   const ids = await getIds(turnoId);
