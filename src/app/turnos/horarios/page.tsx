@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import esLocale from '@fullcalendar/core/locales/es'
 import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 // SSR-safe
@@ -158,43 +158,43 @@ export default function HorariosPage() {
     return set
   }, [items, OCUPA_AGENDA])
 
-  // eventos FC: ocupados + libres
-  const events = useMemo(() => {
-    const dISO = dateISO || todayYMD
-    const ev: any[] = []
-
-    for (const it of items) {
-      if (!OCUPA_AGENDA.has(it.estado)) continue
-      const c = colorFor(it.estado)
-      ev.push({
-        id: `turno-${it.id}`,
-        title: it.paciente,
-        extendedProps: { estado: it.estado },
-        start: toDate(dISO, it.time),
-        end: toDate(dISO, addMinutes(it.time, SLOT_MIN)),
-        backgroundColor: c.bg,
-        borderColor: c.border,
-        textColor: c.text,
-      })
-    }
-
-    for (const hhmm of allSlots) {
-      if (ocupado.has(hhmm)) continue
-      ev.push({
-        id: `free-${hhmm}`,
-        title: 'Libre',
-        start: toDate(dISO, hhmm),
-        end: toDate(dISO, addMinutes(hhmm, SLOT_MIN)),
-        display: 'block',
-        backgroundColor: '#e4f4ccff',
-        borderColor: '#10b981',
-        textColor: '#065f46',
-        classNames: ['free-slot'],
-      })
-    }
-
-    return ev
-  }, [items, dateISO, allSlots, ocupado, SLOT_MIN, todayYMD])
+   // eventos FC: ocupados + libres
+   const events = useMemo(() => {
+     const dISO = dateISO || todayYMD
+     const ev: any[] = []
+ 
+     for (const it of items) {
+       if (!OCUPA_AGENDA.has(it.estado)) continue
+       const c = colorFor(it.estado)
+       ev.push({
+         id: `turno-${it.id}`,
+         title: it.paciente,
+         extendedProps: { estado: it.estado },
+         start: toDate(dISO, it.time),
+         end: toDate(dISO, addMinutes(it.time, SLOT_MIN)),
+         backgroundColor: c.bg,
+         borderColor: c.border,
+         textColor: c.text,
+       })
+     }
+ 
+     for (const hhmm of allSlots) {
+       if (ocupado.has(hhmm)) continue
+       ev.push({
+         id: `free-${hhmm}`,
+         title: 'Libre',
+         start: toDate(dISO, hhmm),
+         end: toDate(dISO, addMinutes(hhmm, SLOT_MIN)),
+         display: 'block',
+         backgroundColor: '#e4f4ccff',
+         borderColor: '#10b981',
+         textColor: '#065f46',
+         classNames: ['free-slot'],
+       })
+     }
+ 
+     return ev
+   }, [items, dateISO, allSlots, ocupado, OCUPA_AGENDA, SLOT_MIN, todayYMD])
 
 
   // estilos de refuerzo (contraste + bordes)

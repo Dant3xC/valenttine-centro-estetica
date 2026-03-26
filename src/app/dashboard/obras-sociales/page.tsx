@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getObrasSociales, listProfesionalesLite, getMiRol } from '@/lib/dashboard/api';
 import type { ObrasSocialesResponse } from '@/lib/dashboard/types';
 import type { ProfesionalLite } from '@/lib/dashboard/api';
@@ -62,7 +62,7 @@ export default function PageObrasSociales() {
                                  setTo(new Date(today.getFullYear(), today.getMonth()+1, 0)); }
   }, [preset]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       setErr(null);
@@ -79,15 +79,16 @@ export default function PageObrasSociales() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [from, to, profSel, rol]);
 
-  // cargar + auto refresh
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [preset, from.getTime(), to.getTime(), profSel, rol]);
-  useEffect(() => {
-    timerRef.current = setInterval(load, 60_000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, from.getTime(), to.getTime(), profSel, rol]);
+    // cargar + auto refresh
+    const fromTime = from.getTime();
+    const toTime = to.getTime();
+    useEffect(() => { load(); }, [preset, fromTime, toTime, profSel, rol, load]);
+    useEffect(() => {
+      timerRef.current = setInterval(load, 60_000);
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [preset, fromTime, toTime, profSel, rol, load]);
 
   // datasets
   const obrasOrdenadas = useMemo(() => {

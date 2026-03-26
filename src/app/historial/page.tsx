@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth'; // <-- IMPORTADO
 import { listHistorialConsultas } from '@/lib/historial/api';
 import type { HistorialListItem } from '@/lib/historial/schema';
@@ -88,7 +88,7 @@ export default function Page() {
         return { delDia, totalHistorias: items.length }; // simple demo
     }, [items]);
     
-    const refresh = async () => {
+    const refresh = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -111,10 +111,10 @@ export default function Page() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [dni, nombre, fechaDesde, fechaHasta, verTodos]);
 
     // carga inicial
-    useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+    useEffect(() => { refresh(); }, [refresh]);
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">

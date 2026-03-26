@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 
@@ -159,7 +159,7 @@ export default function EditPacientePage() {
     const setField = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm(f => (f ? { ...f, [k]: v } : f))
 
     // ===== validaciones (basadas en el crear) =====
-    const validate = (): Record<string, string> => {
+    const validate = useCallback((): Record<string, string> => {
         const e: Record<string, string> = {}
         if (!form) return e
 
@@ -200,9 +200,9 @@ export default function EditPacientePage() {
         if (!/^\d+$/.test(form.plan)) e.plan = 'Solo dígitos'
         if (!form.estado) e.estado = 'Obligatorio'
         return e
-    }
+    }, [form]);
 
-    useEffect(() => { if (form) setErrors(validate()) }, [form])
+    useEffect(() => { if (form) setErrors(validate()) }, [form, validate])
 
     const canSubmit = form !== null && Object.keys(errors).length === 0 && !saving
 

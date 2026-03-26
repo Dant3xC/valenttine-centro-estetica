@@ -57,43 +57,49 @@ const caret = (k: 'hora' | 'paciente' | 'id' | 'estado') =>
 
             <thead className="bg-gray-50">
               <tr>
-                {/* Paciente (ordenable) */}
-                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
-                  <button
-                    type="button"
-                    onClick={() => onSort?.('paciente')}
-                    className="inline-flex items-center gap-1 group"
-                    aria-sort={
-                      sort?.key === 'paciente'
-                        ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
-                        : 'none'
-                    }
-                  >
-                    Paciente
-                    <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
-                      {sort?.key === 'paciente' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
-                    </span>
-                  </button>
-                </th>
+                 {/* Paciente (ordenable) */}
+                 <th
+                   scope="col"
+                   className="px-6 py-4 text-left text-sm font-bold text-purple-800"
+                   aria-sort={
+                     sort?.key === 'paciente'
+                       ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
+                       : 'none'
+                   }
+                 >
+                   <button
+                     type="button"
+                     onClick={() => onSort?.('paciente')}
+                     className="inline-flex items-center gap-1 group"
+                   >
+                     Paciente
+                     <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
+                       {sort?.key === 'paciente' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
+                     </span>
+                   </button>
+                 </th>
 
-                {/* Hora (ordenable) */}
-                <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">
-                  <button
-                    type="button"
-                    onClick={() => onSort?.('hora')}
-                    className="inline-flex items-center gap-1 group"
-                    aria-sort={
-                      sort?.key === 'hora'
-                        ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
-                        : 'none'
-                    }
-                  >
-                    Hora
-                    <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
-                      {sort?.key === 'hora' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
-                    </span>
-                  </button>
-                </th>
+                 {/* Hora (ordenable) */}
+                 <th
+                   scope="col"
+                   className="px-6 py-4 text-left text-sm font-bold text-purple-800"
+                   aria-sort={
+                     sort?.key === 'hora'
+                       ? (sort?.dir === 'asc' ? 'ascending' : 'descending')
+                       : 'none'
+                   }
+                 >
+                   <button
+                     type="button"
+                     onClick={() => onSort?.('hora')}
+                     className="inline-flex items-center gap-1 group"
+                   >
+                     Hora
+                     <span className="text-[11px] text-gray-400 group-hover:text-gray-600">
+                       {sort?.key === 'hora' ? (sort?.dir === 'asc' ? '▲' : '▼') : '↕'}
+                     </span>
+                   </button>
+                 </th>
 
                 {/* Estado (NO ordenable) */}
                 <th scope="col" className="px-6 py-4 text-left text-sm font-bold text-purple-800">

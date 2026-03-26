@@ -1,7 +1,7 @@
 // src/app/profesionales/[id]/editar/page.tsx
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getNuevoProfesionalInit, getLocalidades } from '@/lib/categorias/api';
 import { getProfesionalById, updateProfesional } from '@/lib/profesionales/api';
@@ -267,60 +267,57 @@ export default function EditProfesionalPage() {
     });
 
     const telPreview = useMemo(() => {
-        if (!form) return '';
-        const v = validatePhoneAR(form.celular);
-        return v.ok ? v.full : '';
-    }, [form?.celular]);
+         if (!form) return '';
+         const v = validatePhoneAR(form.celular);
+         return v.ok ? v.full : '';
+     }, [form]);
 
     // ===== Validaciones =====
-    const validateAll = (): Errors => {
+    const validateAll = useCallback((formState: FormState | null): Errors => {
         const e: Errors = {};
-        if (!form) return e;
+        if (!formState) return e;
 
         // Personales
-        if (!form.nombre.trim()) e.nombre = 'Obligatorio';
-        else if (!onlyLetters(form.nombre)) e.nombre = 'Solo letras';
-        if (!form.apellido.trim()) e.apellido = 'Obligatorio';
-        else if (!onlyLetters(form.apellido)) e.apellido = 'Solo letras';
+        if (!formState.nombre.trim()) e.nombre = 'Obligatorio';
+        else if (!onlyLetters(formState.nombre)) e.nombre = 'Solo letras';
+        if (!formState.apellido.trim()) e.apellido = 'Obligatorio';
+        else if (!onlyLetters(formState.apellido)) e.apellido = 'Solo letras';
 
-        if (!form.fechaNacimiento.trim()) e.fechaNacimiento = 'Obligatorio';
+        if (!formState.fechaNacimiento.trim()) e.fechaNacimiento = 'Obligatorio';
         else {
-            const d = toDate(form.fechaNacimiento);
+            const d = toDate(formState.fechaNacimiento);
             if (isNaN(d.getTime())) e.fechaNacimiento = 'Formato DD/MM/AAAA';
             else if (isFuture(d)) e.fechaNacimiento = 'No puede ser futura';
             else if (!atLeastOneYearOld(d)) e.fechaNacimiento = 'Edad mínima: 1 año';
         }
-        if (!form.generoId) e.generoId = 'Obligatorio';
-        if (!form.estadoCivilId) e.estadoCivilId = 'Obligatorio';
+        if (!formState.generoId) e.generoId = 'Obligatorio';
+        if (!formState.estadoCivilId) e.estadoCivilId = 'Obligatorio';
 
         // Contacto
-        if (!form.pais.trim()) e.pais = 'Obligatorio';
-        else if (!onlyLetters(form.pais)) e.pais = 'Solo letras';
-        if (!form.provinciaId) e.provinciaId = 'Obligatorio';
-        if (!form.localidadId) e.localidadId = 'Obligatorio';
-        if (form.barrio && !onlyLetters(form.barrio)) e.barrio = 'Solo letras';
-        if (!form.calle.trim()) e.calle = 'Obligatorio';
-        if (!form.numero.trim()) e.numero = 'Obligatorio';
-        else if (!/^\d+$/.test(form.numero.trim())) e.numero = 'Solo dígitos';
-        if (!form.email.trim()) e.email = 'Obligatorio';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Correo electrónico no válido';
+        if (!formState.pais.trim()) e.pais = 'Obligatorio';
+        else if (!onlyLetters(formState.pais)) e.pais = 'Solo letras';
+        if (!formState.provinciaId) e.provinciaId = 'Obligatorio';
+        if (!formState.localidadId) e.localidadId = 'Obligatorio';
+        if (formState.barrio && !onlyLetters(formState.barrio)) e.barrio = 'Solo letras';
+        if (!formState.calle.trim()) e.calle = 'Obligatorio';
+        else if (!/^\d+$/.test(formState.numero.trim())) e.numero = 'Solo dígitos';
+        if (!formState.email.trim()) e.email = 'Obligatorio';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email.trim())) e.email = 'Correo electrónico no válido';
 
-        const tel = validatePhoneAR(form.celular);
+        const tel = validatePhoneAR(formState.celular);
         if (!tel.ok) e._celular = 'Número inválido, revise el formato';
 
         // Profesionales
-        if (!form.titulo.trim()) e.titulo = 'Obligatorio';
-        else if (!onlyLetters(form.titulo)) e.titulo = 'Solo letras';
-        if (!form.matricula.trim()) e.matricula = 'Obligatorio';
-        else if (!/^\d+$/.test(form.matricula.trim())) e.matricula = 'Solo dígitos';
-        if (!form.especialidad.trim()) e.especialidad = 'Obligatorio';
-        if (!form.universidad.trim()) e.universidad = 'Obligatorio';
-        else if (!onlyLetters(form.universidad)) e.universidad = 'Solo letras';
-
-        if (!form.fechaGraduacion.trim()) e.fechaGraduacion = 'Obligatorio';
+        if (!formState.titulo.trim()) e.titulo = 'Obligatorio';
+        else if (!onlyLetters(formState.titulo)) e.titulo = 'Solo letras';
+        if (!formState.matricula.trim()) e.matricula = 'Obligatorio';
+        else if (!/^\d+$/.test(formState.matricula.trim())) e.matricula = 'Solo dígitos';
+        if (!formState.especialidad.trim()) e.especialidad = 'Obligatorio';
+        if (!formState.universidad.trim()) e.universidad = 'Solo letras';
+        if (!formState.fechaGraduacion.trim()) e.fechaGraduacion = 'Obligatorio';
         else {
-            const g = toDate(form.fechaGraduacion);
-            const n = toDate(form.fechaNacimiento);
+            const g = toDate(formState.fechaGraduacion);
+            const n = toDate(formState.fechaNacimiento);
             if (isNaN(g.getTime())) e.fechaGraduacion = 'Formato DD/MM/AAAA';
             else if (isFuture(g)) e.fechaGraduacion = 'No puede ser futura';
             else if (!isNaN(n.getTime()) && g.getTime() <= n.getTime())
@@ -328,23 +325,17 @@ export default function EditProfesionalPage() {
         }
 
         // Laborales
-        if (!form.obraSocialId) e._obra = 'Selecciona una obra social';
-        if (!form.prestacionIds.length) e._prestaciones = 'Selecciona al menos una prestación';
+        if (!formState.obraSocialId) e._obra = 'Selecciona una obra social';
+        if (!formState.prestacionIds.length) e._prestaciones = 'Selecciona al menos una prestación';
 
         // Horario
-        const enabled = form.horario.filter(h => h.enabled);
+        const enabled = formState.horario.filter(h => h.enabled);
         if (!enabled.length) e._horario = 'Selecciona al menos un día con rango horario';
         else if (enabled.some(h => !h.start || !h.end || h.start >= h.end))
             e._horario = 'Revisa los rangos (HH:mm – HH:mm)';
 
         return e;
-    };
-
-    // Validación en vivo
-    useEffect(() => {
-        if (form) setErrors(validateAll());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form]);
+    }, []);
 
     // canSubmit en base a errors
     const canSubmit = form !== null && Object.keys(errors).length === 0 && !saving;
@@ -353,7 +344,7 @@ export default function EditProfesionalPage() {
     const handleSubmit = async (ev: React.FormEvent) => {
         ev.preventDefault();
         if (!form) return;
-        const val = validateAll();
+        const val = validateAll(form);
         setErrors(val);
         if (Object.keys(val).length) return;
 
