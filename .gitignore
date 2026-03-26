@@ -45,3 +45,9 @@ src/generated/prisma/
 
 # local database
 docker-compose.override.yml
+
+# archivos sensibles y temporales
+cookies.txt
+dev.log
+tmp*.txt
+build_output.txt

@@ -50,9 +50,9 @@ export async function GET(_: Request, { params }: { params: Promise<{ turnoId: s
       motivo: consulta.motivoDerivacion ?? ""
     } : null,
     habitos: ana ? { fuma: ana.fuma, alcohol: ana.alcohol ?? "", dieta: ana.dieta ?? "", agua: ana.agua } : null,
-    antecedentes: (ana ? ana.Antecedente : []).map(a => ({
-      nombre: a.nombre, detalle: a.detalle ?? "", desde: a.desde?.toISOString().slice(0,10) ?? "", estado: a.estado ?? "", categoria: a.categoria ?? a.tipo
-    }))
+     antecedentes: (ana ? ana.Antecedente : []).map((a: any) => ({
+       nombre: a.nombre, detalle: a.detalle ?? "", desde: a.desde?.toISOString().slice(0,10) ?? "", estado: a.estado ?? "", categoria: a.categoria ?? a.tipo
+     }))
   });
 }
 

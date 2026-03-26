@@ -1,7 +1,7 @@
 // src/app/api/pacientes/busqueda/route.ts
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/generated/prisma"
 
 function parseBirthDate(input: string) {
   // admite DD/MM/YYYY o YYYY-MM-DD

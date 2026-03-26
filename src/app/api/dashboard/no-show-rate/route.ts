@@ -95,10 +95,10 @@ export async function GET(req: NextRequest) {
     });
 
     const estadoMap = new Map<string, number>();
-    estados.forEach((e) => {
-      const nombre = e.nombre.toLowerCase().trim();
-      estadoMap.set(nombre, e.id);
-    });
+     estados.forEach((e: { nombre: string; id: number }) => {
+       const nombre = e.nombre.toLowerCase().trim();
+       estadoMap.set(nombre, e.id);
+     });
 
     const ausenteId = estadoMap.get("ausente");
     if (!ausenteId) {
@@ -188,30 +188,32 @@ export async function GET(req: NextRequest) {
 
     // ===== 3) Obtener info de profesionales
     const profIds = Array.from(profesionalStats.keys());
-    const profesionales = await prisma.profesional.findMany({
-      where: { id: { in: profIds.length ? profIds : [-1] } },
-      select: { id: true, nombre: true, apellido: true },
-    });
-    const profById = new Map(profesionales.map((p) => [p.id, p]));
+     const profesionales = await prisma.profesional.findMany({
+       where: { id: { in: profIds.length ? profIds : [-1] } },
+       select: { id: true, nombre: true, apellido: true },
+     });
+     const profById = new Map<number, { id: number; nombre: string; apellido: string }>(
+       profesionales.map((p: { id: number; nombre: string; apellido: string }) => [p.id, p])
+     );
 
     // ===== Calcular % ausentismo por profesional
-    const datosProfesionales = profIds
-      .map((pid) => {
-        const stats = profesionalStats.get(pid)!;
-        const p = profById.get(pid);
-        const porcentajeAusentismo = stats.reservados > 0
-          ? +((stats.ausentes / stats.reservados) * 100).toFixed(2)
-          : 0;
+     const datosProfesionales = profIds
+       .map((pid) => {
+         const stats = profesionalStats.get(pid)!;
+         const p = profById.get(pid);
+         const porcentajeAusentismo = stats.reservados > 0
+           ? +((stats.ausentes / stats.reservados) * 100).toFixed(2)
+           : 0;
 
-        return {
-          profesionalId: pid,
-          nombre: p?.nombre ?? "N/D",
-          apellido: p?.apellido ?? "",
-          ausentes: stats.ausentes,
-          reservados: stats.reservados,
-          porcentajeAusentismo,
-        };
-      })
+         return {
+           profesionalId: pid,
+           nombre: p ? p.nombre : "N/D",
+           apellido: p ? p.apellido : "",
+           ausentes: stats.ausentes,
+           reservados: stats.reservados,
+           porcentajeAusentismo,
+         };
+       })
       .sort((a, b) => b.porcentajeAusentismo - a.porcentajeAusentismo);
 
     // ===== KPIs globales

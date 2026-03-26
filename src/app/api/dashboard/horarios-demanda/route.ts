@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
       where: { nombre: { in: estadosIncluidos, mode: "insensitive" } },
       select: { id: true },
     });
-    const estadoIds = estados.map(e => e.id);
+    const estadoIds = estados.map((e: { id: number }) => e.id);
     if (estadoIds.length === 0) {
       return NextResponse.json(
         { error: "No existen estados válidos para demanda (Registrado/En espera/En consulta/Atendido)." },

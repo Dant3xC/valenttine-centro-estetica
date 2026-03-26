@@ -1,7 +1,6 @@
 // src/app/api/pacientes/[id]/route.ts
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import type { Prisma } from "@prisma/client"
 
 // Tipos aceptados desde el front (texto)
 type GeneroTxt = "FEMENINO" | "MASCULINO" | "OTRO"

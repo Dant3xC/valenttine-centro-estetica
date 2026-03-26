@@ -131,8 +131,8 @@ export async function GET(req: NextRequest) {
     const generosDB = await prisma.genero.findMany({
       select: { id: true, nombre: true }
     });
-    // Creamos un "mapa" para buscar nombres por ID fácilmente
-    const generosMap = new Map(generosDB.map(g => [g.id, g.nombre]));
+     // Creamos un "mapa" para buscar nombres por ID fácilmente
+     const generosMap = new Map(generosDB.map((g: { id: number; nombre: string }) => [g.id, g.nombre]));
 
     // 3. Contamos cuántos pacientes hay de cada género
     const generosCountRaw = await prisma.paciente.groupBy({
@@ -143,16 +143,16 @@ export async function GET(req: NextRequest) {
       _count: { _all: true },
     });
 
-    // 4. Formateamos los datos para el gráfico de torta
-    const data_porGenero = generosCountRaw.map(g => ({
-      nombre: generosMap.get(g.generoId) ?? 'No especificado',
-      valor: g._count._all
-    }));
+     // 4. Formateamos los datos para el gráfico de torta
+     const data_porGenero = generosCountRaw.map((g: { generoId: number; _count: { _all: number } }) => ({
+       nombre: generosMap.get(g.generoId) ?? 'No especificado',
+       valor: g._count._all
+     }));
 
-    // 5. Calculamos el KPI de género predominante
-    const kpi_genero = data_porGenero.length > 0 
-      ? data_porGenero.sort((a, b) => b.valor - a.valor)[0].nombre 
-      : 'N/D';
+     // 5. Calculamos el KPI de género predominante
+     const kpi_genero = data_porGenero.length > 0 
+       ? data_porGenero.sort((a: { valor: number }, b: { valor: number }) => b.valor - a.valor)[0].nombre 
+       : 'N/D';
 
     //  --- FIN DE LA LÓGICA DE GÉNERO ---
 
@@ -183,7 +183,8 @@ export async function GET(req: NextRequest) {
 
       const band = getAgeBand(age);
       // Usamos el 'generosMap' que creamos en el paso anterior
-      const genderName = (generosMap.get(p.generoId) ?? 'Otro').toLowerCase();
+       const generoName = (generosMap.get(p.generoId) ?? 'Otro') as string;
+       const genderName = generoName.toLowerCase();
       
       const bandData = bandsMap.get(band);
       if (bandData) {
@@ -214,33 +215,33 @@ export async function GET(req: NextRequest) {
     }
 
     // ===== Profesionales involucrados
-    const profIds = atencionesGb.map(r => r.profesionalId)
-      .concat(Array.from(pacientesUnicosByProf.keys()));
-    const uniqProfIds = Array.from(new Set(profIds));
+     const profIds = atencionesGb.map((r: { profesionalId: number; _count: { _all: number } }) => r.profesionalId)
+       .concat(Array.from(pacientesUnicosByProf.keys()));
+    const uniqProfIds: number[] = Array.from(new Set(profIds));
     const profesionales = await prisma.profesional.findMany({
       where: { id: { in: uniqProfIds.length ? uniqProfIds : [-1] } },
       select: { id: true, nombre: true, apellido: true },
     });
-    const profById = new Map(profesionales.map(p => [p.id, p]));
+     const profById = new Map<number, { id: number; nombre: string; apellido: string }>(profesionales.map((p: { id: number; nombre: string; apellido: string }) => [p.id, p]));
 
     // ===== Unificar filas
-    const datosProfesionales = uniqProfIds.map((pid) => {
-      const at = atencionesGb.find(x => x.profesionalId === pid)?._count._all ?? 0;
-      const pu = pacientesUnicosByProf.get(pid) ?? 0;
-      const p = profById.get(pid);
-      return {
-        profesionalId: pid,
-        nombre: p?.nombre ?? "N/D",
-        apellido: p?.apellido ?? "",
-        pacientesUnicos: pu,
-        atenciones: at,
-      };
-    }).filter(x => x.atenciones > 0 || x.pacientesUnicos > 0)
-      .sort((a,b) => b.pacientesUnicos - a.pacientesUnicos);
+     const datosProfesionales = uniqProfIds.map((pid: number) => {
+       const at = atencionesGb.find((x: { profesionalId: number; _count: { _all: number } }) => x.profesionalId === pid)?._count._all ?? 0;
+       const pu = pacientesUnicosByProf.get(pid) ?? 0;
+       const p = profById.get(pid);
+       return {
+         profesionalId: pid,
+         nombre: p ? p.nombre : "N/D",
+         apellido: p ? p.apellido : "",
+         pacientesUnicos: pu,
+         atenciones: at,
+       };
+     }).filter((x: { atenciones: number; pacientesUnicos: number }) => x.atenciones > 0 || x.pacientesUnicos > 0)
+       .sort((a: { pacientesUnicos: number }, b: { pacientesUnicos: number }) => b.pacientesUnicos - a.pacientesUnicos);
 
     // ===== KPIs
     const pacientesAtendidos = pacientesGlobal.size;
-    const totalAtenciones = atencionesGb.reduce((acc, r) => acc + r._count._all, 0);
+    const totalAtenciones = atencionesGb.reduce((acc: number, r: { _count: { _all: number } }) => acc + r._count._all, 0);
     const nProfes = datosProfesionales.length || 1;
     const promedioPacientesProfesional = +( (pacientesAtendidos / nProfes).toFixed(2) );
 

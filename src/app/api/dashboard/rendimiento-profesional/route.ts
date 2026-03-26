@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
     });
 
     const estadoMap = new Map<string, number>();
-    estados.forEach((e) => {
+    estados.forEach((e: { id: number; nombre: string }) => {
       const nombre = e.nombre.toLowerCase();
       if (nombre === "atendido") estadoMap.set("atendido", e.id);
       else if (nombre === "cancelado") estadoMap.set("cancelado", e.id);
@@ -130,7 +130,7 @@ export async function GET(req: NextRequest) {
       where: { id: { in: profIds.length ? profIds : [-1] } },
       select: { id: true, nombre: true, apellido: true },
     });
-    const profById = new Map(profesionales.map((p) => [p.id, p]));
+    const profById = new Map<number, { id: number; nombre: string; apellido: string }>(profesionales.map((p: { id: number; nombre: string; apellido: string }) => [p.id, p]));
 
     // ===== Calcular tasa de conversión por profesional
     const datosProfesionales = profIds.map((pid) => {

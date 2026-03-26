@@ -3,8 +3,6 @@ import type { Metadata } from 'next'
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Poppins } from "next/font/google"
-import { useInactivityLogout } from '@/hooks/useInactivityLogout'
-import AppHeader from '@/components/AppHeader'
 
 const poppins = Poppins({
   subsets: ["latin"],

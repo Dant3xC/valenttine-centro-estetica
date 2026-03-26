@@ -8,13 +8,19 @@ export function Toaster() {
 
   return (
     <>
-      {toasts.map(({ id, title, description }) => (
-        <Toast 
-          key={id} 
-          title={title ?? 'Notificación'} 
-          description={description !== undefined && description !== null ? description : id} 
-        />
-      ))}
+      {toasts.map(({ id, title, description }) => {
+          const stringId = String(id);
+          const stringTitle = String(title ?? 'Notificación');
+          const stringDescription = description != null ? String(description) : stringId;
+          
+          return (
+            <Toast 
+              key={stringId} 
+              title={stringTitle} 
+              description={stringDescription} 
+            />
+          );
+        })}
     </>
   )
 }
