@@ -29,6 +29,7 @@ const eslintConfig = [
       "src/generated/**",      // Prisma generated code
       "coverage/**",           // Coverage reports
       "prisma/seed.ts",       // Seed file, not part of app
+      "src/generated/**",
     ],
   },
 ];
