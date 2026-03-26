@@ -57,10 +57,10 @@ async function getHistoriaAndHeader(turnoId: number) {
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } }
+  { params }: { params: Promise<{ turnoId: string }> }
 ) {
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId } = await params;
 
     const { historiaClinicaId, header } = await getHistoriaAndHeader(turnoId);
 
@@ -99,10 +99,10 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId } = await params;
         const { observacion, facial, corporal, capilar } = await req.json();
 
         const { historiaClinicaId } = await getHistoriaAndHeader(turnoId);

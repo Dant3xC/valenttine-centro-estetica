@@ -15,10 +15,10 @@ const ANTECEDENTE_CATEGORIES = {
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } }
+  { params }: { params: Promise<{ turnoId: string }> }
 ) {
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId } = await params;
 
     // 1. Obtener IDs del Turno
     const turno = await prisma.turno.findUnique({
@@ -114,10 +114,10 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        const { turnoId } = await params;
         const { habitos, antecedentes } = await req.json();
 
         // 1. Obtener IDs (igual que en GET)

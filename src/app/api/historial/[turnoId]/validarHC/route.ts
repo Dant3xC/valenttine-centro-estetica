@@ -8,10 +8,10 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } } 
+  { params }: { params: Promise<{ turnoId: string }> } 
 ) {
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId } = await params;
 
     if (!Number.isInteger(turnoId)) {
       return NextResponse.json({ error: "ID de Turno inválido" }, { status: 400 });
