@@ -6,7 +6,8 @@ const emptyToUndef = <T extends z.ZodTypeAny>(s: T) =>
 export const HistorialListQuerySchema = z.object({
     dni: emptyToUndef(z.string().trim().regex(/^\d{7,8}$/, 'DNI inválido')),
     nombre: emptyToUndef(z.string().trim().min(3, 'Min 3 letras').max(80)),
-    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida'),
+    fechaDesde: emptyToUndef(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')),
+    fechaHasta: emptyToUndef(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });

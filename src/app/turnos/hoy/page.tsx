@@ -165,7 +165,7 @@ interface ProfesionalData {
         setProfesionalId(currentProfesionalId) 
 
         // 2) dashboard filtrado por fecha e id profesional
-        let url = `/api/turnos/dashboard?fecha=${todayYMD}&profesionalId=${Number(profesional.id)}`
+        const url = `/api/turnos/dashboard?fecha=${todayYMD}&profesionalId=${Number(profesional.id)}`
         const res = await fetch(url)
         if (!res.ok) throw new Error('No se pudieron cargar los turnos del médico')
         const data = await res.json()

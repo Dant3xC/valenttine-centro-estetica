@@ -1,6 +1,9 @@
 // src/app/api/turnos/[id]/cancel/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 // ✅ 10–200 chars, letras, números, espacios y puntuación básica
 const MOTIVO_RE = /^[\p{L}\p{N}\p{P}\p{Zs}]{10,200}$/u;
@@ -9,6 +12,16 @@ export async function POST(
     req: Request,
     ctx: { params: Promise<{ id: string }> }
 ) {
+    const store = await cookies();
+    const token = store.get("auth_token")?.value;
+    if (!token) {
+        return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+    const payload = verifyJwt<JwtUser>(token);
+    if (!payload) {
+        return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+
     try {
         const { id } = await ctx.params;
         const turnoId = Number(id);

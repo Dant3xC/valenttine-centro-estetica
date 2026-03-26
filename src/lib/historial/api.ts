@@ -2,12 +2,13 @@
 import { HistorialListResponseSchema } from './schema';
 
 export async function listHistorialConsultas(params: {
-  dni?: string; nombre?: string; fecha: string; page?: number; pageSize?: number;
+  dni?: string; nombre?: string; fechaDesde?: string; fechaHasta?: string; page?: number; pageSize?: number;
 }) {
   const q = new URLSearchParams();
   if (params.dni) q.set('dni', params.dni);
   if (params.nombre) q.set('nombre', params.nombre);
-  q.set('fecha', params.fecha);
+  if (params.fechaDesde) q.set('fechaDesde', params.fechaDesde);
+  if (params.fechaHasta) q.set('fechaHasta', params.fechaHasta);
   if (params.page) q.set('page', String(params.page));
   if (params.pageSize) q.set('pageSize', String(params.pageSize));
 

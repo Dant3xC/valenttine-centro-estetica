@@ -46,8 +46,8 @@ type PlanDTO = {
 export const dynamic = "force-dynamic";
 
 /** ===== Helpers SSR ===== **/
-function buildAbsoluteUrl(path: string) {
-  const h = headers();
+async function buildAbsoluteUrl(path: string) {
+  const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
   const p = path.startsWith("/") ? path : `/${path}`;
@@ -58,7 +58,7 @@ async function getData(turnoId: string): Promise<PlanDTO> {
   const base =
     (process.env.NEXT_PUBLIC_BASE_URL &&
       process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")) ||
-    buildAbsoluteUrl("");
+    await buildAbsoluteUrl("");
 
   const url = `${base}/api/historial/plan/${turnoId}`;
   const cookieHeader = cookies().toString();
@@ -153,8 +153,8 @@ function ProductsTable({ title, items }: { title: string; items?: Producto[] | n
 }
 
 /** ===== Page (Server Component) ===== **/
-export default async function Page({ params }: { params: { turnoId: string } }) {
-  const { turnoId } = params;
+export default async function Page({ params }: { params: Promise<{ turnoId: string }> }) {
+  const { turnoId } = await params;
   const data = await getData(turnoId);
   const cons = data.consulta ?? {};
   const plan = data.plan ?? {};

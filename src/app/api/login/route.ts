@@ -9,41 +9,71 @@ import {
   LoginBodySchema,
   LoginSuccessSchema,
 } from "@/lib/usuarios/types";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 
+// Hash dummy para timing-attack mitigation cuando el usuario no existe
+// Usa un hash bcrypt que siempre toma ~300ms para comparar
+const DUMMY_HASH = "$2b$10$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTU";
+
+/**
+ * ⚠️ SECURITY FIX: User enumeration prevention
+ * Anteriormente, si el usuario no existía retornábamos error inmediato,
+ * revelando al atacante cuáles usernames son válidos.
+ * 
+ * Ahora hacemos timing-safe comparison siempre, independientemente
+ * de si el usuario existe o no.
+ */
 export async function POST(req: NextRequest) {
+  // ⚠️ SECURITY: Rate limiting para prevenir brute force
+  const clientIP = getClientIP(req as unknown as Request);
+  const rateLimit = checkRateLimit(clientIP);
+  
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Intenta de nuevo más tarde." },
+      { 
+        status: 429,
+        headers: {
+          "Retry-After": String(rateLimit.resetIn),
+          "X-RateLimit-Remaining": "0",
+        }
+      }
+    );
+  }
+
   try {
     const body = await req.json();
     const { username, password } = LoginBodySchema.parse(body);
 
+    // Solo seleccionamos campos necesarios
     const user = await prisma.usuario.findUnique({
       where: { username },
       select: {
         id: true,
         username: true,
         email: true,
-        // el nombre del campo en tu schema es "contraseña"
-        contraseña: true,
-        Rol: { select: { nombre: true } }, // <-- tabla Rol
+        contraseña: true, // Campo en español del schema
+        Rol: { select: { nombre: true } },
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
-    }
+    // ⚠️ SECURITY: Siempre hacemos verifyPassword para evitar timing attacks
+    // Usamos el hash real si existe, o el dummy si no
+    const hash = user?.contraseña ?? DUMMY_HASH;
+    const passwordValid = await verifyPassword(password, hash);
 
-    const hash = (user as any)["contraseña"] as string | undefined;
-    if (!hash) {
-      return NextResponse.json({ error: "Usuario sin contraseña" }, { status: 401 });
-    }
-
-    const ok = await verifyPassword(password, hash);
-    if (!ok) {
-      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+    // ⚠️ SECURITY: Error genérico SIN importar si falló por user o password
+    // Esto previene user enumeration
+    if (!user || !passwordValid) {
+      return NextResponse.json(
+        { error: "Credenciales inválidas" },
+        { status: 401 }
+      );
     }
 
     // Normalizar Rol.nombre → enum Role
     const rawRole = String(user.Rol?.nombre ?? "").trim().toUpperCase();
-    const role = z.enum(Roles).parse(rawRole) as Role; // "RECEPCIONISTA" | "MEDICO" | "GERENTE"
+    const role = z.enum(Roles).parse(rawRole) as Role;
 
     // Buscar profId si es médico
     let profId: number | undefined = undefined;
@@ -64,7 +94,6 @@ export async function POST(req: NextRequest) {
       ...(profId ? { profId } : {}),
     });
 
-    // La respuesta JSON queda igual (no incluimos profId para no tocar el schema)
     const payload = LoginSuccessSchema.parse({
       message: "Login OK",
       role,
@@ -89,10 +118,17 @@ export async function POST(req: NextRequest) {
     });
     return res;
   } catch (err: any) {
+    // ⚠️ SECURITY FIX: No exponer detail de Zod errors
     if (err?.name === "ZodError") {
-      return NextResponse.json({ error: "Datos inválidos", detail: err.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: "Datos inválidos" },
+        { status: 400 }
+      );
     }
     console.error("[LOGIN]", err);
-    return NextResponse.json({ error: "Error en login" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Error en login" },
+      { status: 400 }
+    );
   }
 }

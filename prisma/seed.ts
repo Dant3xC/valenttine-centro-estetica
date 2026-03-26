@@ -249,10 +249,10 @@ async function main() {
   console.log('Seeding HistoriaClinica...');
   await prisma.historiaClinica.createMany({
     data: [
-        { id: 16, pacienteId: 40, profesionalId: 3, fechaApertura: new Date('2025-10-08 13:07:33.265'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: true },
-        { id: 18, pacienteId: 1, profesionalId: 1, fechaApertura: new Date('2025-10-08 16:02:35.219'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: true },
-        { id: 19, pacienteId: 39, profesionalId: 1, fechaApertura: new Date('2025-10-08 17:30:07.769'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: true },
-        { id: 20, pacienteId: 34, profesionalId: 3, fechaApertura: new Date('2025-10-08 21:17:13.709'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: true },
+        { id: 16, pacienteId: 40, profesionalId: 3, fechaApertura: new Date('2025-10-08 13:07:33.265'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: 'Abierto' },
+        { id: 18, pacienteId: 1, profesionalId: 1, fechaApertura: new Date('2025-10-08 16:02:35.219'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: 'Abierto' },
+        { id: 19, pacienteId: 39, profesionalId: 1, fechaApertura: new Date('2025-10-08 17:30:07.769'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: 'Abierto' },
+        { id: 20, pacienteId: 34, profesionalId: 3, fechaApertura: new Date('2025-10-08 21:17:13.709'), motivoInicial: 'Primera Consulta - Creación automática por inicio de atención.', observaciones: null, estado: 'Abierto' },
     ],
     skipDuplicates: true,
   });
@@ -357,10 +357,10 @@ async function main() {
   console.log('Seeding PlanTratamiento...');
   await prisma.planTratamiento.createMany({
     data: [
-        { id: 5, historiaClinicaId: 16, objetivo: 'Tratamiento de piel', frecuencia: 'Sesión única', sesionesTotales: 1, indicacionesPost: 'tomar mucho liquido', resultadosEsperados: 'mejoria considerable', observaciones: null, estado: true },
-        { id: 6, historiaClinicaId: 16, objetivo: 'Ejemplo de superar', frecuencia: 'Cada 3 meses', sesionesTotales: 1, indicacionesPost: 'pruebas', resultadosEsperados: null, observaciones: null, estado: true },
-        { id: 7, historiaClinicaId: 18, objetivo: 'mejora', frecuencia: 'Una vez por semana', sesionesTotales: 1, indicacionesPost: 'tomar medicacion', resultadosEsperados: 'mejoria en 2 meses', observaciones: null, estado: true },
-        { id: 8, historiaClinicaId: 19, objetivo: 'fadgd', frecuencia: null, sesionesTotales: 1, indicacionesPost: 'kgrwgmrg', resultadosEsperados: 'kmgreg', observaciones: null, estado: true },
+        { id: 5, historiaClinicaId: 16, objetivo: 'Tratamiento de piel', frecuencia: 'Sesión única', sesionesTotales: 1, indicacionesPost: 'tomar mucho liquido', resultadosEsperados: 'mejoria considerable', observaciones: null, estado: 'Abierto' },
+        { id: 6, historiaClinicaId: 16, objetivo: 'Ejemplo de superar', frecuencia: 'Cada 3 meses', sesionesTotales: 1, indicacionesPost: 'pruebas', resultadosEsperados: null, observaciones: null, estado: 'Abierto' },
+        { id: 7, historiaClinicaId: 18, objetivo: 'mejora', frecuencia: 'Una vez por semana', sesionesTotales: 1, indicacionesPost: 'tomar medicacion', resultadosEsperados: 'mejoria en 2 meses', observaciones: null, estado: 'Abierto' },
+        { id: 8, historiaClinicaId: 19, objetivo: 'fadgd', frecuencia: null, sesionesTotales: 1, indicacionesPost: 'kgrwgmrg', resultadosEsperados: 'kmgreg', observaciones: null, estado: 'Abierto' },
     ],
     skipDuplicates: true,
   });

@@ -1,6 +1,9 @@
 // src/app/api/consultas/[turnoId]/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 const ESTADO_TURNO_FINALIZADO_ID = 4;
 
@@ -58,13 +61,27 @@ async function getTurnoHistoriaAndHeader(turnoId: number) {
 
 /**
  * GET handler to fetch consultation data for a specific appointment.
+ * RBAC: Solo MEDICO puede acceder a datos de consulta.
  */
 export async function GET(
     _req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        // Verificar autenticación y rol
+        const store = await cookies();
+        const token = store.get("auth_token")?.value;
+        if (!token) {
+            return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+        }
+        
+        const payload = verifyJwt<JwtUser>(token);
+        if (!payload || payload.role !== "MEDICO") {
+            return NextResponse.json({ error: "Acceso denegado. Solo médicos pueden ver consultas." }, { status: 403 });
+        }
+
+        const { turnoId: turnoIdStr } = await params;
+        const turnoId = Number(turnoIdStr);
         // We get header info, which implicitly validates the appointment and history.
         const { header } = await getTurnoHistoriaAndHeader(turnoId);
 
@@ -86,13 +103,27 @@ export async function GET(
 
 /**
  * POST handler to create or update a consultation for a specific appointment.
+ * RBAC: Solo MEDICO puede crear/actualizar consultas.
  */
 export async function POST(
     req: Request,
-    { params }: { params: { turnoId: string } }
+    { params }: { params: Promise<{ turnoId: string }> }
 ) {
     try {
-        const turnoId = Number(params.turnoId);
+        // Verificar autenticación y rol
+        const store = await cookies();
+        const token = store.get("auth_token")?.value;
+        if (!token) {
+            return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+        }
+        
+        const payload = verifyJwt<JwtUser>(token);
+        if (!payload || payload.role !== "MEDICO") {
+            return NextResponse.json({ error: "Acceso denegado. Solo médicos pueden guardar consultas." }, { status: 403 });
+        }
+
+        const { turnoId: turnoIdStr } = await params;
+        const turnoId = Number(turnoIdStr);
         const { hoy, finalizar } = await req.json();
 
         if (!hoy) {
@@ -124,7 +155,6 @@ export async function POST(
                     toleranciaPaciente: hoy.toleranciaPaciente,
                     observaciones: hoy.observaciones,
                     medicacionPrescrita: hoy.medicacionPrescrita,
-                    indicacionesPost: hoy.indicacionesPost,
                     derivacion: hoy.derivacion,
                     profesionalDeriva: hoy.profesionalDeriva,
                     motivoDerivacion: hoy.motivoDerivacion,
@@ -146,7 +176,6 @@ export async function POST(
                     toleranciaPaciente: hoy.toleranciaPaciente,
                     observaciones: hoy.observaciones,
                     medicacionPrescrita: hoy.medicacionPrescrita,
-                    indicacionesPost: hoy.indicacionesPost,
                     derivacion: hoy.derivacion,
                     profesionalDeriva: hoy.profesionalDeriva,
                     motivoDerivacion: hoy.motivoDerivacion,

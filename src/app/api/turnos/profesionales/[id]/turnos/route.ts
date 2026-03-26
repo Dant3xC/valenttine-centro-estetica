@@ -1,6 +1,9 @@
 // src/app/api/turnos/profesional/[id]/turnos/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -18,6 +21,16 @@ const HHMM = (h?: string | null) => {
 const YMD = (d: Date) => d.toISOString().slice(0, 10);
 
 export async function GET(req: Request, ctx: Ctx) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload) {
+    return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  }
+
   try {
     const { id } = await ctx.params; // 👈 Next 15 requiere await
     const profesionalId = Number(id);
@@ -54,7 +67,7 @@ export async function GET(req: Request, ctx: Ctx) {
         estadoId: true,
         EstadoTurno: { select: { nombre: true } },
         pacienteId: true,
-        Paciente: { select: { nombre: true, apellido: true } },
+        paciente: { select: { nombre: true, apellido: true } },
       },
       orderBy: [{ fecha: "asc" }, { hora: "asc" }],
     });
@@ -65,7 +78,7 @@ export async function GET(req: Request, ctx: Ctx) {
       fecha: YMD(new Date(t.fecha)),
       hora: HHMM(t.hora), // 👈 siempre HH:mm
       estado: t.EstadoTurno?.nombre ?? null,
-      paciente: t.Paciente ? `${t.Paciente.nombre} ${t.Paciente.apellido}` : null,
+        paciente: t.paciente ? `${t.paciente.nombre} ${t.paciente.apellido}` : null,
       pacienteId: t.pacienteId,
     }));
 

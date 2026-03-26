@@ -268,7 +268,7 @@ model HistoriaClinica {
   fechaApertura DateTime     @default(now())
   motivoInicial String?
   observaciones String?
-  estado        Boolean      @default(true)
+  estado        String?      @default("Abierto")
   Anamnesis     Anamnesis?
   Consulta      Consulta[]
   Diagnostico   Diagnostico?

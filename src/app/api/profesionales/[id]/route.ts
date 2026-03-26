@@ -13,9 +13,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
     _req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const id = Number(params.id);
+    const { id: idStr } = await params;
+    const id = Number(idStr);
     if (!Number.isFinite(id) || id < 1) {
         return NextResponse.json({ error: "id inválido" }, { status: 400 });
     }
@@ -94,9 +95,10 @@ export async function GET(
 
 export async function PUT(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const id = Number(params.id);
+    const { id: idStr } = await params;
+    const id = Number(idStr);
     if (!Number.isFinite(id) || id < 1) {
         return NextResponse.json({ error: "id inválido" }, { status: 400 });
     }

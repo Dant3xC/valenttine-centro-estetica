@@ -24,10 +24,14 @@ const token = store.get("auth_token")?.value;
     if (!token) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
     const payload = verifyJwt<JwtUser>(token);
-    if (!payload || payload.role !== "MEDICO" || !payload.profId) {
-      return NextResponse.json({ error: "Profesional no identificado" }, { status: 401 });
+    // GERENTE puede ver historial (stats), MEDICO puede ver SUS propias consultas
+    if (!payload || !["MEDICO", "GERENTE"].includes(payload.role)) {
+      return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
     }
-    const profesionalId = payload.profId;
+    
+    // Para GERENTE no requerimos profId, pueden ver todos los historiales
+    // Para MEDICO solo vemos los suyos
+    const profesionalId = payload.role === "MEDICO" ? payload.profId : undefined;
 
     const url = new URL(req.url);
     const raw = Object.fromEntries(url.searchParams.entries());
@@ -36,9 +40,10 @@ const token = store.get("auth_token")?.value;
     const page = filters.page ?? 1;
     const pageSize = filters.pageSize ?? 20;
 
-    const whereConsulta: Prisma.ConsultaWhereInput = {
+    const whereConsulta: Record<string, unknown> = {
       HistoriaClinica: {
-        profesionalId,
+        // Solo filtrar por profesionalId si es MEDICO (GERENTE ve todos)
+        ...(profesionalId ? { profesionalId } : {}),
         ...(filters.dni || filters.nombre
           ? {
               Paciente: {
@@ -55,11 +60,11 @@ const token = store.get("auth_token")?.value;
             }
           : {}),
       },
-      ...(filters.fecha
+      ...(filters.fechaDesde || filters.fechaHasta
         ? {
             fecha: {
-              gte: new Date(`${filters.fecha}T00:00:00.000Z`),
-              lte: new Date(`${filters.fecha}T23:59:59.999Z`),
+              ...(filters.fechaDesde ? { gte: new Date(`${filters.fechaDesde}T00:00:00.000Z`) } : {}),
+              ...(filters.fechaHasta ? { lte: new Date(`${filters.fechaHasta}T23:59:59.999Z`) } : {}),
             },
           }
         : {}),

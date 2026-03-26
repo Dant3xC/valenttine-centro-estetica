@@ -98,7 +98,7 @@ export async function GET(
       fecha: ymd(c.fecha),
       hora: hhmm(c.fecha),
       profesional: `${c.HistoriaClinica.Profesional.nombre} ${c.HistoriaClinica.Profesional.apellido}`,
-      tipo: normTipoFromDB(c.tipoConsulta), // saneado para el front
+      tipo: normTipoFromDB(c.tipoConsulta ?? undefined), // saneado para el front
       resumen: c.observaciones ?? undefined,
     }));
 

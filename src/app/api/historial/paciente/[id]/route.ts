@@ -13,10 +13,11 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const pacienteId = parseInt(params.id, 10);
+        const { id: idStr } = await params;
+        const pacienteId = parseInt(idStr, 10);
 
         const url = new URL(req.url);
         const profesionalUserIdStr = url.searchParams.get('profesionalUserId');

@@ -150,7 +150,7 @@ function TablaProductos({ title, items, setItems, readOnly }: { title: string; i
                 <TH>Producto</TH>
                 <TH>Dosis</TH>
                 <TH>Aplicación</TH>
-                <TH></TH>
+                <TH>{" "}</TH>
               </tr>
             </thead>
             <tbody>

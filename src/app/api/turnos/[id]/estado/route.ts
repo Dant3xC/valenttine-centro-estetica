@@ -1,8 +1,21 @@
 // src/app/api/turnos/[id]/estado/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload) {
+    return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     const turnoId = Number(id);

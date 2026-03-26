@@ -2,9 +2,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-/** Roles posibles */
-export type Role = 'RECEPCIONISTA' | 'MEDICO' | 'GERENTE'
+import type { Role } from '@/lib/usuarios/types'
+export type { Role }
 
 /** Información mínima de sesión (agregamos ID) */
 export type Session = { 

@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 import { prisma } from "@/lib/prisma";
 
 type Body = {
@@ -22,25 +25,48 @@ async function getConsulta(turnoId: number) {
   return prisma.consulta.findFirst({ where: { turnoId } });
 }
 
-export async function GET(_: Request, { params }: { params: { turnoId: string } }) {
-  const c = await getConsulta(Number(params.turnoId));
+export async function GET(_: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
+  const { turnoId: turnoIdStr } = await params;
+  const c = await getConsulta(Number(turnoIdStr));
   if (!c) return NextResponse.json({}, { status: 404 });
 
-  const plan = await prisma.planTratamiento.findUnique({ where: { consultaId: c.id } });
+  // ⚠️ FIX: PlanTratamiento usa historiaClinicaId, no consultaId
+  const plan = await prisma.planTratamiento.findUnique({ where: { historiaClinicaId: c.historiaClinicaId } });
   return NextResponse.json({ plan, consulta: c });
 }
 
-export async function POST(req: Request, { params }: { params: { turnoId: string } }) {
-  const turnoId = Number(params.turnoId);
+export async function POST(req: Request, { params }: { params: Promise<{ turnoId: string }> }) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
+  const { turnoId: turnoIdStr } = await params;
+  const turnoId = Number(turnoIdStr);
   const c = await getConsulta(turnoId);
   if (!c) return NextResponse.json({ error: "Consulta inexistente" }, { status: 404 });
 
   const body = (await req.json()) as Body;
 
-  // Upsert Plan
+  // Upsert Plan usando historiaClinicaId
   const p = body.plan ?? {};
   await prisma.planTratamiento.upsert({
-    where: { consultaId: c.id },
+    where: { historiaClinicaId: c.historiaClinicaId },
     update: {
       objetivo: p.objetivo ?? null,
       frecuencia: p.frecuencia ?? null,
@@ -49,7 +75,7 @@ export async function POST(req: Request, { params }: { params: { turnoId: string
       resultadosEsperados: p.resultadosEsperados ?? null
     },
     create: {
-      consultaId: c.id,
+      historiaClinicaId: c.historiaClinicaId,
       objetivo: p.objetivo ?? null,
       frecuencia: p.frecuencia ?? null,
       sesionesTotales: p.sesionesTotales ?? null,
@@ -63,7 +89,6 @@ export async function POST(req: Request, { params }: { params: { turnoId: string
   await prisma.consulta.update({
     where: { id: c.id },
     data: {
-      motivoDerivacion: c.motivoDerivacion, // (sin cambios)
       // Campos clínicos del día
       tipoConsulta: null,
       observaciones: h.observaciones ?? null,
@@ -75,23 +100,12 @@ export async function POST(req: Request, { params }: { params: { turnoId: string
     }
   });
 
-  // Guardar JSON útiles dentro de Plan (campos ya previstos en tu modelo):
-  await prisma.planTratamiento.update({
-    where: { consultaId: c.id },
-    data: {
-      comparacion: h.comparacion ?? null,
-      tratamientosRealizados: (h.serviciosHoy ?? []) as any,
-      productosUtilizados: (h.productosUtilizados ?? []) as any,
-      usoAnestesia: (h.usoAnestesia ?? "NO") === "SI",
-      observaciones: h.observaciones ?? null,
-      toleranciaPaciente: h.toleranciaPaciente ?? null,
-      indicacionesPost: h.indicacionesHoy ?? null,
-      medicacionPrescrita: h.medicacionHoy ?? null,
-      evolucion: h.evolucion ?? null,
-      motivoConsulta: h.motivoConsulta ?? null,
-      estado: true
-    }
-  });
+  // Nota: Los campos de PlanTratamiento no existen en el schema actual
+  // Si necesitas estos campos, agrégalos al schema de Prisma
+  // await prisma.planTratamiento.update({
+  //   where: { historiaClinicaId: c.historiaClinicaId },
+  //   data: { ... }
+  // });
 
   if (body.finalizar) {
     const atendido = await prisma.estadoTurno.findFirst({

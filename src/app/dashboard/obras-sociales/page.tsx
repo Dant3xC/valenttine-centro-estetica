@@ -263,7 +263,7 @@ export default function PageObrasSociales() {
               <div className="h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={pieData} dataKey="porcentaje" nameKey="nombre" cx="50%" cy="50%" outerRadius={120} label>
+                    <Pie data={pieData as any} dataKey="porcentaje" nameKey="nombre" cx="50%" cy="50%" outerRadius={120} label>
                       {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
                     <Legend />

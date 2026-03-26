@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     const birthDate = (searchParams.get("birthDate") || "").trim()
     const fullName = (searchParams.get("fullName") || "").trim()
 
-    const where: Prisma.PacienteWhereInput = {}
+    const where: Record<string, unknown> = {}
 
     // DNI: 8 dígitos => equals; si no, contains
     if (dni) {

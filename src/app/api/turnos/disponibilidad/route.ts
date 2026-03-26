@@ -1,6 +1,9 @@
 // src/app/api/turnos/disponibilidad/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 
 type Rango = { day: string; start: string; end: string }; // HH:mm
 const DIAS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"] as const;
@@ -28,6 +31,16 @@ const generarSlots = (start: string, end: string, step: number) => {
 };
 
 export async function GET(req: Request) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload) {
+    return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const profesionalId = Number(searchParams.get("profesionalId"));
   const fecha = searchParams.get("fecha"); // YYYY-MM-DD

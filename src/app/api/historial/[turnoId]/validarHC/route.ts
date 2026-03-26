@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJwt } from "@/lib/usuarios/auth";
+import type { JwtUser } from "@/lib/usuarios/types";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -8,10 +11,21 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { turnoId: string } } 
+  { params }: { params: Promise<{ turnoId: string }> } 
 ) {
+  const store = await cookies();
+  const token = store.get("auth_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  const payload = verifyJwt<JwtUser>(token);
+  if (!payload || payload.role !== "MEDICO") {
+    return NextResponse.json({ error: "Acceso denegado. Solo médicos." }, { status: 403 });
+  }
+
   try {
-    const turnoId = Number(params.turnoId);
+    const { turnoId: turnoIdStr } = await params;
+    const turnoId = Number(turnoIdStr);
 
     if (!Number.isInteger(turnoId)) {
       return NextResponse.json({ error: "ID de Turno inválido" }, { status: 400 });

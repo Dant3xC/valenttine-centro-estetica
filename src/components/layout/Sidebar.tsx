@@ -79,7 +79,7 @@ export function Sidebar() {
   // Ítems base (excepto /dashboard) filtrados por ACL y ordenados
   const baseItems = useMemo(() => {
     const bases = Object.keys(ACL) as Array<keyof typeof ACL>;
-    const sorted = bases.sort((a, b) => MENU_ORDER.indexOf(a) - MENU_ORDER.indexOf(b));
+    const sorted = bases.sort((a, b) => (MENU_ORDER as readonly string[]).indexOf(a) - (MENU_ORDER as readonly string[]).indexOf(b));
     return sorted
       .filter((base) => base !== '/dashboard')
       .filter((base) => (role ? ACL[base].includes(role) : false))
